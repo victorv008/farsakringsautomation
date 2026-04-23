@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+
+<html class="light" lang="sv"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Steg 1: Ålder och Belopp - Livförsäkringar.se</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/transitions.css"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        /* ── NAV LINK HOVER ANIMATIONS ── */
+        .nav-link {
+            position: relative;
+            color: #5C6B73;
+            font-size: 0.875rem;
+            font-weight: 500;
+            padding: 0.5rem 0.875rem;
+            border-radius: 0.75rem;
+            transition: color 0.25s ease, background-color 0.25s ease;
+            text-decoration: none;
+            letter-spacing: 0.02em;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%) scaleX(0);
+            width: calc(100% - 1.75rem);
+            height: 2px;
+            background: #E8A838;
+            border-radius: 2px;
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-link:hover {
+            color: #0D7377;
+            background-color: rgba(13, 115, 119, 0.05);
+        }
+        .nav-link:hover::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+        .nav-link--active {
+            color: #0D7377;
+            font-weight: 700;
+            background-color: rgba(13, 115, 119, 0.06);
+        }
+        .nav-link--active::after {
+            transform: translateX(-50%) scaleX(1);
+        }
+
+        /* ── NAV CTA BUTTON ── */
+        .nav-cta {
+            background: #0D7377;
+            color: #fff;
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.875rem;
+            font-size: 0.875rem;
+            text-decoration: none;
+            transition: background 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+            box-shadow: 0 4px 14px rgba(13, 115, 119, 0.3);
+        }
+        .nav-cta:hover {
+            background: #14a0a5;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(13, 115, 119, 0.4);
+        }
+        .nav-cta:active {
+            transform: translateY(0);
+        }
+
+        
+        /* Custom Background Blobs */
+        .blob-bg {
+            background-color: #f7fbfb;
+            background-image: radial-gradient(at bottom right, #ffffff, #eaf6f6);
+        }
+        .blob-teal {
+            background: linear-gradient(135deg, #6ec6c0 0%, #8bd4ce 100%);
+            border-radius: 40% 70% 60% 40% / 50% 40% 60% 50%;
+        }
+        .blob-amber {
+            background: linear-gradient(135deg, #fac973 0%, #ffe3ad 100%);
+            border-radius: 50% 60% 40% 60% / 40% 50% 60% 40%;
+        }
+
+        /* Custom Slider Styling */
+        input[type=range]::-webkit-slider-thumb {
+            appearance: none;
+            width: 32px;
+            height: 32px;
+            background: #E8A838;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 4px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(232, 168, 56, 0.4);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-top: -12px;
+        }
+        
+        input[type=range]::-webkit-slider-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: rgba(13, 115, 119, 0.1);
+            border-radius: 9999px;
+            border: none;
+        }
+
+        input[type=range]::-moz-range-thumb {
+            width: 32px;
+            height: 32px;
+            background: #E8A838;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 4px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(232, 168, 56, 0.4);
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        input[type=range]::-moz-range-thumb:hover {
+            transform: scale(1.15);
+        }
+
+        input[type=range]::-moz-range-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: rgba(13, 115, 119, 0.1);
+            border-radius: 9999px;
+            border: none;
+        }
+    </style>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                "brand-teal": "#0D7377",
+                "brand-teal-light": "#14a0a5",
+                "brand-amber": "#E8A838",
+                "brand-amber-light": "#f0c273",
+                "surface": "#FAFCFC",
+                "surface-elevated": "#FFFFFF",
+                "text-main": "#1A2024",
+                "text-muted": "#5C6B73",
+              },
+              "fontFamily": {
+                      "headline": [
+                              "Plus Jakarta Sans", "sans-serif"
+                      ],
+                      "body": [
+                              "Inter", "sans-serif"
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="blob-bg text-text-main font-body min-h-screen flex flex-col selection:bg-brand-teal selection:text-white relative overflow-x-hidden">
+<!-- BACKGROUND SHAPES EXACTLY LIKE THE PICTURE -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-[-10]">
+    <!-- Huge left teal blob -->
+    <div class="absolute top-[-25%] left-[-20%] w-[90vw] h-[120vh] blob-teal opacity-90 rotate-[-15deg]"></div>
+    
+    <!-- Amber blob peeking behind the form -->
+    <div class="absolute bottom-[2%] right-[12%] w-[45vw] h-[45vw] md:w-[35vw] md:h-[35vw] blob-amber opacity-90 rotate-[10deg]"></div>
+    
+    <!-- Ring top mid (overlapping the teal blob edge) -->
+    <div class="absolute top-[8%] left-[48%] w-[12vw] h-[12vw] rounded-full border-[2vw] border-white/40 backdrop-blur-sm shadow-sm"></div>
+    <div class="absolute top-[20%] left-[58%] w-[8vw] h-[8vw] rounded-full border-[1.2vw] border-white/30 backdrop-blur-sm"></div>
+    
+    <!-- Ring bottom left (in the teal area) -->
+    <div class="absolute bottom-[10%] left-[10%] w-[10vw] h-[10vw] rounded-full border-[1.5vw] border-white/30 shadow-sm"></div>
+    
+    <!-- Ring bottom right (in the white area) -->
+    <div class="absolute bottom-[5%] right-[5%] w-[12vw] h-[12vw] rounded-full border-[1.5vw] border-[#8bd4ce]/40 shadow-sm"></div>
+</div>
+<!-- TopNavBar -->
+<header class="w-full z-50 bg-transparent font-headline">
+<div class="flex justify-between items-center max-w-7xl mx-auto px-6 sm:px-8 py-5 relative">
+<!-- Brand Logo -->
+<a class="text-2xl font-bold tracking-tight text-brand-teal flex items-center gap-2" href="index.html">
+<span class="material-symbols-outlined text-[28px] text-brand-amber">shield_with_heart</span>
+                Livförsäkringar.se
+            </a>
+<!-- Navigation Links -->
+<nav class="hidden lg:flex gap-1 items-center">
+<a class="nav-link nav-link--active" href="index.html">Jämför</a>
+<a class="nav-link" href="sa-fungerar-det.html">Så fungerar det</a>
+<a class="nav-link" href="faq.html">Vanliga frågor</a>
+<a class="nav-link" href="om-oss.html">Om oss</a>
+</nav>
+<!-- Trailing Action -->
+<div class="flex items-center gap-4">
+<a class="nav-cta hidden lg:inline-flex items-center gap-2 font-headline font-bold text-sm" href="index.html">
+<span class="material-symbols-outlined text-[18px]">search</span>
+    Jämför nu
+</a>
+<button class="lg:hidden text-brand-teal">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow flex flex-col lg:flex-row items-center justify-center max-w-7xl mx-auto w-full py-12 lg:py-24 px-4 sm:px-6 lg:px-8 gap-12 lg:gap-24 relative z-10">
+<!-- Left Column: Typography & Context -->
+<div class="w-full lg:w-1/2 flex flex-col justify-center text-center lg:text-left z-20">
+<div class="inline-flex items-center gap-3 mb-8 mx-auto lg:mx-0 px-4 py-2 bg-brand-teal/5 rounded-full border border-brand-teal/10 w-max">
+<span class="flex h-2 w-2 rounded-full bg-brand-teal"></span>
+<span class="text-xs font-semibold text-brand-teal uppercase tracking-widest font-headline">Steg 1 av 2</span>
+</div>
+<h1 class="font-headline text-5xl lg:text-6xl xl:text-7xl font-extrabold text-brand-teal tracking-tight mb-6 leading-[1.1]">
+        Börja här för ditt <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal to-brand-amber">prisförslag</span>
+</h1>
+<p class="font-body text-text-muted text-xl lg:text-2xl leading-relaxed max-w-xl mx-auto lg:mx-0 font-light">
+        Fyll i din ålder och önskat belopp så anpassar vi jämförelsen för dig. Det tar bara någon minut.
+    </p>
+<!-- Illustrative trust elements -->
+<div class="mt-12 flex flex-wrap items-center justify-center lg:justify-start gap-8 opacity-70">
+<div class="flex items-center gap-2 text-text-muted font-medium text-sm">
+<span class="material-symbols-outlined text-brand-teal">verified</span>
+            Säker hantering
+        </div>
+<div class="flex items-center gap-2 text-text-muted font-medium text-sm">
+<span class="material-symbols-outlined text-brand-teal">bolt</span>
+            Snabb jämförelse
+        </div>
+<div class="flex items-center gap-2 text-text-muted font-medium text-sm">
+<span class="material-symbols-outlined text-brand-teal">thumb_up</span>
+            Oberoende aktör
+        </div>
+</div>
+</div>
+<!-- Right Column: Interactive Form -->
+<div class="w-full lg:w-1/2 max-w-lg z-20 relative">
+<!-- Decorative abstract element behind form -->
+<div class="absolute -inset-4 bg-gradient-to-br from-brand-teal/5 to-brand-amber/5 rounded-[2.5rem] transform -rotate-2 -z-10 blur-sm"></div>
+<div class="bg-surface-elevated rounded-[2rem] shadow-[0_20px_40px_-15px_rgba(13,115,119,0.1)] border border-brand-teal/5 p-8 sm:p-12 relative overflow-hidden">
+<!-- Progress Bar Top -->
+<div class="absolute top-0 left-0 w-full h-1.5 bg-brand-teal/10">
+<div class="h-full bg-gradient-to-r from-brand-teal to-brand-teal-light w-1/2 rounded-r-full"></div>
+</div>
+<!-- Form Area -->
+<form id="step1-form" class="space-y-10 mt-4">
+<!-- Input Field: Age -->
+<div class="space-y-4 group">
+<label class="flex items-center gap-2 font-headline text-sm font-bold text-text-main tracking-wide uppercase" for="age">
+<span class="material-symbols-outlined text-brand-amber text-[20px]">cake</span>
+                        Din ålder
+                    </label>
+<div class="relative flex items-center">
+<input class="block w-full px-6 py-5 bg-surface rounded-2xl border border-brand-teal/10 text-text-main font-headline text-2xl font-semibold shadow-inner focus:ring-2 focus:ring-inset focus:ring-brand-teal focus:border-transparent transition-all duration-300 placeholder:text-text-muted/40 placeholder:font-normal" id="age" max="85" min="18" name="age" placeholder="t.ex. 35" type="number"/>
+<span class="absolute right-6 text-text-muted font-medium text-lg">år</span>
+</div>
+</div>
+<!-- Custom Comparison Slider: Insurance Amount -->
+<div class="space-y-6 pt-6 border-t border-brand-teal/5">
+<div class="flex flex-col gap-2">
+<label class="flex items-center gap-2 font-headline text-sm font-bold text-text-main tracking-wide uppercase" for="amount">
+<span class="material-symbols-outlined text-brand-amber text-[20px]">account_balance_wallet</span>
+                            Önskat försäkringsbelopp
+                        </label>
+<div class="flex items-baseline gap-2 mt-2">
+<span id="amount-display" class="font-headline text-4xl sm:text-5xl font-extrabold text-brand-teal tracking-tight">
+                                2 500 000
+                            </span>
+<span class="text-xl font-medium text-text-muted">kr</span>
+</div>
+</div>
+<div class="relative w-full h-12 flex items-center mt-4">
+<input class="w-full appearance-none bg-transparent relative z-10" id="amount" max="5000000" min="500000" name="amount" step="100000" type="range" value="2500000"/>
+<!-- Custom styled "fill" track behind the thumb -->
+<div id="amount-track" class="absolute left-0 top-1/2 -translate-y-1/2 h-2 bg-brand-teal rounded-full pointer-events-none w-[44%]"></div>
+</div>
+<div class="flex justify-between text-sm font-headline text-text-muted font-medium">
+<span>500 000 kr</span>
+<span>5 000 000 kr</span>
+</div>
+</div>
+<!-- Primary CTA Button -->
+<div class="pt-8">
+<button type="submit" class="w-full group inline-flex justify-center items-center gap-3 rounded-2xl bg-brand-teal px-8 py-5 text-lg font-bold text-white shadow-[0_10px_25px_-5px_rgba(13,115,119,0.4)] hover:bg-brand-teal-light hover:shadow-[0_15px_35px_-5px_rgba(13,115,119,0.5)] hover:-translate-y-1 transition-all duration-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-teal">
+                        Fortsätt
+                        <span aria-hidden="true" class="material-symbols-outlined text-[24px] group-hover:translate-x-1 transition-transform duration-300" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-12 px-6 sm:px-8 mt-auto z-20 relative">
+<div class="border-t border-brand-teal/10 pt-10">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto items-center">
+<!-- Brand & Copyright -->
+<div class="flex flex-col gap-2 text-center md:text-left">
+<span class="text-lg font-bold text-brand-teal font-headline flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-[20px] text-brand-amber">shield_with_heart</span>
+                    Livförsäkringar.se
+                </span>
+<p class="text-text-muted text-sm font-medium">
+                    © 2026 Livförsäkringar.se. Alla rättigheter förbehållna.
+                </p>
+</div>
+<!-- Links -->
+<div class="flex flex-wrap gap-6 justify-center md:justify-end items-center">
+<a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">
+                    Integritetspolicy
+                </a>
+<a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">
+                    Användarvillkor
+                </a>
+<a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">
+                    Kontakt
+                </a>
+</div>
+</div>
+</div>
+</footer>
+
+<script>
+    const amountSlider = document.getElementById('amount');
+    const amountDisplay = document.getElementById('amount-display');
+    const amountTrack = document.getElementById('amount-track');
+    
+    // Sliders dynamik
+    amountSlider.addEventListener('input', function() {
+        const val = this.value;
+        amountDisplay.textContent = new Intl.NumberFormat('sv-SE').format(val);
+        // Calculate percentage for filled track width
+        const min = this.min ? this.min : 500000;
+        const max = this.max ? this.max : 5000000;
+        const percent = ((val - min) / (max - min)) * 100;
+        amountTrack.style.width = `calc(${percent}% + (${8 - percent * 0.15}px))`;
+    });
+
+    document.getElementById('step1-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const age = document.getElementById('age').value;
+        const amount = document.getElementById('amount').value;
+        
+        // Sätt default job (Stitch-designen Steg 1 har inte job)
+        sessionStorage.setItem('ins_job', 'anstalld');
+        
+        if(age) sessionStorage.setItem('ins_age', age);
+        sessionStorage.setItem('ins_amount', amount);
+        
+        transitionTo('livssituation.html');
+    });
+</script>
+<script src="js/transitions.js"></script>
+</body></html>

@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="light" lang="sv">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Steg 2: Livssituation - Livförsäkringar.se</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/transitions.css"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "brand-teal": "#0D7377",
+                "brand-teal-light": "#14a0a5",
+                "brand-amber": "#E8A838",
+                "brand-amber-light": "#f0c273",
+                "surface": "#FAFCFC",
+                "surface-elevated": "#FFFFFF",
+                "text-main": "#1A2024",
+                "text-muted": "#5C6B73",
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans", "sans-serif"],
+                "body": ["Inter", "sans-serif"]
+              }
+            },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+
+        /* Blob background */
+        .blob-bg { background-color: #f7fbfb; background-image: radial-gradient(at bottom right, #ffffff, #eaf6f6); }
+        .blob-teal { background: linear-gradient(135deg, #6ec6c0 0%, #8bd4ce 100%); border-radius: 40% 70% 60% 40% / 50% 40% 60% 50%; }
+        .blob-amber { background: linear-gradient(135deg, #fac973 0%, #ffe3ad 100%); border-radius: 50% 60% 40% 60% / 40% 50% 60% 40%; }
+
+        /* ── SCENARIO CARD ── */
+        .scenario-card {
+            position: relative;
+            background: rgba(255,255,255,0.85);
+            border-radius: 1.5rem;
+            border: 2px solid rgba(13,115,119,0.08);
+            padding: 2rem;
+            text-align: left;
+            cursor: pointer;
+            transition:
+                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.25s ease,
+                background 0.25s ease;
+            box-shadow: 0 4px 20px rgba(13,115,119,0.07);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            user-select: none;
+        }
+        .scenario-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 16px 40px rgba(13,115,119,0.14);
+        }
+
+        /* Selected state */
+        .scenario-card.selected {
+            border-color: #0D7377;
+            background: rgba(13,115,119,0.05);
+            box-shadow: 0 0 0 4px rgba(13,115,119,0.12), 0 16px 40px rgba(13,115,119,0.14);
+        }
+
+        /* Checkmark badge — hidden by default, shown when selected */
+        .scenario-card .check-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 1.75rem;
+            height: 1.75rem;
+            border-radius: 50%;
+            background: #0D7377;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.25s ease, transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .scenario-card.selected .check-badge {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* "Jämför alla" special card */
+        .scenario-card.card-all {
+            background: rgba(255,255,255,0.5);
+            border-color: rgba(13,115,119,0.1);
+        }
+        .scenario-card.card-all:hover {
+            background: rgba(255,255,255,0.85);
+        }
+        .scenario-card.card-all.selected {
+            border-color: #E8A838;
+            background: rgba(232,168,56,0.06);
+            box-shadow: 0 0 0 4px rgba(232,168,56,0.15), 0 16px 40px rgba(232,168,56,0.14);
+        }
+
+        /* CTA button — starts locked/grey, unlocks when selection made */
+        .cta-btn {
+            background: #0D7377;
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            padding: 1.1rem 3.5rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+            font-size: 1.1rem;
+            letter-spacing: 0.01em;
+            cursor: pointer;
+            transition:
+                background 0.25s ease,
+                transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s ease,
+                opacity 0.3s ease;
+            box-shadow: 0 8px 24px rgba(13,115,119,0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .cta-btn:disabled {
+            background: #b0c4c5;
+            box-shadow: none;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .cta-btn:not(:disabled):hover {
+            background: #14a0a5;
+            transform: translateY(-2px);
+            box-shadow: 0 14px 32px rgba(13,115,119,0.4);
+        }
+        .cta-btn:not(:disabled):active {
+            transform: translateY(0);
+        }
+
+        /* Counter pill */
+        .selection-counter {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 1.5rem;
+            height: 1.5rem;
+            padding: 0 0.4rem;
+            background: rgba(255,255,255,0.3);
+            border-radius: 9999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.16,1,0.3,1);
+        }
+        .selection-counter.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body class="blob-bg text-text-main font-body min-h-screen flex flex-col selection:bg-brand-teal selection:text-white relative overflow-x-hidden">
+
+<!-- Background shapes -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-[-10]">
+    <div class="absolute top-[-25%] left-[-20%] w-[90vw] h-[120vh] blob-teal opacity-90 rotate-[-15deg]"></div>
+    <div class="absolute bottom-[2%] right-[12%] w-[45vw] h-[45vw] md:w-[35vw] md:h-[35vw] blob-amber opacity-90 rotate-[10deg]"></div>
+    <div class="absolute top-[8%] left-[48%] w-[12vw] h-[12vw] rounded-full border-[2vw] border-white/40 backdrop-blur-sm shadow-sm"></div>
+    <div class="absolute top-[20%] left-[58%] w-[8vw] h-[8vw] rounded-full border-[1.2vw] border-white/30 backdrop-blur-sm"></div>
+    <div class="absolute bottom-[10%] left-[10%] w-[10vw] h-[10vw] rounded-full border-[1.5vw] border-white/30 shadow-sm"></div>
+    <div class="absolute bottom-[5%] right-[5%] w-[12vw] h-[12vw] rounded-full border-[1.5vw] border-[#8bd4ce]/40 shadow-sm"></div>
+</div>
+
+<!-- TopNavBar -->
+<header class="w-full z-50 bg-transparent font-headline">
+    <div class="flex justify-between items-center max-w-7xl mx-auto px-6 sm:px-8 py-5 relative">
+        <a class="text-2xl font-bold tracking-tight text-brand-teal flex items-center gap-2" href="index.html">
+            <span class="material-symbols-outlined text-[28px] text-brand-amber">shield_with_heart</span>
+            Livförsäkringar.se
+        </a>
+        <nav class="hidden lg:flex gap-1 items-center">
+            <a class="nav-link nav-link--active" href="index.html">Jämför</a>
+            <a class="nav-link" href="sa-fungerar-det.html">Så fungerar det</a>
+            <a class="nav-link" href="faq.html">Vanliga frågor</a>
+            <a class="nav-link" href="om-oss.html">Om oss</a>
+        </nav>
+        <a href="index.html" class="nav-cta hidden lg:inline-flex items-center gap-2 font-headline font-bold text-sm">
+            <span class="material-symbols-outlined text-[18px]">search</span>
+            Jämför nu
+        </a>
+        <button class="lg:hidden text-brand-teal"><span class="material-symbols-outlined">menu</span></button>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-grow flex flex-col items-center max-w-7xl mx-auto w-full py-12 lg:py-20 px-4 sm:px-6 relative z-10">
+
+    <!-- Step badge -->
+    <div class="inline-flex items-center gap-3 mb-8 px-4 py-2 bg-white/50 rounded-full border border-brand-teal/10">
+        <span class="flex h-2 w-2 rounded-full bg-brand-amber"></span>
+        <span class="text-xs font-semibold text-brand-teal uppercase tracking-widest font-headline">Steg 2 av 2</span>
+    </div>
+
+    <h1 class="font-headline text-4xl lg:text-5xl font-extrabold text-brand-teal tracking-tight mb-4 text-center">
+        Välj din <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal to-brand-amber">livssituation</span>
+    </h1>
+    <p class="font-body text-text-muted text-lg leading-relaxed max-w-xl text-center mb-4 font-light">
+        Du kan välja flera alternativ. Vi filtrerar fram försäkringar som passar just din profil.
+    </p>
+
+    <!-- 8 scenario cards — 4-column grid matching the Stitch screenshot -->
+    <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-6xl mb-12">
+
+        <!-- 1. Gift/Sambo -->
+        <button class="scenario-card" data-scenario="gift_sambo" onclick="toggleCard(this)">
+            <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
+            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+                <span class="material-symbols-outlined text-brand-teal text-[28px]">favorite</span>
+            </div>
+            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Gift/Sambo</h3>
+            <p class="text-text-muted text-sm font-light leading-relaxed">Skydda din partner om det oförutsedda inträffar. Säkerställ att de kan bo kvar.</p>
+        </button>
+
+        <!-- 2. Barn -->
+        <button class="scenario-card" data-scenario="barn" onclick="toggleCard(this)">
+            <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
+            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+                <span class="material-symbols-outlined text-brand-teal text-[28px]">child_care</span>
+            </div>
+            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Barn</h3>
+            <p class="text-text-muted text-sm font-light leading-relaxed">Trygga dina barns framtid oavsett vad som händer dig. Ett skyddsnät för de minsta.</p>
+        </button>
+
+        <!-- 3. Bostadsägare -->
+        <button class="scenario-card" data-scenario="bostadskop" onclick="toggleCard(this)">
+            <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
+            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+                <span class="material-symbols-outlined text-brand-teal text-[28px]">home</span>
+            </div>
+            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bostadsägare</h3>
+            <p class="text-text-muted text-sm font-light leading-relaxed">Täck bolån och fasta kostnader så din familj slipper ekonomisk stress.</p>
+        </button>
+
+        <!-- 4. Elitsport -->
+        <button class="scenario-card" data-scenario="elitsport" onclick="toggleCard(this)">
+            <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
+            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+                <span class="material-symbols-outlined text-brand-teal text-[28px]">sprint</span>
+            </div>
+            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Elitsport</h3>
+            <p class="text-text-muted text-sm font-light leading-relaxed">Specialanpassat skydd för dig som lever ett aktivt liv med högre risker.</p>
+        </button>
+
+        <!-- 5. Examen -->
+        <button class="scenario-card" data-scenario="examen" onclick="toggleCard(this)">
+            <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
+            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+                <span class="material-symbols-outlined text-brand-teal text-[28px]">school</span>
+            </div>
+            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Examen</h3>
+            <p class="text-text-muted text-sm font-light leading-relaxed">Nyss tagit examen? Börja bygga din ekonomiska trygghet tidigt med lägre premier.</p>
+        </button>
+
+        <!-- 6. Företagare -->
+        <button class="scenario-card" data-scenario="foretagare" onclick="toggleCard(this)">
+            <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
+            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+                <span class="material-symbols-outlined text-brand-teal text-[28px]">business_center</span>
+            </div>
+            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Företagare</h3>
+            <p class="text-text-muted text-sm font-light leading-relaxed">Skydda ditt livsverk och säkra inkomsten för både dig och dina anställda.</p>
+        </button>
+
+        <!-- 7. Flyttat till landet -->
+        <button class="scenario-card" data-scenario="utlands" onclick="toggleCard(this)">
+            <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
+            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+                <span class="material-symbols-outlined text-brand-teal text-[28px]">flight_takeoff</span>
+            </div>
+            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Flyttat till landet</h3>
+            <p class="text-text-muted text-sm font-light leading-relaxed">Ofta längre till hjälp. Ett skydd som anpassas för livet utanför stadsskärmen.</p>
+        </button>
+
+        <!-- 8. Jämför alla — special card -->
+        <button class="scenario-card card-all" data-scenario="standard" onclick="toggleCard(this)">
+            <span class="check-badge" style="background: #E8A838;"><span class="material-symbols-outlined text-[16px]">check</span></span>
+            <div class="w-12 h-12 bg-brand-amber/10 rounded-2xl flex items-center justify-center mb-5">
+                <span class="material-symbols-outlined text-brand-amber text-[28px]">dashboard</span>
+            </div>
+            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Jämför alla</h3>
+            <p class="text-text-muted text-sm font-light leading-relaxed">Se alla alternativ sida vid sida utan förfiltrering.</p>
+        </button>
+
+    </div>
+
+    <!-- Sticky CTA bar -->
+    <div class="flex flex-col items-center gap-3">
+        <button id="cta-btn" class="cta-btn" disabled onclick="goToResults()">
+            Visa resultat
+            <span id="cta-counter" class="selection-counter"></span>
+            <span class="material-symbols-outlined text-[22px]">arrow_forward</span>
+        </button>
+        <p id="cta-hint" class="text-text-muted text-sm font-light transition-opacity duration-300">
+            Välj minst ett alternativ för att fortsätta
+        </p>
+    </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="w-full py-12 px-6 sm:px-8 mt-auto z-20 relative">
+    <div class="border-t border-brand-teal/10 pt-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto items-center">
+            <div class="flex flex-col gap-2 text-center md:text-left">
+                <span class="text-lg font-bold text-brand-teal font-headline flex items-center justify-center md:justify-start gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-brand-amber">shield_with_heart</span>
+                    Livförsäkringar.se
+                </span>
+                <p class="text-text-muted text-sm font-medium">© 2026 Livförsäkringar.se. Alla rättigheter förbehållna.</p>
+            </div>
+            <div class="flex flex-wrap gap-6 justify-center md:justify-end items-center">
+                <a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">Integritetspolicy</a>
+                <a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">Användarvillkor</a>
+                <a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">Kontakt</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // ── Multi-select logic ──
+    const selected = new Set();
+
+    function toggleCard(card) {
+        const scenario = card.dataset.scenario;
+
+        if (selected.has(scenario)) {
+            selected.delete(scenario);
+            card.classList.remove('selected');
+        } else {
+            selected.add(scenario);
+            card.classList.add('selected');
+        }
+
+        updateCTA();
+    }
+
+    function updateCTA() {
+        const btn = document.getElementById('cta-btn');
+        const counter = document.getElementById('cta-counter');
+        const hint = document.getElementById('cta-hint');
+        const count = selected.size;
+
+        if (count > 0) {
+            btn.disabled = false;
+            counter.textContent = count;
+            counter.classList.add('visible');
+            hint.style.opacity = '0';
+        } else {
+            btn.disabled = true;
+            counter.classList.remove('visible');
+            hint.style.opacity = '1';
+        }
+    }
+
+    function goToResults() {
+        // Store all selected scenarios as a comma-separated string
+        sessionStorage.setItem('ins_scenarios', Array.from(selected).join(','));
+        // Also keep the first one as primary 'ins_scenario' for backwards compatibility
+        sessionStorage.setItem('ins_scenario', Array.from(selected)[0] || 'standard');
+        transitionTo('resultat.html');
+    }
+</script>
+<script src="js/transitions.js"></script>
+</body>
+</html>

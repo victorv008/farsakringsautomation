@@ -1,0 +1,145 @@
+/**
+ * VIEW TRANSITIONS API — ANIMATION DEFINITIONS + SHARED NAV STYLES
+ * ──────────────────────────────────────────────────────────────────
+ */
+
+/* ══════════════════════════════════════════════════════
+   BLOB CURRENT ANIMATIONS
+   Each shape drifts left at its own pace, with gentle
+   vertical undulation — like floating in a slow stream.
+   ══════════════════════════════════════════════════════ */
+
+/* Main teal blob — large, slow, sweeping */
+@keyframes blob-drift-main {
+    0%   { transform: translateX(0)      translateY(0)    rotate(-15deg) scale(1); }
+    20%  { transform: translateX(-3vw)   translateY(-2vh) rotate(-13deg) scale(1.015); }
+    45%  { transform: translateX(-7vw)   translateY(1.5vh) rotate(-15deg) scale(0.99); }
+    70%  { transform: translateX(-4vw)   translateY(3vh)  rotate(-17deg) scale(1.01); }
+    100% { transform: translateX(0)      translateY(0)    rotate(-15deg) scale(1); }
+}
+
+/* Amber blob — different rhythm, slightly faster */
+@keyframes blob-drift-amber {
+    0%   { transform: translateX(0)     translateY(0)    rotate(10deg) scale(1); }
+    30%  { transform: translateX(-5vw)  translateY(-3vh) rotate(8deg)  scale(1.025); }
+    55%  { transform: translateX(-9vw)  translateY(1vh)  rotate(12deg) scale(0.975); }
+    80%  { transform: translateX(-3vw)  translateY(2.5vh) rotate(10deg) scale(1.01); }
+    100% { transform: translateX(0)     translateY(0)    rotate(10deg) scale(1); }
+}
+
+/* Ring bubbles — light, smaller movement, each at its own speed */
+@keyframes blob-drift-ring-a {
+    0%, 100% { transform: translateX(0)    translateY(0); }
+    40%      { transform: translateX(-4vw) translateY(-2.5vh); }
+    70%      { transform: translateX(-2vw) translateY(1.5vh); }
+}
+@keyframes blob-drift-ring-b {
+    0%, 100% { transform: translateX(0)    translateY(0); }
+    35%      { transform: translateX(-6vw) translateY(2vh); }
+    65%      { transform: translateX(-3vw) translateY(-1vh); }
+}
+@keyframes blob-drift-ring-c {
+    0%, 100% { transform: translateX(0)    translateY(0); }
+    50%      { transform: translateX(-3vw) translateY(-3vh); }
+}
+@keyframes blob-drift-ring-d {
+    0%, 100% { transform: translateX(0)    translateY(0); }
+    45%      { transform: translateX(-5vw) translateY(1.5vh); }
+    75%      { transform: translateX(-2vw) translateY(-2vh); }
+}
+
+/* Animation utility classes — applied by transitions.js */
+.blob-anim-main    { animation: blob-drift-main   22s ease-in-out infinite; will-change: transform; }
+.blob-anim-amber   { animation: blob-drift-amber  28s -4s ease-in-out infinite; will-change: transform; }
+.blob-anim-ring-a  { animation: blob-drift-ring-a 15s -2s ease-in-out infinite; will-change: transform; }
+.blob-anim-ring-b  { animation: blob-drift-ring-b 19s -7s ease-in-out infinite; will-change: transform; }
+.blob-anim-ring-c  { animation: blob-drift-ring-c 12s -1s ease-in-out infinite; will-change: transform; }
+.blob-anim-ring-d  { animation: blob-drift-ring-d 17s -9s ease-in-out infinite; will-change: transform; }
+
+/* ── SHARED NAV LINK HOVER ANIMATIONS ── */
+.nav-link {
+    position: relative;
+    color: #5C6B73;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.5rem 0.875rem;
+    border-radius: 0.75rem;
+    transition: color 0.25s ease, background-color 0.25s ease;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+}
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%) scaleX(0);
+    width: calc(100% - 1.75rem);
+    height: 2px;
+    background: #E8A838;
+    border-radius: 2px;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.nav-link:hover { color: #0D7377; background-color: rgba(13, 115, 119, 0.05); }
+.nav-link:hover::after { transform: translateX(-50%) scaleX(1); }
+.nav-link--active { color: #0D7377; font-weight: 700; background-color: rgba(13, 115, 119, 0.06); }
+.nav-link--active::after { transform: translateX(-50%) scaleX(1); }
+
+/* ── NAV CTA BUTTON ── */
+.nav-cta {
+    background: #0D7377;
+    color: #fff;
+    padding: 0.6rem 1.25rem;
+    border-radius: 0.875rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: background 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease;
+    box-shadow: 0 4px 14px rgba(13, 115, 119, 0.3);
+}
+.nav-cta:hover { background: #14a0a5; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13, 115, 119, 0.4); }
+.nav-cta:active { transform: translateY(0); }
+
+/**
+ * These @keyframes hook into the browser's native ::view-transition-* 
+ * pseudo-elements, giving us cinematic GPU-accelerated page transitions.
+ *
+ * The technique: A circular clip-path EXPLODES outward from the exact pixel
+ * the user clicked on, revealing the new page underneath. It's the same 
+ * paradigm used in Material Design's "container transform" and iOS's 
+ * "full-screen navigation" pattern.
+ */
+
+/* ── OUTGOING PAGE: shrinks and fades away from center ── */
+@keyframes vt-exit {
+    from {
+        opacity: 1;
+        clip-path: inset(0 0 0 0);
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        clip-path: inset(4% 4% 4% 4% round 16px);
+        transform: scale(0.96);
+    }
+}
+
+/* ── INCOMING PAGE: The radial reveal from click origin ── */
+@keyframes vt-enter {
+    from {
+        clip-path: circle(0% at var(--origin-x, 50%) var(--origin-y, 50%));
+        opacity: 1;
+    }
+    to {
+        clip-path: circle(var(--max-radius, 150%) at var(--origin-x, 50%) var(--origin-y, 50%));
+        opacity: 1;
+    }
+}
+
+/* ── ASSIGN ANIMATIONS TO PSEUDO-ELEMENTS ── */
+::view-transition-old(root) {
+    animation: vt-exit 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+::view-transition-new(root) {
+    animation: vt-enter 1.0s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

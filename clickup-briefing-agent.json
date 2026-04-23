@@ -1,0 +1,303 @@
+{
+  "name": "ClickUp AI Briefing Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "a1000001-0000-0000-0000-000000000001",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        250,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ========================================\n// EDIT THESE 4 VALUES with your actual API keys\n// ========================================\nreturn [{json: {\n  clickupToken: 'pk_YOUR_CLICKUP_TOKEN',\n  clickupListId: 'YOUR_LIST_ID',\n  serperApiKey: 'YOUR_SERPER_KEY',\n  claudeApiKey: 'sk-ant-YOUR_CLAUDE_KEY'\n}}];"
+      },
+      "id": "a1000001-0000-0000-0000-000000000002",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        470,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ 'https://api.clickup.com/api/v2/list/' + $json.clickupListId + '/task?include_closed=false' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.clickupToken }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "a1000001-0000-0000-0000-000000000003",
+      "name": "Get ClickUp Tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        690,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "var config = $('Config').first().json;\nvar resp = $input.first().json;\nvar tasks = resp.tasks || [];\n\nif (!tasks.length) {\n  throw new Error('No tasks found in ClickUp list. Check your list ID.');\n}\n\nreturn tasks.map(function(t) {\n  return {json: {\n    clickupToken: config.clickupToken,\n    serperApiKey: config.serperApiKey,\n    claudeApiKey: config.claudeApiKey,\n    taskId: t.id,\n    taskName: t.name || 'Unnamed task',\n    taskDescription: t.text_content || t.description || 'No description',\n    taskStatus: t.status ? t.status.status : 'unknown',\n    taskPriority: t.priority ? t.priority.priority : 'none',\n    taskUrl: t.url || ''\n  }};\n});"
+      },
+      "id": "a1000001-0000-0000-0000-000000000004",
+      "name": "Extract Tasks",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        910,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-API-KEY",
+              "value": "={{ $json.serperApiKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ JSON.stringify({q: $json.taskName + ' insurance Sweden', num: 5}) }}",
+        "options": {}
+      },
+      "id": "a1000001-0000-0000-0000-000000000005",
+      "name": "Web Search",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1130,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "var task = $('Extract Tasks').item.json;\nvar search = $input.item.json;\n\n// Extract top search results\nvar organic = search.organic || [];\nvar results = organic.slice(0, 5).map(function(r) {\n  return '- ' + (r.title || '') + ': ' + (r.snippet || '');\n}).join('\\n');\n\n// Build the briefing prompt\nvar lines = [\n  'Du ar en AI-forskningsassistent for ett svenskt livforsakringsjamforelseprojekt.',\n  '',\n  'Uppgift fran ClickUp:',\n  '- Namn: ' + task.taskName,\n  '- Beskrivning: ' + task.taskDescription,\n  '- Status: ' + task.taskStatus,\n  '- Prioritet: ' + task.taskPriority,\n  '',\n  'Sokresultat fran webben:',\n  results || 'Inga sokresultat tillgangliga.',\n  '',\n  'Skapa en kort brief (pa svenska) med foljande struktur:',\n  '',\n  '1. **Sammanfattning** - Vad handlar uppgiften om?',\n  '2. **Bakgrundsforskning** - Relevanta fynd fran webben och din egen kunskap',\n  '3. **Rekommendation** - Konkreta steg for hur vi bor ga tillvaga',\n  '4. **Risker/Utmaningar** - Vad kan ga fel?',\n  '5. **Nasta steg** - Vad bor goras forst?',\n  '',\n  'Hall det kort och konkret. Max 500 ord.'\n];\n\nvar prompt = lines.join('\\n');\n\n// Build Claude API request body\nvar body = JSON.stringify({\n  model: 'claude-sonnet-4-20250514',\n  max_tokens: 2048,\n  messages: [{role: 'user', content: prompt}]\n});\n\nreturn [{json: {\n  taskId: task.taskId,\n  taskName: task.taskName,\n  clickupToken: task.clickupToken,\n  claudeApiKey: task.claudeApiKey,\n  requestBody: body\n}}];"
+      },
+      "id": "a1000001-0000-0000-0000-000000000006",
+      "name": "Build Brief Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1350,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $json.claudeApiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ $json.requestBody }}",
+        "options": {}
+      },
+      "id": "a1000001-0000-0000-0000-000000000007",
+      "name": "Call Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1570,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "var task = $('Build Brief Prompt').item.json;\nvar resp = $input.item.json;\n\n// Extract brief text from Claude response\nvar brief = 'Could not generate brief.';\nif (resp.content && resp.content[0] && resp.content[0].text) {\n  brief = resp.content[0].text;\n}\n\n// Format as ClickUp comment\nvar comment = '[AI Brief] ' + task.taskName + '\\n\\n' + brief;\n\nreturn [{json: {\n  taskId: task.taskId,\n  clickupToken: task.clickupToken,\n  commentBody: JSON.stringify({comment_text: comment})\n}}];"
+      },
+      "id": "a1000001-0000-0000-0000-000000000008",
+      "name": "Format Brief",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1790,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://api.clickup.com/api/v2/task/' + $json.taskId + '/comment' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.clickupToken }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "string",
+        "body": "={{ $json.commentBody }}",
+        "options": {}
+      },
+      "id": "a1000001-0000-0000-0000-000000000009",
+      "name": "Post Brief to ClickUp",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2010,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## ClickUp AI Briefing Agent - Setup\n\n### 1. Open the Config node and replace:\n- `clickupToken` - Your ClickUp API token\n- `clickupListId` - Your ClickUp list ID\n- `serperApiKey` - Free from serper.dev (2500 searches)\n- `claudeApiKey` - From console.anthropic.com\n\n### 2. Test\nClick **Test Workflow** to run once\n\n### 3. Automate\nReplace the Start trigger with a Schedule Trigger to run daily",
+        "height": 340,
+        "width": 420
+      },
+      "id": "a1000001-0000-0000-0000-000000000010",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        250,
+        120
+      ]
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Get ClickUp Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get ClickUp Tasks": {
+      "main": [
+        [
+          {
+            "node": "Extract Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Tasks": {
+      "main": [
+        [
+          {
+            "node": "Web Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web Search": {
+      "main": [
+        [
+          {
+            "node": "Build Brief Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Brief Prompt": {
+      "main": [
+        [
+          {
+            "node": "Call Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Claude API": {
+      "main": [
+        [
+          {
+            "node": "Format Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Brief": {
+      "main": [
+        [
+          {
+            "node": "Post Brief to ClickUp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "tags": []
+}

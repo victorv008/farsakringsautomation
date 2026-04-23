@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html class="light" lang="sv">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Om oss – Livförsäkringar.se</title>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/transitions.css"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "brand-teal": "#0D7377",
+                "brand-teal-light": "#14a0a5",
+                "brand-amber": "#E8A838",
+                "brand-amber-light": "#f0c273",
+                "surface": "#FAFCFC",
+                "surface-elevated": "#FFFFFF",
+                "text-main": "#1A2024",
+                "text-muted": "#5C6B73",
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans", "sans-serif"],
+                "body": ["Inter", "sans-serif"]
+              }
+            },
+          },
+        }
+    </script>
+    <style>
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .blob-bg { background-color: #f7fbfb; background-image: radial-gradient(at bottom right, #ffffff, #eaf6f6); }
+        .blob-teal { background: linear-gradient(135deg, #6ec6c0 0%, #8bd4ce 100%); border-radius: 40% 70% 60% 40% / 50% 40% 60% 50%; }
+        .blob-amber { background: linear-gradient(135deg, #fac973 0%, #ffe3ad 100%); border-radius: 50% 60% 40% 60% / 40% 50% 60% 40%; }
+    </style>
+</head>
+<body class="blob-bg text-text-main font-body min-h-screen flex flex-col relative overflow-x-hidden">
+
+<!-- Background shapes — identical to all other pages -->
+<div class="fixed inset-0 overflow-hidden pointer-events-none z-[-10]">
+    <div class="absolute top-[-25%] left-[-20%] w-[90vw] h-[120vh] blob-teal opacity-90 rotate-[-15deg]"></div>
+    <div class="absolute bottom-[2%] right-[12%] w-[45vw] h-[45vw] md:w-[35vw] md:h-[35vw] blob-amber opacity-90 rotate-[10deg]"></div>
+    <div class="absolute top-[8%] left-[48%] w-[12vw] h-[12vw] rounded-full border-[2vw] border-white/40 backdrop-blur-sm shadow-sm"></div>
+    <div class="absolute top-[20%] left-[58%] w-[8vw] h-[8vw] rounded-full border-[1.2vw] border-white/30 backdrop-blur-sm"></div>
+    <div class="absolute bottom-[10%] left-[10%] w-[10vw] h-[10vw] rounded-full border-[1.5vw] border-white/30 shadow-sm"></div>
+    <div class="absolute bottom-[5%] right-[5%] w-[12vw] h-[12vw] rounded-full border-[1.5vw] border-[#8bd4ce]/40 shadow-sm"></div>
+</div>
+
+<!-- TopNavBar — unified nav, same on all pages -->
+<header class="w-full z-50 bg-transparent font-headline">
+    <div class="flex justify-between items-center max-w-7xl mx-auto px-6 sm:px-8 py-5 relative">
+        <a class="text-2xl font-bold tracking-tight text-brand-teal flex items-center gap-2" href="index.html">
+            <span class="material-symbols-outlined text-[28px] text-brand-amber">shield_with_heart</span>
+            Livförsäkringar.se
+        </a>
+        <nav class="hidden lg:flex gap-1 items-center">
+            <a class="nav-link" href="index.html">Jämför</a>
+            <a class="nav-link" href="sa-fungerar-det.html">Så fungerar det</a>
+            <a class="nav-link" href="faq.html">Vanliga frågor</a>
+            <a class="nav-link nav-link--active" href="om-oss.html">Om oss</a>
+        </nav>
+        <a href="index.html" class="nav-cta hidden lg:inline-flex items-center gap-2 font-headline font-bold text-sm">
+            <span class="material-symbols-outlined text-[18px]">search</span>
+            Jämför nu
+        </a>
+        <button class="lg:hidden text-brand-teal"><span class="material-symbols-outlined">menu</span></button>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="flex-grow max-w-3xl mx-auto w-full py-20 px-6 sm:px-8 relative z-10">
+
+    <!-- Hero text — prominent, in page color, NOT white -->
+    <div class="mb-16">
+        <div class="inline-flex items-center gap-3 mb-8 px-4 py-2 bg-brand-teal/5 rounded-full border border-brand-teal/10 w-max">
+            <span class="flex h-2 w-2 rounded-full bg-brand-teal"></span>
+            <span class="text-xs font-semibold text-brand-teal uppercase tracking-widest font-headline">Oberoende sedan 2024</span>
+        </div>
+        <h1 class="font-headline text-5xl lg:text-6xl font-extrabold text-brand-teal tracking-tight mb-6 leading-[1.1]">
+            Vi förenklar det komplexa.<br>
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal to-brand-amber">Helt utan rådgivning.</span>
+        </h1>
+        <p class="font-body text-text-muted text-xl lg:text-2xl leading-relaxed font-light max-w-2xl">
+            Det är svårt nog att fundera över döden. Du ska inte behöva kämpa för att förstå vad du betalar för också.
+        </p>
+    </div>
+
+    <!-- Content cards — same white card style as sa-fungerar-det and faq -->
+    <div class="space-y-6">
+
+        <!-- Card: Varför vi finns -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-10 shadow-[0_8px_32px_rgba(13,115,119,0.07)] border border-brand-teal/5 flex gap-8 items-start">
+            <div class="shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-teal to-brand-teal-light flex items-center justify-center shadow-lg">
+                <span class="material-symbols-outlined text-white text-[26px]">search</span>
+            </div>
+            <div>
+                <h2 class="font-headline text-2xl font-bold text-brand-teal mb-3">Varför vi finns</h2>
+                <p class="font-body text-text-muted text-lg leading-relaxed">Vi märkte att det var omöjligt att bara få en enkel, rak överblick över Sveriges livförsäkringar. Vi är ingen mäklare och vi vill inte sälja en specifik produkt till dig. Vi har sammanställt oberoende data från marknaden (från exempelvis Konsumenternas), och filtrerar den endast utifrån de objektiva fakta du lämnar.</p>
+            </div>
+        </div>
+
+        <!-- Card: Viktigt att veta -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-10 shadow-[0_8px_32px_rgba(13,115,119,0.07)] border border-brand-teal/5 flex gap-8 items-start">
+            <div class="shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-amber to-brand-amber-light flex items-center justify-center shadow-lg">
+                <span class="material-symbols-outlined text-white text-[26px]">info</span>
+            </div>
+            <div>
+                <h2 class="font-headline text-2xl font-bold text-brand-teal mb-3">Viktigt att veta</h2>
+                <p class="font-body text-text-muted text-lg leading-relaxed">Vi är ingen finansiell rådgivare och utövar inte försäkringsförmedling i den mening som regleras av Finansinspektionen. Denna sida är en renodlad informations- och jämförelsetjänst. Alla uppgifter ska dubbelkollas mot respektive bolags fullständiga försäkringsvillkor innan tecknande.</p>
+            </div>
+        </div>
+
+        <!-- Card: Hur vi tjänar pengar -->
+        <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-10 shadow-[0_8px_32px_rgba(13,115,119,0.07)] border border-brand-teal/5 flex gap-8 items-start">
+            <div class="shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-teal to-brand-teal-light flex items-center justify-center shadow-lg">
+                <span class="material-symbols-outlined text-white text-[26px]">payments</span>
+            </div>
+            <div>
+                <h2 class="font-headline text-2xl font-bold text-brand-teal mb-3">Hur vi tjänar pengar</h2>
+                <p class="font-body text-text-muted text-lg leading-relaxed">Livförsäkringar.se är gratis för dig. Om du väljer att klicka dig vidare till ett försäkringsbolag och teckna en försäkring kan vi ibland få en mindre marknadsföringsersättning. Det påverkar aldrig ditt pris, och vi baserar vår opartiska ranking helt på fakta — inte på vem som betalar bäst.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="text-center mt-16">
+        <a href="index.html" class="nav-cta inline-flex items-center gap-2 font-headline font-bold text-base px-10 py-4">
+            <span class="material-symbols-outlined">arrow_forward</span>
+            Börja jämföra nu
+        </a>
+    </div>
+</main>
+
+<!-- Footer — identical to all other pages -->
+<footer class="w-full py-12 px-6 sm:px-8 mt-auto z-20 relative">
+    <div class="border-t border-brand-teal/10 pt-10">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto items-center">
+            <div class="flex flex-col gap-2 text-center md:text-left">
+                <span class="text-lg font-bold text-brand-teal font-headline flex items-center justify-center md:justify-start gap-2">
+                    <span class="material-symbols-outlined text-[20px] text-brand-amber">shield_with_heart</span>
+                    Livförsäkringar.se
+                </span>
+                <p class="text-text-muted text-sm font-medium">© 2026 Livförsäkringar.se. Alla rättigheter förbehållna.</p>
+            </div>
+            <div class="flex flex-wrap gap-6 justify-center md:justify-end items-center">
+                <a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">Integritetspolicy</a>
+                <a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">Användarvillkor</a>
+                <a class="text-text-muted hover:text-brand-teal font-medium transition-colors text-sm" href="#">Kontakt</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="js/transitions.js"></script>
+</body>
+</html>
