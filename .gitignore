@@ -1,8 +1,9 @@
 node_modules/
 .DS_Store
-*.xlsx
-# Exclude the Excel file if the user doesn't want it public, 
-# but the user might want it. Let's keep it for now unless it's sensitive.
-# Actually, the user specifically mentioned Excel integration, 
-# so I should probably keep it or ask.
-# Let's include everything except node_modules for now.
+Thumbs.db
+.env
+.env.local
+.netlify/
+.vscode/
+.idea/
+*.log
