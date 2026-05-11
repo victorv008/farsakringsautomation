@@ -17,7 +17,7 @@
     const banner = document.getElementById('context-banner');
     if (banner) {
         const amountFmt = new Intl.NumberFormat('sv-SE').format(userAmount);
-        banner.innerHTML = `Baserat på dina val: <strong class="text-[#00595c]">${userAge} år, ${amountFmt} kr</strong>. Söker matchande försäkringar...`;
+        banner.innerHTML = `Priser och villkor för: <strong class="text-[#00595c]">${userAge} år, ${amountFmt} kr</strong>. Hämtar försäkringar...`;
     }
 
     const defaultState = () => ({
@@ -305,7 +305,7 @@
         if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
         if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
 
-        const ribbon = index === 0 && hasPrice ? `
+        const ribbon = index === 0 && price ? `
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0D7377] to-[#14a0a5] rounded-t-[20px]"></div>
             <span class="absolute top-3 right-4 bg-[#0D7377] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">💰 Lägst pris</span>` : '';
 
