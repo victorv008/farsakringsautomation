@@ -165,13 +165,59 @@
     }
 
     function sortMatched(list, sortBy) {
+        const noPrice = list.filter(ins => calculatePremium(ins, userAge, userAmount) == null);
+        const hasPrice = list.filter(ins => calculatePremium(ins, userAge, userAmount) != null);
+
         if (sortBy === 'max_age') {
-            list.sort((a, b) => (b.teckningsalder_max || 0) - (a.teckningsalder_max || 0));
+            hasPrice.sort((a, b) => (b.teckningsalder_max || 0) - (a.teckningsalder_max || 0));
+            noPrice.sort((a, b) => (b.teckningsalder_max || 0) - (a.teckningsalder_max || 0));
         } else if (sortBy === 'max_amount') {
-            list.sort((a, b) => (b.belopp_max || 0) - (a.belopp_max || 0));
+            hasPrice.sort((a, b) => (b.belopp_max || 0) - (a.belopp_max || 0));
+            noPrice.sort((a, b) => (b.belopp_max || 0) - (a.belopp_max || 0));
         } else {
-            list.sort((a, b) => (a.pris_30 || 99999) - (b.pris_30 || 99999));
+            hasPrice.sort((a, b) => {
+                const pA = calculatePremium(a, userAge, userAmount);
+                const pB = calculatePremium(b, userAge, userAmount);
+                return pA - pB;
+            });
         }
+        // Splice back — price-less companies always at the bottom
+        list.splice(0, list.length, ...hasPrice, ...noPrice);
+    }
+
+    function calculatePremium(ins, age, amount) {
+        const points = [
+            { a: 20, p: ins.pris_20 },
+            { a: 25, p: ins.pris_25 },
+            { a: 30, p: ins.pris_30 },
+            { a: 35, p: ins.pris_35 },
+            { a: 40, p: ins.pris_40 },
+            { a: 50, p: ins.pris_50 },
+            { a: 55, p: ins.pris_55 },
+            { a: 60, p: ins.pris_60 },
+            { a: 65, p: ins.pris_65 }
+        ].filter(pt => pt.p != null);
+
+        if (points.length === 0) return null;
+
+        let basePrice = 0;
+        const exact = points.find(pt => pt.a === age);
+        if (exact) {
+            basePrice = exact.p;
+        } else {
+            const upper = points.find(pt => pt.a > age);
+            const lower = [...points].reverse().find(pt => pt.a < age);
+
+            if (upper && lower) {
+                const ratio = (age - lower.a) / (upper.a - lower.a);
+                basePrice = lower.p + (upper.p - lower.p) * ratio;
+            } else if (upper) {
+                basePrice = upper.p;
+            } else {
+                basePrice = lower.p;
+            }
+        }
+        return Math.round((basePrice * (amount || 2000000)) / 2000000);
     }
 
     // Dim bolag rows that would not match the current non-bolag filters,
@@ -292,9 +338,10 @@
     }
 
     function renderCard(ins, index) {
-        const price = ins.pris_30;
-        const priceFmt = price ? new Intl.NumberFormat('sv-SE').format(price) : '—';
-        const monthlyPrice = price ? Math.round(price / 12) : null;
+        const price = calculatePremium(ins, userAge, userAmount);
+        const hasPrice = price != null;
+        const priceFmt = hasPrice ? new Intl.NumberFormat('sv-SE').format(price) : null;
+        const monthlyPrice = hasPrice ? Math.round(price / 12) : null;
         const maxMkr = ins.belopp_max ? (ins.belopp_max / 1000000) : null;
 
         let badges = '';
@@ -305,67 +352,81 @@
         if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
         if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
 
-        const ribbon = index === 0 ? `
-            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0D7377] to-[#14a0a5] rounded-t-[24px]"></div>
-            <span class="absolute top-4 right-6 bg-[#e8a838] text-white text-xs font-bold px-3 py-1 rounded-full">⭐ Bäst matchning</span>` : '';
+        const ribbon = index === 0 && hasPrice ? `
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0D7377] to-[#14a0a5] rounded-t-[20px]"></div>
+            <span class="absolute top-3 right-4 bg-[#e8a838] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">⭐ Bäst matchning</span>` : '';
 
         const logoName = ins.bolag.length > 12
-            ? `<span class="text-[9px] leading-tight px-1">${escapeHtml(ins.bolag)}</span>`
-            : `<span class="text-sm">${escapeHtml(ins.bolag)}</span>`;
+            ? `<span class="text-[8px] leading-tight px-0.5">${escapeHtml(ins.bolag)}</span>`
+            : `<span class="text-xs">${escapeHtml(ins.bolag)}</span>`;
 
         const link = ins.webbsida ? ins.webbsida : '#';
 
-        return `<article class="result-card bg-white rounded-[24px] p-8 shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col gap-6 relative overflow-hidden border border-[#00595c]/5 hover:shadow-[0_20px_48px_rgba(13,115,119,0.12)] transition-shadow mb-6">
+        // Info chips — compact on mobile
+        const chips = `
+            <div class="flex flex-wrap gap-2">
+                <div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs font-medium text-[#00595c]"><span class="material-symbols-outlined text-[14px]">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
+                <div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs font-medium text-[#00595c]"><span class="material-symbols-outlined text-[14px]">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
+                ${maxMkr ? `<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs font-medium text-[#00595c]"><span class="material-symbols-outlined text-[14px]">payments</span>Max ${maxMkr} Mkr</div>` : `<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs font-medium text-[#00595c]"><span class="material-symbols-outlined text-[14px]">payments</span>Inget maxtak</div>`}
+            </div>`;
+
+        // Price block varies depending on whether we have data
+        const priceBlock = hasPrice
+            ? `<div class="text-right shrink-0">
+                <div class="font-headline text-xl sm:text-3xl font-extrabold text-[#00595c] whitespace-nowrap">${priceFmt}<span class="text-sm sm:text-lg font-medium text-[#00595c]/50"> kr/år</span></div>
+                ${monthlyPrice ? `<p class="text-[11px] sm:text-xs text-[#00595c]/50 mt-0.5">≈ ${monthlyPrice} kr/mån</p>` : ''}
+               </div>`
+            : `<div class="text-right shrink-0">
+                <div class="flex items-center gap-1.5 bg-gray-100 px-3 py-1.5 rounded-xl border border-gray-200">
+                    <span class="material-symbols-outlined text-gray-400 text-[16px]">info</span>
+                    <span class="text-xs font-semibold text-gray-400 whitespace-nowrap">Pris ej tillgängligt</span>
+                </div>
+                <p class="text-[10px] text-gray-400 mt-1 text-right">Hämtas direkt från bolaget</p>
+               </div>`;
+
+        const cardOpacity = hasPrice ? '' : 'opacity-80';
+
+        return `<article class="result-card ${cardOpacity} bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 shadow-[0_8px_24px_rgba(26,28,28,0.07)] sm:shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col gap-4 sm:gap-6 relative overflow-hidden border border-[#00595c]/5 hover:shadow-[0_20px_48px_rgba(13,115,119,0.12)] transition-shadow mb-4 sm:mb-6">
     ${ribbon}
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-6">
-        <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-xl bg-[#f2f9f9] flex items-center justify-center border border-[#00595c]/10">
-                <span class="font-headline font-bold text-[#00595c] text-center">${logoName}</span>
+    <!-- Header row: logo + name LEFT, price RIGHT -->
+    <div class="flex items-center justify-between gap-3 border-b border-gray-100 pb-4">
+        <div class="flex items-center gap-3">
+            <div class="w-11 h-11 sm:w-16 sm:h-16 rounded-xl bg-white flex items-center justify-center border border-[#00595c]/10 shrink-0 overflow-hidden p-1.5 sm:p-2.5">
+                ${ins.logo_url 
+                    ? `<img src="${ins.logo_url}" alt="${escapeAttr(ins.bolag)} logo" class="w-full h-full object-contain" onerror="this.outerHTML='<span class=\\'font-headline font-bold text-[#00595c] text-center text-[9px] sm:text-xs leading-tight px-0.5\\'>${escapeAttr(ins.bolag)}</span>';">` 
+                    : `<span class="font-headline font-bold text-[#00595c] text-center">${logoName}</span>`}
             </div>
             <div>
-                <h3 class="font-headline font-bold text-xl text-[#00595c]">Livförsäkring</h3>
-                <p class="text-sm text-[#00595c]/60">${escapeHtml(ins.bolag)}${!ins.halso_deklaration ? ' · Ingen hälsodeklaration' : ''}</p>
+                <h3 class="font-headline font-bold text-base sm:text-xl text-[#00595c] leading-tight">Livförsäkring</h3>
+                <p class="text-xs sm:text-sm text-[#00595c]/60 leading-snug">${escapeHtml(ins.bolag)}${!ins.halso_deklaration ? ' · Ingen hälsodeckl.' : ''}</p>
             </div>
         </div>
-        <div class="text-left sm:text-right shrink-0">
-            <div class="font-headline text-3xl font-extrabold text-[#00595c]">${priceFmt} kr<span class="text-lg font-medium text-[#00595c]/50">/år</span></div>
-            ${monthlyPrice ? `<p class="text-xs text-[#00595c]/50 mt-1">≈ ${monthlyPrice} kr/mån</p>` : ''}
-        </div>
+        ${priceBlock}
     </div>
-    <div class="flex flex-wrap gap-3">
-        <div class="bg-[#f2f9f9] px-3 py-2 rounded-lg flex items-center gap-2 border border-[#00595c]/5 text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
-        <div class="bg-[#f2f9f9] px-3 py-2 rounded-lg flex items-center gap-2 border border-[#00595c]/5 text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
-        ${maxMkr ? `<div class="bg-[#f2f9f9] px-3 py-2 rounded-lg flex items-center gap-2 border border-[#00595c]/5 text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-[#f2f9f9] px-3 py-2 rounded-lg flex items-center gap-2 border border-[#00595c]/5 text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">payments</span>Inget maxtak</div>'}
-    </div>
-    <div class="flex flex-wrap gap-2">${badges}</div>
-    <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <a class="text-sm font-semibold text-[#00595c] underline underline-offset-4 hover:text-[#e8a838] transition-colors" href="${link}" target="_blank">Läs fullständiga villkor</a>
-        <a href="${link}" target="_blank" class="bg-[#e8a838] text-white font-bold px-8 py-3 rounded-xl hover:bg-[#f0c273] transition-all flex items-center gap-2 no-underline">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+    <!-- Info chips -->
+    ${chips}
+    <!-- Badges -->
+    <div class="flex flex-wrap gap-1.5">${badges}</div>
+    <!-- CTA row -->
+    <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-2 sm:gap-4">
+        <a class="text-xs sm:text-sm font-semibold text-[#00595c] underline underline-offset-4 hover:text-[#e8a838] transition-colors text-center sm:text-left" href="${link}" target="_blank">Läs fullständiga villkor</a>
+        <a href="${link}" target="_blank" class="bg-[#e8a838] text-white font-bold px-5 py-2.5 sm:px-8 sm:py-3 rounded-xl hover:bg-[#f0c273] transition-all flex items-center justify-center gap-2 no-underline text-sm sm:text-base">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
     </div>
 </article>`;
     }
 
+
     function renderExcludedCard(ins) {
         const reason = ins._reasons[0] || 'Matchar inte kriterier';
-        return `<article class="result-card excl bg-white/60 rounded-[24px] p-8 flex flex-col gap-4 border-2 border-dashed border-gray-200 mb-4">
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200 opacity-50">
-                <span class="font-headline font-bold text-gray-500 text-sm text-center">${escapeHtml(ins.bolag)}</span>
-            </div>
-            <div>
-                <h3 class="font-headline font-bold text-xl text-gray-400 line-through">Livförsäkring</h3>
-                <p class="text-sm text-gray-400">${escapeHtml(ins.bolag)}</p>
-            </div>
-        </div>
-        <div class="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-            <span class="material-symbols-outlined text-red-400">block</span>
-            <div>
-                <p class="text-xs font-bold text-red-500 uppercase tracking-wide">Exkluderad</p>
-                <p class="text-sm text-gray-600">${reason}</p>
-            </div>
-        </div>
+        return `<article class="result-card excl bg-white/60 rounded-[16px] sm:rounded-[24px] p-3 sm:p-8 flex items-center gap-3 sm:gap-4 border-2 border-dashed border-gray-200 mb-3">
+    <div class="w-10 h-10 sm:w-14 sm:h-14 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200 opacity-50 shrink-0">
+        <span class="font-headline font-bold text-gray-500 text-[9px] sm:text-xs text-center leading-tight px-0.5">${escapeHtml(ins.bolag)}</span>
     </div>
+    <div class="flex-1 min-w-0">
+        <p class="font-headline font-bold text-sm sm:text-base text-gray-400 line-through truncate">${escapeHtml(ins.bolag)}</p>
+        <p class="text-xs text-gray-400 truncate">${reason}</p>
+    </div>
+    <span class="material-symbols-outlined text-red-300 text-[20px] shrink-0">block</span>
 </article>`;
     }
 

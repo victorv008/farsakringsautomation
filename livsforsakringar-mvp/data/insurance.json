@@ -24,6 +24,7 @@
       "pris_50": null,
       "pris_60": null,
       "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=ankekassan.se&sz=128",
       "undantag_sport": [],
       "kommentar": null
     },
@@ -40,15 +41,19 @@
       "krav_arbetsfor": false,
       "belopp_min": 100000,
       "belopp_max": 15000000,
-      "pris_30": 372,
-      "pris_50": 1860,
-      "pris_60": 4824,
-      "pris_65": 8205,
+      "pris_30": 744,
+      "pris_40": 1488,
+      "pris_50": 3720,
+      "pris_60": 9648,
+      "pris_65": null,
+      "pris_kalla": "Evident Life kalkylator (maj 2026), omräknat till 2mkr/år",
+      "logo_url": "https://www.google.com/s2/favicons?domain=evidentlife.se&sz=128",
+      "smoker_premium_approx": 1.7,
       "undantag_sport": [
         "privat_flygning",
         "kampsport_kroppskontakt"
       ],
-      "kommentar": "Undantag vid privat flygning eller kampsport med kroppskontakt"
+      "kommentar": "Priser verifierade. Rökning ger ca 70% prispåslag. Undantag vid privat flygning eller kampsport med kroppskontakt."
     },
     {
       "bolag": "Folksam",
@@ -62,18 +67,19 @@
       "krav_arbetsfor": false,
       "belopp_min": 200000,
       "belopp_max": 6000000,
-      "pris_30": 504,
-      "pris_50": 2856,
-      "pris_60": 7380,
-      "pris_65": 12612,
+      "pris_30": null,
+      "pris_50": null,
+      "pris_60": null,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=folksam.se&sz=128",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Väntar på prisdata"
     },
     {
       "bolag": "Handelsbanken Liv",
-      "teckningsalder": "18-59",
+      "teckningsalder": "18-65",
       "teckningsalder_min": 18,
-      "teckningsalder_max": 59,
+      "teckningsalder_max": 65,
       "slutalder": 67,
       "nedtrappning": true,
       "nedtrappning_alder": 56,
@@ -81,12 +87,19 @@
       "krav_arbetsfor": false,
       "belopp_min": 296000,
       "belopp_max": 8288000,
-      "pris_30": 468,
-      "pris_50": 2040,
-      "pris_60": 5496,
-      "pris_65": 9780,
+      "pris_20": 1277,
+      "pris_25": 1338,
+      "pris_30": 1460,
+      "pris_35": 1662,
+      "pris_40": 2068,
+      "pris_50": 4014,
+      "pris_55": 6284,
+      "pris_60": 8818,
+      "pris_65": 12446,
+      "logo_url": "https://www.google.com/s2/favicons?domain=handelsbanken.se&sz=128",
+      "pris_kalla": "Handelsbanken Liv pristabell 2026 (per 20 PBB), omräknat till 2mkr/år",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Priser verifierade via officiell pristabell för 2026."
     },
     {
       "bolag": "ICA Försäkring",
@@ -100,12 +113,13 @@
       "krav_arbetsfor": true,
       "belopp_min": 500000,
       "belopp_max": 2000000,
-      "pris_30": 492,
-      "pris_50": 2244,
-      "pris_60": 6456,
-      "pris_65": 12180,
+      "pris_30": null,
+      "pris_50": null,
+      "pris_60": null,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=icaforsakring.se&sz=128",
       "undantag_sport": [],
-      "kommentar": "Kräver fullt arbetsför"
+      "kommentar": "Kräver fullt arbetsför. Väntar på prisdata."
     },
     {
       "bolag": "Idun Liv",
@@ -120,12 +134,15 @@
       "krav_arbetsfor": false,
       "belopp_min": 100000,
       "belopp_max": 10000000,
-      "pris_30": 372,
-      "pris_50": 1860,
-      "pris_60": 4824,
-      "pris_65": 8205,
+      "pris_30": 1032,
+      "pris_40": 1680,
+      "pris_50": 3936,
+      "pris_60": null,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=idunliv.se&sz=128",
+      "pris_kalla": "Idun Livs priskalkylator (maj 2026), omräknat till 2mkr/år",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Priser verifierade via kalkylator. pris_60/65 ej tillgängliga (max teckningsålder 64)."
     },
     {
       "bolag": "If",
@@ -139,12 +156,15 @@
       "krav_arbetsfor": false,
       "belopp_min": 500000,
       "belopp_max": 5000000,
-      "pris_30": 492,
-      "pris_50": 2604,
-      "pris_60": 7308,
-      "pris_65": 13344,
+      "pris_30": 1272,
+      "pris_40": 2208,
+      "pris_50": 5376,
+      "pris_60": 16176,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=if.se&sz=128",
+      "pris_kalla": "If priskalkylator (maj 2026), omräknat till 2mkr/år",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Priser verifierade via kalkylator (standardpris utan samlingsrabatt)."
     },
     {
       "bolag": "JustInCase",
@@ -159,15 +179,18 @@
       "krav_arbetsfor": false,
       "belopp_min": 1000000,
       "belopp_max": 6000000,
-      "pris_30": 372,
-      "pris_50": 1860,
-      "pris_60": 4824,
-      "pris_65": 8205,
+      "pris_30": 828,
+      "pris_40": 1488,
+      "pris_50": 3744,
+      "pris_60": 8808,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=justincase.se&sz=128",
+      "pris_kalla": "JustInCase priskalkylator (maj 2026), 2mkr/år",
       "undantag_sport": [
         "kampsport_licens",
         "motorsport_licens"
       ],
-      "kommentar": "Undantag vid kampsport eller motorsport med licens"
+      "kommentar": "Priser verifierade via kalkylator. Undantag vid kampsport eller motorsport med licens."
     },
     {
       "bolag": "Länsförsäkringar",
@@ -181,12 +204,18 @@
       "krav_arbetsfor": false,
       "belopp_min": 200000,
       "belopp_max": 5000000,
-      "pris_30": 456,
-      "pris_50": 2124,
-      "pris_60": 5460,
-      "pris_65": 9060,
+      "pris_25": 1080,
+      "pris_30": 1176,
+      "pris_35": 1368,
+      "pris_40": 1656,
+      "pris_50": 3000,
+      "pris_55": 4440,
+      "pris_60": 6816,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=lansforsakringar.se&sz=128",
+      "pris_kalla": "Länsförsäkringar pristabell (maj 2026), omräknat till 2mkr/år",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Priser verifierade via officiell pristabell."
     },
     {
       "bolag": "Movestic",
@@ -200,12 +229,13 @@
       "krav_arbetsfor": true,
       "belopp_min": 500000,
       "belopp_max": 6000000,
-      "pris_30": 432,
-      "pris_50": 1728,
-      "pris_60": 4536,
-      "pris_65": 8436,
+      "pris_30": null,
+      "pris_50": null,
+      "pris_60": null,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=movestic.se&sz=128",
       "undantag_sport": [],
-      "kommentar": "Kräver fullt arbetsför"
+      "kommentar": "Kräver fullt arbetsför. Väntar på prisdata."
     },
     {
       "bolag": "Nordea",
@@ -219,12 +249,16 @@
       "krav_arbetsfor": false,
       "belopp_min": 236800,
       "belopp_max": 5860800,
-      "pris_30": 444,
-      "pris_50": 2052,
-      "pris_60": 5748,
-      "pris_65": 11004,
+      "pris_30": 1149,
+      "pris_40": 2196,
+      "pris_50": 4121,
+      "pris_55": 6216,
+      "pris_60": 9864,
+      "pris_65": 17532,
+      "logo_url": "https://www.google.com/s2/favicons?domain=nordea.se&sz=128",
+      "pris_kalla": "Nordea prislista per PBB 2026 (59 200 kr), omräknat till 2mkr/år",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Priser baserade på prisbasbelopp (PBB). Kräver vanligtvis att man är Nordea-kund."
     },
     {
       "bolag": "SEB",
@@ -238,12 +272,13 @@
       "krav_arbetsfor": false,
       "belopp_min": 100000,
       "belopp_max": 19344000,
-      "pris_30": 372,
-      "pris_50": 2136,
-      "pris_60": 6180,
-      "pris_65": 11628,
+      "pris_30": null,
+      "pris_50": null,
+      "pris_60": null,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=seb.se&sz=128",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Väntar på prisdata"
     },
     {
       "bolag": "Skandia",
@@ -257,12 +292,16 @@
       "krav_arbetsfor": false,
       "belopp_min": 100000,
       "belopp_max": 7000000,
-      "pris_30": 444,
-      "pris_50": 2364,
-      "pris_60": 6732,
-      "pris_65": 12420,
+      "pris_20": 504,
+      "pris_30": 600,
+      "pris_40": 924,
+      "pris_50": 2004,
+      "pris_60": 5676,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=skandia.se&sz=128",
+      "pris_kalla": "Skandia pristabell (maj 2026), 2mkr/år",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Priser verifierade via officiell pristabell för 2 mkr."
     },
     {
       "bolag": "SPP",
@@ -276,12 +315,19 @@
       "krav_arbetsfor": false,
       "belopp_min": 500000,
       "belopp_max": null,
-      "pris_30": 348,
-      "pris_50": 1788,
-      "pris_60": 4896,
-      "pris_65": 8940,
+      "pris_25": 672,
+      "pris_30": 816,
+      "pris_35": 1104,
+      "pris_40": 1536,
+      "pris_45": 2328,
+      "pris_50": 3624,
+      "pris_55": 5832,
+      "pris_60": 9600,
+      "pris_65": 16008,
+      "logo_url": "https://www.google.com/s2/favicons?domain=spp.se&sz=128",
+      "pris_kalla": "SPP officiella prisexempel (maj 2026), 2mkr/år",
       "undantag_sport": [],
-      "kommentar": "Inget maxtak på försäkringsbelopp"
+      "kommentar": "Priser verifierade via officiell pristabell (månadskostnad per miljon)."
     },
     {
       "bolag": "Swedbank",
@@ -295,12 +341,13 @@
       "krav_arbetsfor": false,
       "belopp_min": 100000,
       "belopp_max": null,
-      "pris_30": 372,
-      "pris_50": 2136,
-      "pris_60": 6180,
-      "pris_65": 11628,
+      "pris_30": null,
+      "pris_50": null,
+      "pris_60": null,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=swedbank.se&sz=128",
       "undantag_sport": [],
-      "kommentar": "Inget maxtak på försäkringsbelopp"
+      "kommentar": "Inget maxtak på försäkringsbelopp. Väntar på prisdata."
     },
     {
       "bolag": "Trygg-Hansa",
@@ -314,12 +361,13 @@
       "krav_arbetsfor": false,
       "belopp_min": 250000,
       "belopp_max": 5000000,
-      "pris_30": 480,
-      "pris_50": 2472,
-      "pris_60": 6816,
-      "pris_65": 12156,
+      "pris_30": null,
+      "pris_50": null,
+      "pris_60": null,
+      "pris_65": null,
+      "logo_url": "https://www.google.com/s2/favicons?domain=trygghansa.se&sz=128",
       "undantag_sport": [],
-      "kommentar": null
+      "kommentar": "Väntar på prisdata"
     }
   ]
 }

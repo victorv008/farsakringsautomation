@@ -60,6 +60,29 @@
             -webkit-backdrop-filter: blur(8px);
             user-select: none;
         }
+        /* Compact on mobile */
+        @media (max-width: 639px) {
+            .scenario-card {
+                padding: 0.85rem 1rem;
+                border-radius: 1rem;
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+            .scenario-card .card-icon {
+                width: 2.25rem;
+                height: 2.25rem;
+                border-radius: 0.625rem;
+                flex-shrink: 0;
+                margin-bottom: 0;
+            }
+            .scenario-card .card-icon span { font-size: 20px !important; }
+            .scenario-card .card-text { flex: 1; }
+            .scenario-card .card-desc { display: none; }
+            .scenario-card h3 { font-size: 0.875rem; margin-bottom: 0; }
+            .scenario-card .check-badge { top: 0.5rem; right: 0.5rem; width: 1.25rem; height: 1.25rem; }
+            .scenario-card .check-badge span { font-size: 12px !important; }
+        }
         .scenario-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 16px 40px rgba(13,115,119,0.14);
@@ -217,86 +240,102 @@
     </p>
 
     <!-- 8 scenario cards — 4-column grid matching the Stitch screenshot -->
-    <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-6xl mb-12">
+    <div id="cards-grid" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 w-full max-w-6xl mb-12">
 
         <!-- 1. Gift/Sambo -->
         <button class="scenario-card" data-scenario="gift_sambo" onclick="toggleCard(this)">
             <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+            <div class="card-icon w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                 <span class="material-symbols-outlined text-brand-teal text-[28px]">favorite</span>
             </div>
-            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Gift/Sambo</h3>
-            <p class="text-text-muted text-sm font-light leading-relaxed">Skydda din partner om det oförutsedda inträffar. Säkerställ att de kan bo kvar.</p>
+            <div class="card-text">
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Gift/Sambo</h3>
+                <p class="card-desc text-text-muted text-sm font-light leading-relaxed">Skydda din partner om det oförutsedda inträffar. Säkerställ att de kan bo kvar.</p>
+            </div>
         </button>
 
         <!-- 2. Barn -->
         <button class="scenario-card" data-scenario="barn" onclick="toggleCard(this)">
             <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+            <div class="card-icon w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                 <span class="material-symbols-outlined text-brand-teal text-[28px]">child_care</span>
             </div>
-            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Barn</h3>
-            <p class="text-text-muted text-sm font-light leading-relaxed">Trygga dina barns framtid oavsett vad som händer dig. Ett skyddsnät för de minsta.</p>
+            <div class="card-text">
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Barn</h3>
+                <p class="card-desc text-text-muted text-sm font-light leading-relaxed">Trygga dina barns framtid oavsett vad som händer dig. Ett skyddsnät för de minsta.</p>
+            </div>
         </button>
 
         <!-- 3. Bostadsägare -->
         <button class="scenario-card" data-scenario="bostadskop" onclick="toggleCard(this)">
             <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+            <div class="card-icon w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                 <span class="material-symbols-outlined text-brand-teal text-[28px]">home</span>
             </div>
-            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bostadsägare</h3>
-            <p class="text-text-muted text-sm font-light leading-relaxed">Täck bolån och fasta kostnader så din familj slipper ekonomisk stress.</p>
+            <div class="card-text">
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bostadsägare</h3>
+                <p class="card-desc text-text-muted text-sm font-light leading-relaxed">Täck bolån och fasta kostnader så din familj slipper ekonomisk stress.</p>
+            </div>
         </button>
 
         <!-- 4. Elitsport -->
         <button class="scenario-card" data-scenario="elitsport" onclick="toggleCard(this)">
             <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+            <div class="card-icon w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                 <span class="material-symbols-outlined text-brand-teal text-[28px]">sprint</span>
             </div>
-            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Elitsport</h3>
-            <p class="text-text-muted text-sm font-light leading-relaxed">Specialanpassat skydd för dig som lever ett aktivt liv med högre risker.</p>
+            <div class="card-text">
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Elitsport</h3>
+                <p class="card-desc text-text-muted text-sm font-light leading-relaxed">Specialanpassat skydd för dig som lever ett aktivt liv med högre risker.</p>
+            </div>
         </button>
 
         <!-- 5. Examen -->
         <button class="scenario-card" data-scenario="examen" onclick="toggleCard(this)">
             <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+            <div class="card-icon w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                 <span class="material-symbols-outlined text-brand-teal text-[28px]">school</span>
             </div>
-            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Examen</h3>
-            <p class="text-text-muted text-sm font-light leading-relaxed">Nyss tagit examen? Börja bygga din ekonomiska trygghet tidigt med lägre premier.</p>
+            <div class="card-text">
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Examen</h3>
+                <p class="card-desc text-text-muted text-sm font-light leading-relaxed">Nyss tagit examen? Börja bygga din ekonomiska trygghet tidigt med lägre premier.</p>
+            </div>
         </button>
 
         <!-- 6. Företagare -->
         <button class="scenario-card" data-scenario="foretagare" onclick="toggleCard(this)">
             <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+            <div class="card-icon w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                 <span class="material-symbols-outlined text-brand-teal text-[28px]">business_center</span>
             </div>
-            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Företagare</h3>
-            <p class="text-text-muted text-sm font-light leading-relaxed">Skydda ditt livsverk och säkra inkomsten för både dig och dina anställda.</p>
+            <div class="card-text">
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Företagare</h3>
+                <p class="card-desc text-text-muted text-sm font-light leading-relaxed">Skydda ditt livsverk och säkra inkomsten för både dig och dina anställda.</p>
+            </div>
         </button>
 
         <!-- 7. Flyttat till landet -->
         <button class="scenario-card" data-scenario="utlands" onclick="toggleCard(this)">
             <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-            <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
+            <div class="card-icon w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                 <span class="material-symbols-outlined text-brand-teal text-[28px]">flight_takeoff</span>
             </div>
-            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Flyttat till landet</h3>
-            <p class="text-text-muted text-sm font-light leading-relaxed">Ofta längre till hjälp. Ett skydd som anpassas för livet utanför stadsskärmen.</p>
+            <div class="card-text">
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bor utomlands</h3>
+                <p class="card-desc text-text-muted text-sm font-light leading-relaxed">Ofta längre till hjälp. Ett skydd som anpassas för livet utanför stadsskärmen.</p>
+            </div>
         </button>
 
         <!-- 8. Jämför alla — special card -->
-        <button class="scenario-card card-all" data-scenario="standard" onclick="toggleCard(this)">
+        <button class="scenario-card card-all" data-scenario="standard" onclick="toggleAll(this)">
             <span class="check-badge" style="background: #E8A838;"><span class="material-symbols-outlined text-[16px]">check</span></span>
-            <div class="w-12 h-12 bg-brand-amber/10 rounded-2xl flex items-center justify-center mb-5">
+            <div class="card-icon w-12 h-12 bg-brand-amber/10 rounded-2xl flex items-center justify-center mb-5">
                 <span class="material-symbols-outlined text-brand-amber text-[28px]">dashboard</span>
             </div>
-            <h3 class="font-headline text-lg font-bold text-text-main mb-2">Jämför alla</h3>
-            <p class="text-text-muted text-sm font-light leading-relaxed">Se alla alternativ sida vid sida utan förfiltrering.</p>
+            <div class="card-text">
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Jämför alla</h3>
+                <p class="card-desc text-text-muted text-sm font-light leading-relaxed">Se alla alternativ sida vid sida utan förfiltrering.</p>
+            </div>
         </button>
 
     </div>
@@ -339,9 +378,13 @@
     // ── Multi-select logic ──
     const selected = new Set();
 
+    // All scenario cards except "Jämför alla"
+    function getAllScenarioCards() {
+        return Array.from(document.querySelectorAll('.scenario-card:not(.card-all)'));
+    }
+
     function toggleCard(card) {
         const scenario = card.dataset.scenario;
-
         if (selected.has(scenario)) {
             selected.delete(scenario);
             card.classList.remove('selected');
@@ -349,7 +392,36 @@
             selected.add(scenario);
             card.classList.add('selected');
         }
+        // If any individual card changed, deselect "Jämför alla"
+        const allCard = document.querySelector('.card-all');
+        if (allCard && allCard.classList.contains('selected')) {
+            allCard.classList.remove('selected');
+            selected.delete('standard');
+        }
+        updateCTA();
+    }
 
+    function toggleAll(card) {
+        const allCards = getAllScenarioCards();
+        const isCurrentlySelected = card.classList.contains('selected');
+
+        if (isCurrentlySelected) {
+            // Deselect everything
+            card.classList.remove('selected');
+            selected.delete('standard');
+            allCards.forEach(c => {
+                c.classList.remove('selected');
+                selected.delete(c.dataset.scenario);
+            });
+        } else {
+            // Select ALL cards including individual ones
+            card.classList.add('selected');
+            selected.add('standard');
+            allCards.forEach(c => {
+                c.classList.add('selected');
+                selected.add(c.dataset.scenario);
+            });
+        }
         updateCTA();
     }
 
@@ -372,9 +444,7 @@
     }
 
     function goToResults() {
-        // Store all selected scenarios as a comma-separated string
         sessionStorage.setItem('ins_scenarios', Array.from(selected).join(','));
-        // Also keep the first one as primary 'ins_scenario' for backwards compatibility
         sessionStorage.setItem('ins_scenario', Array.from(selected)[0] || 'standard');
         transitionTo('resultat.html');
     }
