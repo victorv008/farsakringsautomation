@@ -319,8 +319,11 @@
     ${ribbon}
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-6">
         <div class="flex items-center gap-4">
-            <div class="w-16 h-16 rounded-xl bg-[#f2f9f9] flex items-center justify-center border border-[#00595c]/10">
-                <span class="font-headline font-bold text-[#00595c] text-center">${logoName}</span>
+            <div class="w-16 h-16 rounded-xl bg-white flex items-center justify-center border border-[#00595c]/10 overflow-hidden p-2 shrink-0">
+                ${ins.logo_url
+                    ? `<img src="${ins.logo_url}" alt="${escapeAttr(ins.bolag)}" class="w-full h-full object-contain" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                       <span style="display:none" class="font-headline font-bold text-[#00595c] text-center text-[10px] leading-tight px-1 w-full flex items-center justify-center">${escapeHtml(ins.bolag)}</span>`
+                    : `<span class="font-headline font-bold text-[#00595c] text-center text-xs leading-tight px-1">${escapeHtml(ins.bolag)}</span>`}
             </div>
             <div>
                 <h3 class="font-headline font-bold text-xl text-[#00595c]">Livförsäkring</h3>
