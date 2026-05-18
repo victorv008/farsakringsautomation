@@ -1,11 +1,3 @@
-/**
- * DYNAMIC INSURANCE CARD RENDERER
- * Fetches data/insurance.json, filters based on user selections from
- * sessionStorage + sidebar controls, and renders result cards dynamically.
- * Sidebar changes trigger re-render in real time.
- * Handles desktop sidebar + mobile drawer UX.
- */
-
 (function () {
     const wrapper = document.getElementById('results-wrapper');
     if (!wrapper) return;
@@ -141,9 +133,10 @@
 
         const togglePass = ins => passesToggles(ins, state.toggles);
 
-        const visibleMatched = matched
-            .filter(ins => state.selectedBolag.has(ins.bolag))
-            .filter(togglePass);
+        // Split matched into verified (has price) and unverified (no price)
+        const allMatched = matched.filter(ins => state.selectedBolag.has(ins.bolag)).filter(togglePass);
+        const visibleMatched = allMatched.filter(ins => ins.pris_verifierad !== false);
+        const visibleNoPrice = allMatched.filter(ins => ins.pris_verifierad === false);
 
         const visibleExcluded = excluded.filter(ins => state.selectedBolag.has(ins.bolag));
 
@@ -152,7 +145,7 @@
         updateBolagListAnnotations(matched, togglePass);
         updateFilterChrome();
 
-        renderResults(visibleMatched, visibleExcluded, userAge, userAmount);
+        renderResults(visibleMatched, visibleExcluded, visibleNoPrice, userAge, userAmount);
     }
 
     function passesToggles(ins, t) {
@@ -164,18 +157,149 @@
         return true;
     }
 
+    // ── DYNAMIC PRICE CALCULATION ──
+    function calcMonthlyPrice(ins, age, amount) {
+        const amountMkr = amount / 1000000;
+
+        // --- JustInCase & Idun Liv: per-age per-amount table, interpolate both axes ---
+        if ((ins.bolag === 'JustInCase' || ins.bolag === 'Idun Liv') && ins.pris_tabell_mkr) {
+            const tbl = ins.pris_tabell_mkr;
+            const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
+
+            const lo = ages.filter(a => a <= age).pop() || ages[0];
+            const hi = ages.filter(a => a > age)[0] || ages[ages.length - 1];
+
+            const getPriceAtAge = (a) => {
+                const amountsAtAge = tbl[String(a)] || tbl[a];
+                if (!amountsAtAge) return null;
+                const amtKeys = Object.keys(amountsAtAge).map(Number).sort((a, b) => a - b);
+                return interpolate(amtKeys, v => amountsAtAge[v], amountMkr);
+            };
+
+            if (lo === hi) return Math.round(getPriceAtAge(lo));
+            const frac = (age - lo) / (hi - lo);
+            const loPrice = getPriceAtAge(lo);
+            const hiPrice = getPriceAtAge(hi);
+            return Math.round(loPrice + frac * (hiPrice - loPrice));
+        }
+
+        // --- Länsförsäkringar: age+amount table ---
+        if (ins.bolag === 'Länsförsäkringar' && ins.pris_tabell_mkr) {
+            const tbl = ins.pris_tabell_mkr;
+            const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
+            const lo = ages.filter(a => a <= age).pop() || ages[0];
+            const hi = ages.filter(a => a >= age)[0] || ages[ages.length - 1];
+            const frac = lo === hi ? 0 : (age - lo) / (hi - lo);
+
+            const getPriceAtAge = (a) => {
+                const amountsAtAge = tbl[a];
+                const amtKeys = Object.keys(amountsAtAge).map(Number).sort((a, b) => a - b);
+                return interpolate(amtKeys, v => amountsAtAge[v], amountMkr);
+            };
+            return Math.round(getPriceAtAge(lo) + frac * (getPriceAtAge(hi) - getPriceAtAge(lo)));
+        }
+
+        // --- Skandia: age+amount table ---
+        if (ins.bolag === 'Skandia' && ins.pris_tabell_mkr) {
+            const tbl = ins.pris_tabell_mkr;
+            const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
+            const lo = ages.filter(a => a <= age).pop() || ages[0];
+            const hi = ages.filter(a => a >= age)[0] || ages[ages.length - 1];
+            const frac = lo === hi ? 0 : (age - lo) / (hi - lo);
+
+            const getPriceAtAge = (a) => {
+                const amountsAtAge = tbl[a];
+                const amtKeys = Object.keys(amountsAtAge).map(Number).sort((a, b) => a - b);
+                return interpolate(amtKeys, v => amountsAtAge[v], amountMkr);
+            };
+            return Math.round(getPriceAtAge(lo) + frac * (getPriceAtAge(hi) - getPriceAtAge(lo)));
+        }
+
+        // --- Nordea: PBB-based table ---
+        if (ins.bolag === 'Nordea' && ins.pris_tabell_pbb) {
+            const pbb = ins.pris_pbb || 59200;
+            const clampedAge = Math.max(16, Math.min(65, age));
+            const pricePerPbb = ins.pris_tabell_pbb[String(clampedAge)];
+            if (pricePerPbb) {
+                const pbbUnits = amount / pbb;
+                return Math.round(pricePerPbb * pbbUnits);
+            }
+        }
+
+        // --- Handelsbanken: table for 1 184 000 kr ---
+        if (ins.bolag === 'Handelsbanken Liv' && ins.pris_tabell) {
+            const refAmount = ins.belopp_tabell_referens || 1184000;
+            const tbl = ins.pris_tabell;
+            const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
+            const priceAtRef = interpolate(ages, v => tbl[v], age);
+            return Math.round(priceAtRef * (amount / refAmount));
+        }
+
+        // --- If: table per miljon ---
+        if (ins.bolag === 'If' && ins.pris_tabell_1mkr) {
+            const tbl = ins.pris_tabell_1mkr;
+            const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
+            const priceAt1mkr = interpolate(ages, v => tbl[v], age);
+            return Math.round(priceAt1mkr * amountMkr);
+        }
+
+        // --- SPP: table per miljon ---
+        if (ins.bolag === 'SPP' && ins.pris_tabell_1mkr) {
+            const tbl = ins.pris_tabell_1mkr;
+            const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
+            const priceAt1mkr = interpolate(ages, v => tbl[v], age);
+            return Math.round(priceAt1mkr * amountMkr);
+        }
+
+        // --- Generic: pris_tabell_1mkr as kr/mån per miljon ---
+        if (ins.pris_tabell_1mkr && ins.pris_per_miljon) {
+            const tbl = ins.pris_tabell_1mkr;
+            const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
+            const pricePerMkr = interpolate(ages, v => tbl[v], age);
+            return Math.round(pricePerMkr * amountMkr);
+        }
+
+        // --- Generic: pris_tabell as kr/mån per miljon ---
+        if (ins.pris_tabell && ins.pris_per_miljon) {
+            const tbl = ins.pris_tabell;
+            const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
+            const pricePerMkr = interpolate(ages, v => tbl[v], age);
+            return Math.round(pricePerMkr * amountMkr);
+        }
+
+        return null;
+    }
+
+    function interpolate(sortedKeys, getValue, x) {
+        if (!sortedKeys || sortedKeys.length === 0) return null;
+        const keys = sortedKeys.map(Number).sort((a, b) => a - b);
+
+        if (x <= keys[0]) return getValue(keys[0]);
+        if (x >= keys[keys.length - 1]) return getValue(keys[keys.length - 1]);
+
+        const lo = keys.filter(k => k <= x).pop();
+        const hi = keys.filter(k => k > x)[0];
+        const loVal = getValue(lo);
+        const hiVal = getValue(hi);
+        if (loVal == null || hiVal == null) return loVal || hiVal;
+        const frac = (x - lo) / (hi - lo);
+        return loVal + frac * (hiVal - loVal);
+    }
+
     function sortMatched(list, sortBy) {
         if (sortBy === 'max_age') {
             list.sort((a, b) => (b.teckningsalder_max || 0) - (a.teckningsalder_max || 0));
         } else if (sortBy === 'max_amount') {
             list.sort((a, b) => (b.belopp_max || 0) - (a.belopp_max || 0));
         } else {
-            list.sort((a, b) => (a.pris_30 || 99999) - (b.pris_30 || 99999));
+            list.sort((a, b) => {
+                const pa = calcMonthlyPrice(a, userAge, userAmount) || 99999;
+                const pb = calcMonthlyPrice(b, userAge, userAmount) || 99999;
+                return pa - pb;
+            });
         }
     }
 
-    // Dim bolag rows that would not match the current non-bolag filters,
-    // and update the bolag section heading with a live count.
     function updateBolagListAnnotations(matched, togglePass) {
         const matchedSet = new Set(matched.map(i => i.bolag));
 
@@ -253,7 +377,7 @@
     }
 
     // ── RENDER ──
-    function renderResults(matched, excluded, age, amount) {
+    function renderResults(matched, excluded, noPrice, age, amount) {
         const amountFmt = new Intl.NumberFormat('sv-SE').format(amount);
 
         if (banner) {
@@ -284,6 +408,14 @@
             excluded.forEach(ins => { html += renderExcludedCard(ins); });
         }
 
+        if (noPrice.length > 0) {
+            html += `<h2 class="font-headline text-lg font-bold text-[#00595c]/40 mb-1 mt-10">
+                Övriga bolag — pris ej tillgängligt
+            </h2>
+            <p class="text-sm text-[#00595c]/30 mb-5">Villkoren kan stämma för din situation. Kontakta bolaget för ett prisförslag.</p>`;
+            noPrice.forEach(ins => { html += renderNoPriceCard(ins); });
+        }
+
         wrapper.innerHTML = html;
 
         wrapper.querySelectorAll('.result-card').forEach((c, i) => {
@@ -292,9 +424,8 @@
     }
 
     function renderCard(ins, index) {
-        const price = ins.pris_30;
-        const priceFmt = price ? new Intl.NumberFormat('sv-SE').format(price) : '—';
-        const monthlyPrice = price ? Math.round(price / 12) : null;
+        const monthlyPrice = calcMonthlyPrice(ins, userAge, userAmount);
+        const priceFmt = monthlyPrice ? new Intl.NumberFormat('sv-SE').format(monthlyPrice) : '—';
         const maxMkr = ins.belopp_max ? (ins.belopp_max / 1000000) : null;
 
         let badges = '';
@@ -305,13 +436,9 @@
         if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
         if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
 
-        const ribbon = index === 0 && price ? `
+        const ribbon = index === 0 && monthlyPrice ? `
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0D7377] to-[#14a0a5] rounded-t-[20px]"></div>
             <span class="absolute top-3 right-4 bg-[#0D7377] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">💰 Lägst pris</span>` : '';
-
-        const logoName = ins.bolag.length > 12
-            ? `<span class="text-[9px] leading-tight px-1">${escapeHtml(ins.bolag)}</span>`
-            : `<span class="text-sm">${escapeHtml(ins.bolag)}</span>`;
 
         const link = ins.webbsida ? ins.webbsida : '#';
 
@@ -331,8 +458,8 @@
             </div>
         </div>
         <div class="text-left sm:text-right shrink-0">
-            <div class="font-headline text-3xl font-extrabold text-[#00595c]">${priceFmt} kr<span class="text-lg font-medium text-[#00595c]/50">/år</span></div>
-            ${monthlyPrice ? `<p class="text-xs text-[#00595c]/50 mt-1">≈ ${monthlyPrice} kr/mån</p>` : ''}
+            <div class="font-headline text-3xl font-extrabold text-[#00595c]">${priceFmt} kr<span class="text-lg font-medium text-[#00595c]/50">/mån</span></div>
+            ${monthlyPrice ? `<p class="text-xs text-[#00595c]/50 mt-1">≈ ${new Intl.NumberFormat('sv-SE').format(monthlyPrice * 12)} kr/år</p>` : ''}
         </div>
     </div>
     <div class="flex flex-wrap gap-3">
@@ -344,6 +471,50 @@
     <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
         <a class="text-sm font-semibold text-[#00595c] underline underline-offset-4 hover:text-[#e8a838] transition-colors" href="${link}" target="_blank">Läs fullständiga villkor</a>
         <a href="${link}" target="_blank" class="bg-[#e8a838] text-white font-bold px-8 py-3 rounded-xl hover:bg-[#f0c273] transition-all flex items-center gap-2 no-underline">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+    </div>
+</article>`;
+    }
+
+    function renderNoPriceCard(ins) {
+        const maxMkr = ins.belopp_max ? (ins.belopp_max / 1000000) : null;
+        const link = ins.webbsida ? ins.webbsida : '#';
+
+        let badges = '';
+        if (!ins.nedtrappning) badges += badge('check', 'Ingen nedtrappning', 'g');
+        if (ins.nedtrappning) badges += badge('warning', `Nedtrappning från ${ins.nedtrappning_alder} år`, 'r');
+        if (!ins.halso_deklaration) badges += badge('check', 'Ingen hälsodeklaration', 'g');
+        if (ins.slutalder >= 85) badges += badge('check', `Gäller till ${ins.slutalder} år`, 'g');
+        if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
+        if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
+
+        return `<article class="result-card bg-white/70 rounded-[24px] p-8 flex flex-col gap-5 border border-dashed border-[#00595c]/15 mb-4 opacity-70 hover:opacity-90 transition-opacity">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-5">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-200 overflow-hidden p-2 shrink-0">
+                ${ins.logo_url
+                    ? `<img src="${ins.logo_url}" alt="${escapeAttr(ins.bolag)}" class="w-full h-full object-contain grayscale opacity-60" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                       <span style="display:none" class="font-headline font-bold text-gray-400 text-center text-[10px] leading-tight px-1 w-full flex items-center justify-center">${escapeHtml(ins.bolag)}</span>`
+                    : `<span class="font-headline font-bold text-gray-400 text-center text-xs leading-tight px-1">${escapeHtml(ins.bolag)}</span>`}
+            </div>
+            <div>
+                <h3 class="font-headline font-bold text-lg text-[#00595c]/60">Livförsäkring</h3>
+                <p class="text-sm text-[#00595c]/40">${escapeHtml(ins.bolag)}</p>
+            </div>
+        </div>
+        <div class="text-left sm:text-right shrink-0">
+            <div class="font-headline text-3xl font-extrabold text-gray-300">— kr<span class="text-lg font-medium text-gray-300">/mån</span></div>
+            <p class="text-xs text-gray-400 mt-1">Pris ej tillgängligt</p>
+        </div>
+    </div>
+    <div class="flex flex-wrap gap-3">
+        <div class="bg-gray-50 px-3 py-2 rounded-lg flex items-center gap-2 border border-gray-100 text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
+        <div class="bg-gray-50 px-3 py-2 rounded-lg flex items-center gap-2 border border-gray-100 text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
+        ${maxMkr ? `<div class="bg-gray-50 px-3 py-2 rounded-lg flex items-center gap-2 border border-gray-100 text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-gray-50 px-3 py-2 rounded-lg flex items-center gap-2 border border-gray-100 text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">payments</span>Inget maxtak</div>'}
+    </div>
+    ${badges ? `<div class="flex flex-wrap gap-2">${badges}</div>` : ''}
+    <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <a class="text-sm font-semibold text-[#00595c]/50 underline underline-offset-4 hover:text-[#00595c] transition-colors" href="${link}" target="_blank">Läs fullständiga villkor</a>
+        <a href="${link}" target="_blank" class="bg-gray-200 text-gray-600 font-bold px-8 py-3 rounded-xl hover:bg-gray-300 transition-all flex items-center gap-2 no-underline text-sm">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
     </div>
 </article>`;
     }

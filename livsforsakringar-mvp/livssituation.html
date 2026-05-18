@@ -397,13 +397,30 @@
 
         function toggleCard(card) {
             const scenario = card.dataset.scenario;
+            const allCards = document.querySelectorAll('.scenario-card');
 
-            if (selected.has(scenario)) {
-                selected.delete(scenario);
-                card.classList.remove('selected');
+            if (scenario === 'standard') {
+                // "Jämför alla" — select or deselect everything
+                if (selected.has('standard')) {
+                    selected.clear();
+                    allCards.forEach(c => c.classList.remove('selected'));
+                } else {
+                    allCards.forEach(c => {
+                        selected.add(c.dataset.scenario);
+                        c.classList.add('selected');
+                    });
+                }
             } else {
-                selected.add(scenario);
-                card.classList.add('selected');
+                if (selected.has(scenario)) {
+                    selected.delete(scenario);
+                    card.classList.remove('selected');
+                    // If "Jämför alla" was selected, deselect it too
+                    const allCard = document.querySelector('[data-scenario="standard"]');
+                    if (allCard) { selected.delete('standard'); allCard.classList.remove('selected'); }
+                } else {
+                    selected.add(scenario);
+                    card.classList.add('selected');
+                }
             }
 
             updateCTA();
