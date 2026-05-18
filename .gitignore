@@ -7,3 +7,8 @@ Thumbs.db
 .vscode/
 .idea/
 *.log
+
+# Lokala mappar som inte ska pushas
+.claude/
+prisbilder/
+spreadsheet/
