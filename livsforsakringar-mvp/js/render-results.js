@@ -99,17 +99,24 @@
 
         if (!sidebar || !backdrop || !fab) return;
 
+        // Force initial hidden position via JS (overrides any CSS !important)
+        sidebar.style.setProperty('bottom', '-100vh', 'important');
+        // After first paint, switch to CSS transition control
+        requestAnimationFrame(() => {
+            sidebar.style.removeProperty('bottom');
+        });
+
         let isOpen = false;
 
         const open = () => {
             isOpen = true;
-            sidebar.style.bottom = '0';
+            sidebar.classList.add('is-open');
             backdrop.classList.add('is-open');
             document.body.style.overflow = 'hidden';
         };
         const close = () => {
             isOpen = false;
-            sidebar.style.bottom = '-100vh';
+            sidebar.classList.remove('is-open');
             backdrop.classList.remove('is-open');
             document.body.style.overflow = '';
         };
