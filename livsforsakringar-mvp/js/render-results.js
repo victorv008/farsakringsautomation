@@ -97,21 +97,25 @@
         const fab = document.getElementById('mobile-filter-fab');
         const closeBtn = document.getElementById('mobile-close');
 
+        if (!sidebar || !backdrop || !fab) return;
+
+        let isOpen = false;
+
         const open = () => {
-            sidebar.classList.add('is-open');
+            isOpen = true;
+            sidebar.style.bottom = '0';
             backdrop.classList.add('is-open');
-            document.body.classList.add('no-scroll');
+            document.body.style.overflow = 'hidden';
         };
         const close = () => {
-            sidebar.classList.remove('is-open');
+            isOpen = false;
+            sidebar.style.bottom = '-100vh';
             backdrop.classList.remove('is-open');
-            document.body.classList.remove('no-scroll');
+            document.body.style.overflow = '';
         };
 
-        fab && fab.addEventListener('click', () => {
-            sidebar.classList.contains('is-open') ? close() : open();
-        });
-        backdrop && backdrop.addEventListener('click', close);
+        fab.addEventListener('click', () => { isOpen ? close() : open(); });
+        backdrop.addEventListener('click', close);
         closeBtn && closeBtn.addEventListener('click', close);
         document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
     }

@@ -119,13 +119,13 @@
         #mobile-sheet-header { display: none; }
 
         @media (max-width: 1023px) {
-            /* FAB button */
+            /* FAB */
             #mobile-filter-fab {
                 display: inline-flex;
                 position: fixed;
                 bottom: 1.5rem;
                 right: 1.5rem;
-                z-index: 45;
+                z-index: 200;
                 align-items: center;
                 gap: 0.5rem;
                 background: #00595c;
@@ -138,9 +138,7 @@
                 box-shadow: 0 8px 32px rgba(0,89,92,0.45);
                 border: none;
                 cursor: pointer;
-                transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
             }
-            #mobile-filter-fab:active { transform: scale(0.94); box-shadow: 0 4px 16px rgba(0,89,92,0.3); }
             #mobile-filter-fab .fab-badge {
                 background: #e8a838;
                 color: #fff;
@@ -154,77 +152,69 @@
             }
             #mobile-filter-fab .fab-badge:empty { display: none; }
 
-            /* Backdrop — darker + blur */
+            /* Backdrop — covers FULL screen including header */
             #mobile-backdrop {
                 display: block;
                 position: fixed;
-                inset: 0;
-                background: rgba(8, 18, 18, 0.65);
-                backdrop-filter: blur(6px);
-                -webkit-backdrop-filter: blur(6px);
-                z-index: 50;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                z-index: 100;
                 opacity: 0;
                 pointer-events: none;
-                transition: opacity 0.4s ease;
+                transition: opacity 0.3s ease;
             }
             #mobile-backdrop.is-open { opacity: 1; pointer-events: auto; }
 
-            /* Bottom sheet */
+            /* Bottom sheet — uses bottom offset to hide/show (no transform conflict) */
             #sidebar {
                 position: fixed !important;
-                bottom: 0;
-                left: 0;
-                right: 0;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: -100vh !important;
                 top: auto !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                max-height: 90vh;
-                overflow-y: auto;
+                height: 90vh !important;
+                overflow-y: auto !important;
                 overscroll-behavior: contain;
                 -webkit-overflow-scrolling: touch;
-                padding: 0 1.25rem 3rem;
-                background: #ffffff;
-                border-radius: 24px 24px 0 0;
-                box-shadow: 0 -8px 60px rgba(0,89,92,0.18);
-                z-index: 60;
-                will-change: transform;
-                transform: translateY(100vh);
-                transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+                padding: 0 !important;
+                background: #ffffff !important;
+                border-radius: 24px 24px 0 0 !important;
+                box-shadow: 0 -8px 50px rgba(0,89,92,0.25) !important;
+                z-index: 110 !important;
                 margin: 0 !important;
+                transition: bottom 0.42s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
-            #sidebar.is-open { transform: translateY(0) !important; }
+            #sidebar.is-open { bottom: 0 !important; }
 
-            /* Mobile sheet header (drag handle + title + close) */
+            /* Mobile sheet header: drag handle + title + X */
             #mobile-sheet-header {
-                display: flex;
+                display: flex !important;
                 flex-direction: column;
                 position: sticky;
                 top: 0;
                 background: #ffffff;
-                z-index: 10;
-                padding-top: 0.75rem;
-                padding-bottom: 1rem;
-                margin-bottom: 0.25rem;
-                border-bottom: 1px solid rgba(0,89,92,0.07);
+                z-index: 5;
+                padding: 0.75rem 1.25rem 0.875rem;
+                border-bottom: 1px solid rgba(0,89,92,0.08);
             }
 
-            /* Strip the card styling from filter-panel inside the sheet */
+            /* Filter panel inside sheet: remove card wrapper styling */
             #filter-panel {
                 background: transparent !important;
                 border: none !important;
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                padding: 1rem 0 0 !important;
+                padding: 1rem 1.25rem 0 !important;
             }
-            /* Hide the desktop title inside filter-panel on mobile */
-            #filter-panel-title { display: none; }
+            #filter-panel-title { display: none !important; }
         }
 
         @media (min-width: 1024px) {
-            #mobile-sheet-header { display: none; }
+            #mobile-sheet-header { display: none !important; }
         }
 
-        /* Lock body scroll while sheet is open */
         body.no-scroll { overflow: hidden; }
     </style>
 </head>
