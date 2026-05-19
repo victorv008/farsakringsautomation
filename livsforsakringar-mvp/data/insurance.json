@@ -60,7 +60,7 @@
         "kampsport_kroppskontakt"
       ],
       "kommentar": "Undantag vid privat flygning eller kampsport med kroppskontakt",
-      "webbsida": "https://app.evidentlife.se/products/ELP01001",
+      "webbsida": "https://www.evidentlife.se/ELP01001/",
       "logo_url": "https://www.google.com/s2/favicons?domain=evidentlife.se&sz=128"
     },
     {
@@ -124,7 +124,7 @@
       "belopp_tabell_referens": 1184000,
       "undantag_sport": [],
       "kommentar": "Prisbasbeloppsbaserad. Referenspris för 20 pbb = 1 184 000 kr",
-      "webbsida": "https://www.handelsbanken.se/liv",
+      "webbsida": "https://www.handelsbanken.se/sv/privat/pension/forsakringar-for-dig-och-familjen/livforsakring",
       "logo_url": "https://www.google.com/s2/favicons?domain=handelsbanken.se&sz=128"
     },
     {
@@ -156,7 +156,7 @@
       "pris_per_miljon": true,
       "undantag_sport": [],
       "kommentar": "Kräver fullt arbetsför",
-      "webbsida": "https://www.icaforsakring.se/liv"
+      "webbsida": "https://www.icaforsakring.se/person/livforsakring/"
     },
     {
       "bolag": "Idun Liv",
@@ -197,7 +197,7 @@
       },
       "undantag_sport": [],
       "kommentar": null,
-      "webbsida": "https://www.idunliv.se"
+      "webbsida": "https://www.idunliv.se/forsakringar/livforsakring/"
     },
     {
       "bolag": "If",
@@ -227,7 +227,7 @@
       "pris_per_miljon": true,
       "undantag_sport": [],
       "kommentar": null,
-      "webbsida": "https://www.if.se/privat/forsakringar/livforsakring",
+      "webbsida": "https://www.if.se/privat/forsakringar/personforsakring/livforsakring",
       "logo_url": "https://www.google.com/s2/favicons?domain=if.se&sz=128"
     },
     {
@@ -333,7 +333,7 @@
       "pris_per_miljon": true,
       "undantag_sport": [],
       "kommentar": "Kräver fullt arbetsför",
-      "webbsida": "https://www.movestic.se"
+      "webbsida": "https://www.movestic.se/forsakringar/livforsakring"
     },
     {
       "bolag": "Nordea",
@@ -364,7 +364,7 @@
       "pris_pbb": 59200,
       "undantag_sport": [],
       "kommentar": "Prisbasbeloppsbaserat. PBB 2026 = 59 200 kr",
-      "webbsida": "https://www.nordea.se/privat/forsakring/livforsakring/",
+      "webbsida": "https://www.nordea.se/privat/produkter/forsakringar/livforsakring.html",
       "logo_url": "https://www.google.com/s2/favicons?domain=nordea.se&sz=128"
     },
     {
@@ -396,7 +396,7 @@
       "pris_per_miljon": true,
       "undantag_sport": [],
       "kommentar": null,
-      "webbsida": "https://www.seb.se/privat/forsakring/livforsakring"
+      "webbsida": "https://seb.se/privat/forsakringar/liv-och-sjukforsakringar/livforsakring-trygg"
     },
     {
       "bolag": "Skandia",
@@ -422,7 +422,7 @@
       "pris_per_miljon": false,
       "undantag_sport": [],
       "kommentar": null,
-      "webbsida": "https://www.skandia.se/forsakring/livforsakring/",
+      "webbsida": "https://www.skandia.se/forsakra/privata-personforsakringar/livforsakring/",
       "logo_url": "https://www.google.com/s2/favicons?domain=skandia.se&sz=128"
     },
     {
@@ -453,7 +453,7 @@
       "pris_per_miljon": true,
       "undantag_sport": [],
       "kommentar": "Inget maxtak på försäkringsbelopp",
-      "webbsida": "https://www.spp.se/privat/forsakring/livforsakring/",
+      "webbsida": "https://www.spp.se/halsa-forsakring/livforsakring/",
       "logo_url": "https://www.google.com/s2/favicons?domain=spp.se&sz=128"
     },
     {
@@ -485,7 +485,7 @@
       "pris_per_miljon": true,
       "undantag_sport": [],
       "kommentar": "Inget maxtak på försäkringsbelopp",
-      "webbsida": "https://www.swedbank.se/privat/forsakring/livforsakring.html"
+      "webbsida": "https://www.swedbank.se/privat/forsakra/personforsakring/livskydd-lan.html"
     },
     {
       "bolag": "Trygg-Hansa",
@@ -515,7 +515,7 @@
       "pris_per_miljon": true,
       "undantag_sport": [],
       "kommentar": null,
-      "webbsida": "https://www.trygghansa.se/privat/forsakringar/livforsakring"
+      "webbsida": "https://www.trygghansa.se/forsakringar/person/livforsakring"
     }
   ]
 }
