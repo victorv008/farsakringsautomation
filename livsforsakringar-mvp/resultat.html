@@ -152,29 +152,19 @@
             }
             #mobile-filter-fab .fab-badge:empty { display: none; }
 
-            /* Backdrop covers content behind the card */
-            #mobile-backdrop {
-                display: block;
-                position: fixed;
-                top: 0; left: 0; right: 0; bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 9998;
-                opacity: 0;
-                pointer-events: none;
-                transition: opacity 0.3s ease;
-            }
-            #mobile-backdrop.is-open { opacity: 1; pointer-events: auto; }
+            /* Backdrop disabled — no silhouette */
+            #mobile-backdrop { display: none !important; }
 
             /* Sidebar: HIDDEN by default on mobile */
             #sidebar {
                 display: none !important;
             }
 
-            /* Sidebar OPEN: bottom-sheet card positioned by edges */
+            /* Sidebar OPEN: nearly full-screen card */
             #sidebar.is-open {
                 display: block !important;
                 position: fixed !important;
-                top: 15vh !important;
+                top: 5vh !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
@@ -187,8 +177,8 @@
                 overscroll-behavior: contain;
                 margin: 0 !important;
                 padding: 0 !important;
-                border-radius: 24px 24px 0 0 !important;
-                box-shadow: 0 -10px 40px rgba(0,0,0,0.25) !important;
+                border-radius: 20px 20px 0 0 !important;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.18) !important;
             }
 
             /* Mobile sheet header (drag handle + title + X) */

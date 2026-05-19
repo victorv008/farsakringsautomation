@@ -94,24 +94,41 @@
     function wireMobileDrawer() {
         const sidebar = document.getElementById('sidebar');
         const fab = document.getElementById('mobile-filter-fab');
-        const backdrop = document.getElementById('mobile-backdrop');
 
         if (!sidebar || !fab) return;
 
+        let savedScrollY = 0;
+
+        const lockBody = () => {
+            savedScrollY = window.scrollY || window.pageYOffset;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${savedScrollY}px`;
+            document.body.style.left = '0';
+            document.body.style.right = '0';
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+        };
+        const unlockBody = () => {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.right = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            window.scrollTo(0, savedScrollY);
+        };
+
         const open = () => {
             sidebar.classList.add('is-open');
-            // Inline-style fallback in case CSS doesn't apply
             if (window.innerWidth < 1024) {
-                sidebar.style.cssText = 'display:block!important;position:fixed!important;top:15vh!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;background:#fff!important;z-index:9999!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;margin:0!important;padding:0!important;border-radius:24px 24px 0 0!important;box-shadow:0 -10px 40px rgba(0,0,0,0.25)!important;';
+                sidebar.style.cssText = 'display:block!important;position:fixed!important;top:5vh!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;background:#fff!important;z-index:9999!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0!important;padding:0!important;border-radius:20px 20px 0 0!important;box-shadow:0 -10px 40px rgba(0,0,0,0.18)!important;';
+                lockBody();
             }
-            if (backdrop) backdrop.classList.add('is-open');
-            document.body.style.overflow = 'hidden';
         };
         const close = () => {
             sidebar.classList.remove('is-open');
             sidebar.style.cssText = '';
-            if (backdrop) backdrop.classList.remove('is-open');
-            document.body.style.overflow = '';
+            unlockBody();
         };
 
         fab.addEventListener('click', () => {
