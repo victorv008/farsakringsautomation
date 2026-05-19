@@ -92,53 +92,58 @@
     }
 
     function wireMobileDrawer() {
-        const sidebar = document.getElementById('sidebar');
+        const portal = document.getElementById('mobile-filter-portal');
+        const portalContent = document.getElementById('mfp-content');
         const fab = document.getElementById('mobile-filter-fab');
-        const closeBtn = document.getElementById('mobile-close');
+        const closeBtn = document.getElementById('mfp-close');
         const applyBtn = document.getElementById('mfm-apply');
         const clearBtn = document.getElementById('mfm-clear');
+        const filterPanel = document.getElementById('filter-panel');
+        const sidebar = document.getElementById('sidebar');
 
-        if (!sidebar || !fab) return;
+        if (!portal || !portalContent || !fab || !filterPanel || !sidebar) return;
 
         const isMobile = () => window.innerWidth < 1024;
         let savedScrollY = 0;
 
         const lockBody = () => {
             savedScrollY = window.scrollY || window.pageYOffset;
-            document.documentElement.style.overflow = 'hidden';
             document.body.style.position = 'fixed';
             document.body.style.top = `-${savedScrollY}px`;
             document.body.style.left = '0';
             document.body.style.right = '0';
             document.body.style.width = '100%';
-            document.body.style.overflow = 'hidden';
             document.body.classList.add('modal-open');
         };
+
         const unlockBody = () => {
-            document.documentElement.style.overflow = '';
             document.body.style.position = '';
             document.body.style.top = '';
             document.body.style.left = '';
             document.body.style.right = '';
             document.body.style.width = '';
-            document.body.style.overflow = '';
             document.body.classList.remove('modal-open');
             window.scrollTo(0, savedScrollY);
         };
 
         const open = () => {
-            if (sidebar.classList.contains('is-open')) return;
-            sidebar.classList.add('is-open');
-            if (isMobile()) lockBody();
+            if (!isMobile() || portal.classList.contains('is-open')) return;
+            portalContent.appendChild(filterPanel);
+            portal.classList.add('is-open');
+            portal.setAttribute('aria-hidden', 'false');
+            lockBody();
         };
+
         const close = () => {
-            if (!sidebar.classList.contains('is-open')) return;
-            sidebar.classList.remove('is-open');
+            if (!portal.classList.contains('is-open')) return;
+            sidebar.appendChild(filterPanel);
+            portal.classList.remove('is-open');
+            portal.setAttribute('aria-hidden', 'true');
             unlockBody();
         };
 
         fab.addEventListener('click', () => {
-            sidebar.classList.contains('is-open') ? close() : open();
+            portal.classList.contains('is-open') ? close() : open();
         });
         if (closeBtn) closeBtn.addEventListener('click', close);
         if (applyBtn) applyBtn.addEventListener('click', close);
