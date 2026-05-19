@@ -94,9 +94,13 @@
     function wireMobileDrawer() {
         const sidebar = document.getElementById('sidebar');
         const fab = document.getElementById('mobile-filter-fab');
+        const closeBtn = document.getElementById('mobile-close');
+        const applyBtn = document.getElementById('mfm-apply');
+        const clearBtn = document.getElementById('mfm-clear');
 
         if (!sidebar || !fab) return;
 
+        const isMobile = () => window.innerWidth < 1024;
         let savedScrollY = 0;
 
         const lockBody = () => {
@@ -106,7 +110,7 @@
             document.body.style.left = '0';
             document.body.style.right = '0';
             document.body.style.width = '100%';
-            document.body.style.overflow = 'hidden';
+            document.body.classList.add('modal-open');
         };
         const unlockBody = () => {
             document.body.style.position = '';
@@ -114,69 +118,29 @@
             document.body.style.left = '';
             document.body.style.right = '';
             document.body.style.width = '';
-            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
             window.scrollTo(0, savedScrollY);
         };
 
         const open = () => {
+            if (sidebar.classList.contains('is-open')) return;
             sidebar.classList.add('is-open');
-            if (window.innerWidth < 1024) {
-                sidebar.style.cssText = 'display:block!important;position:fixed!important;top:50vh!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;background:#fff!important;z-index:9999!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0!important;padding:0!important;border-radius:20px 20px 0 0!important;box-shadow:0 -12px 40px rgba(0,0,0,0.22)!important;';
-                lockBody();
-            }
+            if (isMobile()) lockBody();
         };
         const close = () => {
+            if (!sidebar.classList.contains('is-open')) return;
             sidebar.classList.remove('is-open');
-            sidebar.style.cssText = '';
             unlockBody();
         };
 
         fab.addEventListener('click', () => {
             sidebar.classList.contains('is-open') ? close() : open();
         });
-
-        document.addEventListener('click', (e) => {
-            if (e.target.closest('#mobile-close')) close();
-        });
+        if (closeBtn) closeBtn.addEventListener('click', close);
+        if (applyBtn) applyBtn.addEventListener('click', close);
+        if (clearBtn) clearBtn.addEventListener('click', resetFilters);
 
         document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
-
-        // Drag-to-close on sheet header (touch only)
-        let dragStartY = 0;
-        let dragCurrentY = 0;
-        let isDragging = false;
-
-        document.addEventListener('touchstart', (e) => {
-            if (!sidebar.classList.contains('is-open')) return;
-            const header = e.target.closest('#mobile-sheet-header');
-            if (!header || e.target.closest('#mobile-close')) return;
-            isDragging = true;
-            dragStartY = e.touches[0].clientY;
-            dragCurrentY = dragStartY;
-            sidebar.style.transition = 'none';
-        }, { passive: true });
-
-        document.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            dragCurrentY = e.touches[0].clientY;
-            const delta = dragCurrentY - dragStartY;
-            if (delta > 0) {
-                sidebar.style.transform = `translateY(${delta}px)`;
-            }
-        }, { passive: true });
-
-        document.addEventListener('touchend', () => {
-            if (!isDragging) return;
-            isDragging = false;
-            sidebar.style.transition = 'transform 0.25s ease';
-            const delta = dragCurrentY - dragStartY;
-            if (delta > 120) {
-                close();
-            } else {
-                sidebar.style.transform = '';
-            }
-            setTimeout(() => { sidebar.style.transition = ''; }, 300);
-        });
     }
 
     function resetFilters() {

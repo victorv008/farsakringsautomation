@@ -113,10 +113,11 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,89,92,0.25); border-radius: 999px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
 
-        /* ── Mobile filter: simple show/hide ── */
+        /* ── Mobile filter: full-screen modal with internal scroll ── */
         #mobile-filter-fab { display: none; }
-        #mobile-backdrop { display: none; }
+        #mobile-backdrop { display: none !important; }
         #mobile-sheet-header { display: none; }
+        #mobile-sheet-footer { display: none; }
 
         @media (max-width: 1023px) {
             /* FAB always visible on mobile */
@@ -151,61 +152,92 @@
                 display: inline-block;
             }
             #mobile-filter-fab .fab-badge:empty { display: none; }
-
-            /* Backdrop disabled — no silhouette */
-            #mobile-backdrop { display: none !important; }
+            /* Hide FAB when modal is open */
+            body.modal-open #mobile-filter-fab { display: none !important; }
 
             /* Sidebar: HIDDEN by default on mobile */
             #sidebar {
                 display: none !important;
             }
 
-            /* Sidebar OPEN: small bottom-sheet card (50vh) */
+            /* Sidebar OPEN: full-screen flex column modal */
             #sidebar.is-open {
-                display: block !important;
+                display: flex !important;
+                flex-direction: column !important;
                 position: fixed !important;
-                top: 50vh !important;
+                top: 0 !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
                 width: auto !important;
                 max-width: none !important;
+                height: 100% !important;
+                max-height: 100% !important;
                 background: #ffffff !important;
                 z-index: 9999 !important;
-                overflow-y: auto !important;
-                -webkit-overflow-scrolling: touch;
-                overscroll-behavior: contain;
+                overflow: hidden !important; /* outer hidden — inner content scrolls */
                 margin: 0 !important;
                 padding: 0 !important;
-                border-radius: 20px 20px 0 0 !important;
-                box-shadow: 0 -12px 40px rgba(0,0,0,0.22) !important;
+                border-radius: 0 !important;
             }
+            /* Override Tailwind space-y-6 inside the flex column */
+            #sidebar.is-open > * { margin-top: 0 !important; }
 
-            /* Mobile sheet header (drag handle + title + X) */
+            /* Sticky modal header (title + close) */
             #mobile-sheet-header {
                 display: flex !important;
-                flex-direction: column;
-                position: sticky;
-                top: 0;
+                flex: 0 0 auto;
+                align-items: center;
+                justify-content: space-between;
+                padding: 1rem 1.25rem;
                 background: #ffffff;
-                z-index: 5;
-                padding: 0.75rem 1.25rem 0.875rem;
                 border-bottom: 1px solid rgba(0,89,92,0.08);
-                touch-action: none;
-                cursor: grab;
-                user-select: none;
             }
 
-            /* Filter panel inside the sheet */
-            #filter-panel {
+            /* Filter panel = the scrollable middle of the modal */
+            #sidebar.is-open #filter-panel {
+                flex: 1 1 auto !important;
+                min-height: 0 !important;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                overscroll-behavior: contain !important;
                 background: transparent !important;
                 border: none !important;
                 box-shadow: none !important;
                 border-radius: 0 !important;
-                padding: 1.25rem !important;
+                padding: 1.25rem 1.25rem 1.5rem !important;
                 margin: 0 !important;
             }
             #filter-panel-title { display: none !important; }
+
+            /* Sticky modal footer with Rensa + Visa resultat */
+            #mobile-sheet-footer {
+                display: flex !important;
+                flex: 0 0 auto;
+                gap: 0.75rem;
+                padding: 0.875rem 1.25rem calc(0.875rem + env(safe-area-inset-bottom, 0px));
+                background: #ffffff;
+                border-top: 1px solid rgba(0,89,92,0.08);
+                box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+            }
+            #mobile-sheet-footer button {
+                flex: 1 1 0;
+                padding: 0.85rem 1rem;
+                border-radius: 9999px;
+                border: none;
+                font-weight: 700;
+                font-size: 0.95rem;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                cursor: pointer;
+            }
+            #mfm-clear {
+                background: #f3f4f6;
+                color: #00595c;
+            }
+            #mfm-apply {
+                background: #00595c;
+                color: #fff;
+            }
 
             /* Bolag list: remove inner scroll on mobile — let it expand */
             #bolag-list {
@@ -293,20 +325,15 @@
 <div id="mobile-backdrop" aria-hidden="true"></div>
 <!-- Sidebar (Filter Panel) -->
 <aside id="sidebar" class="col-span-12 lg:col-span-3 space-y-6">
-    <!-- Mobile bottom sheet: drag handle + sticky header -->
+    <!-- Mobile modal header (title + close) -->
     <div id="mobile-sheet-header">
-        <div style="display:flex;justify-content:center;margin-bottom:0.75rem;">
-            <div style="width:40px;height:5px;border-radius:9999px;background:#e0e0e0;"></div>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;">
-            <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.2rem;color:#00595c;display:flex;align-items:center;gap:0.5rem;">
-                <span class="material-symbols-outlined" style="font-size:20px;">tune</span>
-                Sortera &amp; Filtrera
-            </h2>
-            <button id="mobile-close" style="width:40px;height:40px;border-radius:9999px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;" aria-label="Stäng filter">
-                <span class="material-symbols-outlined" style="color:#00595c;font-size:20px;">close</span>
-            </button>
-        </div>
+        <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.2rem;color:#00595c;display:flex;align-items:center;gap:0.5rem;margin:0;">
+            <span class="material-symbols-outlined" style="font-size:20px;">tune</span>
+            Sortera &amp; Filtrera
+        </h2>
+        <button id="mobile-close" style="width:40px;height:40px;border-radius:9999px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;" aria-label="Stäng filter">
+            <span class="material-symbols-outlined" style="color:#00595c;font-size:20px;">close</span>
+        </button>
     </div>
         <div id="filter-panel" class="bg-white rounded-2xl shadow-sm border border-[#00595c]/5 p-6 relative">
 <h2 id="filter-panel-title" class="font-headline font-bold text-lg text-[#00595c] mb-2 flex items-center justify-between">
@@ -382,6 +409,11 @@
 <h3 id="bolag-heading" class="font-label text-xs uppercase tracking-wider text-on-surface-variant mb-4 font-semibold">Bolag</h3>
 <div id="bolag-list" class="space-y-3 max-h-48 overflow-y-auto pr-2 custom-scrollbar"></div>
 </div>
+</div>
+<!-- Mobile modal footer (Rensa + Visa resultat) -->
+<div id="mobile-sheet-footer">
+    <button id="mfm-clear" type="button">Rensa</button>
+    <button id="mfm-apply" type="button">Visa resultat</button>
 </div>
 </aside><!-- end filter card + sidebar col -->
 <!-- Content Area (Results) -->
