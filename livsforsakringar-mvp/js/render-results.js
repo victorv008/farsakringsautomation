@@ -100,14 +100,18 @@
 
         const open = () => {
             sidebar.classList.add('is-open');
+            // Inline-style fallback in case CSS doesn't apply
+            if (window.innerWidth < 1024) {
+                sidebar.style.cssText = 'display:block!important;position:fixed!important;top:15vh!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;background:#fff!important;z-index:9999!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;margin:0!important;padding:0!important;border-radius:24px 24px 0 0!important;box-shadow:0 -10px 40px rgba(0,0,0,0.25)!important;';
+            }
             if (backdrop) backdrop.classList.add('is-open');
             document.body.style.overflow = 'hidden';
         };
         const close = () => {
             sidebar.classList.remove('is-open');
+            sidebar.style.cssText = '';
             if (backdrop) backdrop.classList.remove('is-open');
             document.body.style.overflow = '';
-            sidebar.style.transform = '';
         };
 
         fab.addEventListener('click', () => {

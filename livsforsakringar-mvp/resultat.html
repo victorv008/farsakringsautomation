@@ -170,18 +170,16 @@
                 display: none !important;
             }
 
-            /* Sidebar OPEN: bottom-sheet card (NOT full screen) */
+            /* Sidebar OPEN: bottom-sheet card positioned by edges */
             #sidebar.is-open {
                 display: block !important;
                 position: fixed !important;
-                top: auto !important;
+                top: 15vh !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
-                width: 100% !important;
-                height: 85vh !important;
-                max-width: 100% !important;
-                max-height: 85vh !important;
+                width: auto !important;
+                max-width: none !important;
                 background: #ffffff !important;
                 z-index: 9999 !important;
                 overflow-y: auto !important;
