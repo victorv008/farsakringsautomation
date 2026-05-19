@@ -108,7 +108,9 @@
             document.body.classList.remove('no-scroll');
         };
 
-        fab && fab.addEventListener('click', open);
+        fab && fab.addEventListener('click', () => {
+            sidebar.classList.contains('is-open') ? close() : open();
+        });
         backdrop && backdrop.addEventListener('click', close);
         closeBtn && closeBtn.addEventListener('click', close);
         document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });

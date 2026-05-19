@@ -178,7 +178,7 @@
                 top: auto !important;
                 width: 100% !important;
                 max-width: 100% !important;
-                max-height: 92dvh;
+                max-height: 90vh;
                 overflow-y: auto;
                 overscroll-behavior: contain;
                 -webkit-overflow-scrolling: touch;
@@ -187,11 +187,12 @@
                 border-radius: 24px 24px 0 0;
                 box-shadow: 0 -8px 60px rgba(0,89,92,0.18);
                 z-index: 60;
-                transform: translateY(110%);
-                transition: transform 0.48s cubic-bezier(0.16, 1, 0.3, 1);
+                will-change: transform;
+                transform: translateY(100vh);
+                transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
                 margin: 0 !important;
             }
-            #sidebar.is-open { transform: translateY(0); }
+            #sidebar.is-open { transform: translateY(0) !important; }
 
             /* Mobile sheet header (drag handle + title + close) */
             #mobile-sheet-header {
