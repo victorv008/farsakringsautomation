@@ -152,35 +152,48 @@
             }
             #mobile-filter-fab .fab-badge:empty { display: none; }
 
-            /* Sidebar: HIDDEN by default on mobile, NO ANIMATION */
+            /* Backdrop covers content behind the card */
+            #mobile-backdrop {
+                display: block;
+                position: fixed;
+                top: 0; left: 0; right: 0; bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 9998;
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+            }
+            #mobile-backdrop.is-open { opacity: 1; pointer-events: auto; }
+
+            /* Sidebar: HIDDEN by default on mobile */
             #sidebar {
                 display: none !important;
             }
 
-            /* Sidebar OPEN: full-screen white overlay */
+            /* Sidebar OPEN: bottom-sheet card (NOT full screen) */
             #sidebar.is-open {
                 display: block !important;
                 position: fixed !important;
-                top: 0 !important;
+                top: auto !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
                 width: 100% !important;
-                height: 100% !important;
+                height: 85vh !important;
                 max-width: 100% !important;
-                max-height: 100% !important;
+                max-height: 85vh !important;
                 background: #ffffff !important;
                 z-index: 9999 !important;
                 overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                overscroll-behavior: contain;
                 margin: 0 !important;
                 padding: 0 !important;
-                border-radius: 0 !important;
+                border-radius: 24px 24px 0 0 !important;
+                box-shadow: 0 -10px 40px rgba(0,0,0,0.25) !important;
             }
 
-            /* Backdrop not needed when sidebar is full-screen */
-            #mobile-backdrop { display: none !important; }
-
-            /* Mobile sheet header inside open sidebar */
+            /* Mobile sheet header (drag handle + title + X) */
             #mobile-sheet-header {
                 display: flex !important;
                 flex-direction: column;
@@ -188,11 +201,14 @@
                 top: 0;
                 background: #ffffff;
                 z-index: 5;
-                padding: 1rem 1.25rem 0.875rem;
+                padding: 0.75rem 1.25rem 0.875rem;
                 border-bottom: 1px solid rgba(0,89,92,0.08);
+                touch-action: none;
+                cursor: grab;
+                user-select: none;
             }
 
-            /* Filter panel inside the full-screen sheet */
+            /* Filter panel inside the sheet */
             #filter-panel {
                 background: transparent !important;
                 border: none !important;
@@ -202,6 +218,13 @@
                 margin: 0 !important;
             }
             #filter-panel-title { display: none !important; }
+
+            /* Bolag list: remove inner scroll on mobile — let it expand */
+            #bolag-list {
+                max-height: none !important;
+                overflow-y: visible !important;
+                padding-right: 0 !important;
+            }
         }
 
         body.no-scroll { overflow: hidden; }

@@ -94,28 +94,70 @@
     function wireMobileDrawer() {
         const sidebar = document.getElementById('sidebar');
         const fab = document.getElementById('mobile-filter-fab');
+        const backdrop = document.getElementById('mobile-backdrop');
 
         if (!sidebar || !fab) return;
 
         const open = () => {
             sidebar.classList.add('is-open');
+            if (backdrop) backdrop.classList.add('is-open');
             document.body.style.overflow = 'hidden';
         };
         const close = () => {
             sidebar.classList.remove('is-open');
+            if (backdrop) backdrop.classList.remove('is-open');
             document.body.style.overflow = '';
+            sidebar.style.transform = '';
         };
 
         fab.addEventListener('click', () => {
             sidebar.classList.contains('is-open') ? close() : open();
         });
 
-        // Close button uses event delegation (re-binds after render)
+        if (backdrop) backdrop.addEventListener('click', close);
+
         document.addEventListener('click', (e) => {
             if (e.target.closest('#mobile-close')) close();
         });
 
         document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+
+        // Drag-to-close on sheet header (touch only)
+        let dragStartY = 0;
+        let dragCurrentY = 0;
+        let isDragging = false;
+
+        document.addEventListener('touchstart', (e) => {
+            if (!sidebar.classList.contains('is-open')) return;
+            const header = e.target.closest('#mobile-sheet-header');
+            if (!header || e.target.closest('#mobile-close')) return;
+            isDragging = true;
+            dragStartY = e.touches[0].clientY;
+            dragCurrentY = dragStartY;
+            sidebar.style.transition = 'none';
+        }, { passive: true });
+
+        document.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            dragCurrentY = e.touches[0].clientY;
+            const delta = dragCurrentY - dragStartY;
+            if (delta > 0) {
+                sidebar.style.transform = `translateY(${delta}px)`;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', () => {
+            if (!isDragging) return;
+            isDragging = false;
+            sidebar.style.transition = 'transform 0.25s ease';
+            const delta = dragCurrentY - dragStartY;
+            if (delta > 120) {
+                close();
+            } else {
+                sidebar.style.transform = '';
+            }
+            setTimeout(() => { sidebar.style.transition = ''; }, 300);
+        });
     }
 
     function resetFilters() {
