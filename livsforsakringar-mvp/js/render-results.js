@@ -121,7 +121,7 @@
         const open = () => {
             sidebar.classList.add('is-open');
             if (window.innerWidth < 1024) {
-                sidebar.style.cssText = 'display:block!important;position:fixed!important;top:5vh!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;background:#fff!important;z-index:9999!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0!important;padding:0!important;border-radius:20px 20px 0 0!important;box-shadow:0 -10px 40px rgba(0,0,0,0.18)!important;';
+                sidebar.style.cssText = 'display:block!important;position:fixed!important;top:50vh!important;left:0!important;right:0!important;bottom:0!important;width:auto!important;max-width:none!important;background:#fff!important;z-index:9999!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;margin:0!important;padding:0!important;border-radius:20px 20px 0 0!important;box-shadow:0 -12px 40px rgba(0,0,0,0.22)!important;';
                 lockBody();
             }
         };
@@ -134,8 +134,6 @@
         fab.addEventListener('click', () => {
             sidebar.classList.contains('is-open') ? close() : open();
         });
-
-        if (backdrop) backdrop.addEventListener('click', close);
 
         document.addEventListener('click', (e) => {
             if (e.target.closest('#mobile-close')) close();
