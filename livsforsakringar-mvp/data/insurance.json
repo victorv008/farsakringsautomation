@@ -30,6 +30,7 @@
     {
       "bolag": "Evident Life",
       "pris_verifierad": true,
+      "pris_estimerad": true,
       "teckningsalder": "18-64",
       "teckningsalder_min": 18,
       "teckningsalder_max": 64,
@@ -65,7 +66,8 @@
     },
     {
       "bolag": "Folksam",
-      "pris_verifierad": false,
+      "pris_verifierad": true,
+      "pris_estimerad": false,
       "teckningsalder": "18-69",
       "teckningsalder_min": 18,
       "teckningsalder_max": 69,
@@ -77,26 +79,20 @@
       "krav_arbetsfor": false,
       "belopp_min": 200000,
       "belopp_max": 6000000,
-      "pris_tabell_1mkr": {
-        "20": 25,
-        "25": 29,
-        "30": 42,
-        "35": 55,
-        "40": 84,
-        "45": 118,
-        "50": 238,
-        "55": 403,
-        "60": 615,
-        "65": 667
+      "pris_tabell_mkr": {
+        "30": {"0.5": 16, "1": 26, "2": 47},
+        "35": {"0.5": 17, "1": 28, "2": 49},
+        "40": {"0.5": 22, "1": 37, "2": 68},
+        "45": {"0.5": 31, "1": 56, "2": 105}
       },
-      "pris_per_miljon": true,
       "undantag_sport": [],
-      "kommentar": null,
+      "kommentar": "Priser verifierade från folksam.se. Premien ökar varje årsförfallodag. Priser för åldrar >45 interpoleras.",
       "webbsida": "https://www.folksam.se/forsakringar/livforsakring"
     },
     {
       "bolag": "Handelsbanken Liv",
       "pris_verifierad": true,
+      "pris_estimerad": true,
       "teckningsalder": "18-65",
       "teckningsalder_min": 18,
       "teckningsalder_max": 65,
@@ -161,6 +157,7 @@
     {
       "bolag": "Idun Liv",
       "pris_verifierad": true,
+      "pris_estimerad": true,
       "teckningsalder": "18-64",
       "teckningsalder_min": 18,
       "teckningsalder_max": 64,
@@ -202,6 +199,7 @@
     {
       "bolag": "If",
       "pris_verifierad": true,
+      "pris_estimerad": true,
       "teckningsalder": "18-60",
       "teckningsalder_min": 18,
       "teckningsalder_max": 60,
@@ -278,6 +276,7 @@
     {
       "bolag": "Länsförsäkringar",
       "pris_verifierad": true,
+      "pris_estimerad": true,
       "teckningsalder": "18-73",
       "teckningsalder_min": 18,
       "teckningsalder_max": 73,
@@ -338,6 +337,7 @@
     {
       "bolag": "Nordea",
       "pris_verifierad": true,
+      "pris_estimerad": true,
       "teckningsalder": "16-65",
       "teckningsalder_min": 16,
       "teckningsalder_max": 65,
@@ -401,6 +401,7 @@
     {
       "bolag": "Skandia",
       "pris_verifierad": true,
+      "pris_estimerad": true,
       "teckningsalder": "18-64",
       "teckningsalder_min": 18,
       "teckningsalder_max": 64,
@@ -428,6 +429,7 @@
     {
       "bolag": "SPP",
       "pris_verifierad": true,
+      "pris_estimerad": true,
       "teckningsalder": "18-64",
       "teckningsalder_min": 18,
       "teckningsalder_max": 64,

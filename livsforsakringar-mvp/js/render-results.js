@@ -200,7 +200,7 @@
         const amountMkr = amount / 1000000;
 
         // --- JustInCase & Idun Liv: per-age per-amount table, interpolate both axes ---
-        if ((ins.bolag === 'JustInCase' || ins.bolag === 'Idun Liv') && ins.pris_tabell_mkr) {
+        if ((ins.bolag === 'JustInCase' || ins.bolag === 'Idun Liv' || ins.bolag === 'Folksam') && ins.pris_tabell_mkr) {
             const tbl = ins.pris_tabell_mkr;
             const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
 
@@ -463,7 +463,9 @@
 
     function renderCard(ins, index) {
         const monthlyPrice = calcMonthlyPrice(ins, userAge, userAmount);
+        const isEstimated = ins.pris_estimerad === true;
         const priceFmt = monthlyPrice ? new Intl.NumberFormat('sv-SE').format(monthlyPrice) : '—';
+        const pricePrefix = (monthlyPrice && isEstimated) ? '~ ' : '';
         const maxMkr = ins.belopp_max ? (ins.belopp_max / 1000000) : null;
 
         let badges = '';
@@ -496,7 +498,7 @@
             </div>
         </div>
         <div class="text-right shrink-0">
-            <div class="font-headline text-2xl sm:text-3xl font-extrabold text-[#00595c]">${priceFmt} kr<span class="text-base sm:text-lg font-medium text-[#00595c]/50">/mån</span></div>
+            <div class="font-headline text-2xl sm:text-3xl font-extrabold text-[#00595c]">${pricePrefix}${priceFmt} kr<span class="text-base sm:text-lg font-medium text-[#00595c]/50">/mån</span></div>
             ${monthlyPrice ? `<p class="text-xs text-[#00595c]/50 mt-1">≈ ${new Intl.NumberFormat('sv-SE').format(monthlyPrice * 12)} kr/år</p>` : ''}
         </div>
     </div>
