@@ -204,9 +204,6 @@
             const tbl = ins.pris_tabell_mkr;
             const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
 
-            const lo = ages.filter(a => a <= age).pop() || ages[0];
-            const hi = ages.filter(a => a > age)[0] || ages[ages.length - 1];
-
             const getPriceAtAge = (a) => {
                 const amountsAtAge = tbl[String(a)] || tbl[a];
                 if (!amountsAtAge) return null;
@@ -214,43 +211,35 @@
                 return interpolate(amtKeys, v => amountsAtAge[v], amountMkr);
             };
 
-            if (lo === hi) return Math.round(getPriceAtAge(lo));
-            const frac = (age - lo) / (hi - lo);
-            const loPrice = getPriceAtAge(lo);
-            const hiPrice = getPriceAtAge(hi);
-            return Math.round(loPrice + frac * (hiPrice - loPrice));
+            return Math.round(interpolate(ages, a => getPriceAtAge(a), age));
         }
 
         // --- Länsförsäkringar: age+amount table ---
         if (ins.bolag === 'Länsförsäkringar' && ins.pris_tabell_mkr) {
             const tbl = ins.pris_tabell_mkr;
             const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
-            const lo = ages.filter(a => a <= age).pop() || ages[0];
-            const hi = ages.filter(a => a >= age)[0] || ages[ages.length - 1];
-            const frac = lo === hi ? 0 : (age - lo) / (hi - lo);
 
             const getPriceAtAge = (a) => {
                 const amountsAtAge = tbl[a];
+                if (!amountsAtAge) return null;
                 const amtKeys = Object.keys(amountsAtAge).map(Number).sort((a, b) => a - b);
                 return interpolate(amtKeys, v => amountsAtAge[v], amountMkr);
             };
-            return Math.round(getPriceAtAge(lo) + frac * (getPriceAtAge(hi) - getPriceAtAge(lo)));
+            return Math.round(interpolate(ages, a => getPriceAtAge(a), age));
         }
 
         // --- Skandia: age+amount table ---
         if (ins.bolag === 'Skandia' && ins.pris_tabell_mkr) {
             const tbl = ins.pris_tabell_mkr;
             const ages = Object.keys(tbl).map(Number).sort((a, b) => a - b);
-            const lo = ages.filter(a => a <= age).pop() || ages[0];
-            const hi = ages.filter(a => a >= age)[0] || ages[ages.length - 1];
-            const frac = lo === hi ? 0 : (age - lo) / (hi - lo);
 
             const getPriceAtAge = (a) => {
                 const amountsAtAge = tbl[a];
+                if (!amountsAtAge) return null;
                 const amtKeys = Object.keys(amountsAtAge).map(Number).sort((a, b) => a - b);
                 return interpolate(amtKeys, v => amountsAtAge[v], amountMkr);
             };
-            return Math.round(getPriceAtAge(lo) + frac * (getPriceAtAge(hi) - getPriceAtAge(lo)));
+            return Math.round(interpolate(ages, a => getPriceAtAge(a), age));
         }
 
         // --- Nordea: PBB-based table ---
@@ -308,12 +297,34 @@
         return null;
     }
 
+    let _priceExtrapolated = false;
+
     function interpolate(sortedKeys, getValue, x) {
         if (!sortedKeys || sortedKeys.length === 0) return null;
         const keys = sortedKeys.map(Number).sort((a, b) => a - b);
 
-        if (x <= keys[0]) return getValue(keys[0]);
-        if (x >= keys[keys.length - 1]) return getValue(keys[keys.length - 1]);
+        if (x <= keys[0]) {
+            if (keys.length >= 2) {
+                const k1 = keys[0], k2 = keys[1];
+                const v1 = getValue(k1), v2 = getValue(k2);
+                if (v1 != null && v2 != null) {
+                    _priceExtrapolated = true;
+                    return v1 + ((v2 - v1) / (k2 - k1)) * (x - k1);
+                }
+            }
+            return getValue(keys[0]);
+        }
+        if (x >= keys[keys.length - 1]) {
+            if (keys.length >= 2) {
+                const k1 = keys[keys.length - 2], k2 = keys[keys.length - 1];
+                const v1 = getValue(k1), v2 = getValue(k2);
+                if (v1 != null && v2 != null) {
+                    _priceExtrapolated = true;
+                    return v2 + ((v2 - v1) / (k2 - k1)) * (x - k2);
+                }
+            }
+            return getValue(keys[keys.length - 1]);
+        }
 
         const lo = keys.filter(k => k <= x).pop();
         const hi = keys.filter(k => k > x)[0];
@@ -462,8 +473,9 @@
     }
 
     function renderCard(ins, index) {
+        _priceExtrapolated = false;
         const monthlyPrice = calcMonthlyPrice(ins, userAge, userAmount);
-        const isEstimated = ins.pris_estimerad === true;
+        const isEstimated = ins.pris_estimerad === true || _priceExtrapolated;
         const priceFmt = monthlyPrice ? new Intl.NumberFormat('sv-SE').format(monthlyPrice) : '—';
         const pricePrefix = (monthlyPrice && isEstimated) ? '~ ' : '';
         const maxMkr = ins.belopp_max ? (ins.belopp_max / 1000000) : null;
