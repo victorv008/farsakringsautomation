@@ -417,6 +417,18 @@
             if (scenarios.includes('elitsport') && ins.undantag_sport && ins.undantag_sport.length > 0) {
                 reasons.push(`Undantar riskfyllda sporter (${ins.undantag_sport.join(', ')})`);
             }
+            if (scenarios.includes('utlands') && ins.krav_sverige === true) {
+                reasons.push('Kräver bosättning i Sverige/Norden');
+            }
+            if (scenarios.includes('barn') && ins.nedtrappning === true) {
+                reasons.push('Beloppet trappas ner med åren — ej idealiskt med barn');
+            }
+            if (scenarios.includes('bostadskop') && ins.belopp_max && ins.belopp_max < 2000000) {
+                reasons.push('Maxbelopp under 2 Mkr — ej lämplig för bolåneskydd');
+            }
+            if (scenarios.includes('examen') && ins.halso_deklaration === true) {
+                reasons.push('Kräver hälsodeklaration — kan vara svår att få godkänd för nyexaminerade');
+            }
 
             if (reasons.length > 0) excluded.push({ ...ins, _reasons: reasons });
             else matched.push(ins);
