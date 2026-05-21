@@ -249,7 +249,7 @@
             const pricePerPbb = ins.pris_tabell_pbb[String(clampedAge)];
             if (pricePerPbb) {
                 const pbbUnits = amount / pbb;
-                return Math.round(pricePerPbb * pbbUnits);
+                return Math.round((pricePerPbb * pbbUnits) / 12);
             }
         }
 
@@ -303,7 +303,7 @@
         if (!sortedKeys || sortedKeys.length === 0) return null;
         const keys = sortedKeys.map(Number).sort((a, b) => a - b);
 
-        if (x <= keys[0]) {
+        if (x < keys[0]) {
             if (keys.length >= 2) {
                 const k1 = keys[0], k2 = keys[1];
                 const v1 = getValue(k1), v2 = getValue(k2);
@@ -314,7 +314,7 @@
             }
             return getValue(keys[0]);
         }
-        if (x >= keys[keys.length - 1]) {
+        if (x > keys[keys.length - 1]) {
             if (keys.length >= 2) {
                 const k1 = keys[keys.length - 2], k2 = keys[keys.length - 1];
                 const v1 = getValue(k1), v2 = getValue(k2);
