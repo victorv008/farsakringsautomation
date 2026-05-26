@@ -4,9 +4,54 @@
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>Om oss – Livförsäkringar.se | Oberoende jämförelsetjänst för livförsäkringar</title>
-    <meta name="description" content="Livförsäkringar.se är en oberoende jämförelsetjänst som hjälper dig jämföra livförsäkringar i Sverige. Vi säljer inga försäkringar och ger ingen personlig rådgivning. Drivs av iBunn Consulting AB."/>
+    <meta name="description" content="Livförsäkringar.se är en oberoende jämförelsetjänst för livförsäkringar i Sverige. Vi jämför pris, villkor och försäkringsbelopp från 16 svenska bolag. Drivs av iBunn Consulting AB – helt utan personlig rådgivning."/>
+    <meta name="author" content="iBunn Consulting AB"/>
     <meta name="robots" content="index, follow"/>
     <link rel="canonical" href="https://www.livforsakringar.se/om-oss.html"/>
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Livförsäkringar.se",
+      "url": "https://www.livforsakringar.se",
+      "logo": "https://www.livforsakringar.se/images/logo.png",
+      "description": "En oberoende jämförelsetjänst för livförsäkringar i Sverige",
+      "foundingDate": "2026",
+      "founder": {
+        "@type": "Organization",
+        "name": "iBunn Consulting AB"
+      },
+      "contact": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Support",
+        "email": "kontakt@livforsakringar.se"
+      },
+      "sameAs": []
+    }
+    </script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Hem",
+          "item": "https://www.livforsakringar.se/index.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Om oss",
+          "item": "https://www.livforsakringar.se/om-oss.html"
+        }
+      ]
+    }
+    </script>
 
     <!-- Open Graph -->
     <meta property="og:type" content="website"/>
@@ -102,6 +147,26 @@
         </p>
     </div>
 
+    <!-- Statistics Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
+        <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-brand-teal/10 shadow-[0_4px_16px_rgba(13,115,119,0.05)] text-center">
+            <div class="text-3xl lg:text-4xl font-bold text-brand-teal font-headline mb-2">16</div>
+            <div class="text-sm text-text-muted font-medium">Svenska försäkringsbolag jämförda</div>
+        </div>
+        <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-brand-teal/10 shadow-[0_4px_16px_rgba(13,115,119,0.05)] text-center">
+            <div class="text-3xl lg:text-4xl font-bold text-brand-amber font-headline mb-2">100%</div>
+            <div class="text-sm text-text-muted font-medium">Oberoende utan influenser</div>
+        </div>
+        <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-brand-teal/10 shadow-[0_4px_16px_rgba(13,115,119,0.05)] text-center">
+            <div class="text-3xl lg:text-4xl font-bold text-brand-teal font-headline mb-2">Gratis</div>
+            <div class="text-sm text-text-muted font-medium">Ingen kostnad att jämföra</div>
+        </div>
+        <div class="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-brand-teal/10 shadow-[0_4px_16px_rgba(13,115,119,0.05)] text-center">
+            <div class="text-3xl lg:text-4xl font-bold text-brand-amber font-headline mb-2">2026</div>
+            <div class="text-sm text-text-muted font-medium">Aktuell data från i år</div>
+        </div>
+    </div>
+
     <article class="space-y-6">
 
         <!-- Sektion 1: Oberoende jämförelsetjänst -->
@@ -120,8 +185,8 @@
         </section>
 
         <!-- Sektion 2: Oberoende och transparens -->
-        <section id="oberoende" class="rounded-3xl p-10 bg-brand-teal/[0.03] border border-brand-teal/10">
-            <div class="flex gap-4 items-start mb-6">
+        <section id="oberoende" class="rounded-3xl p-10 bg-gradient-to-br from-brand-teal/[0.08] to-brand-teal/[0.02] border border-brand-teal/10">
+            <div class="flex gap-4 items-start mb-8">
                 <div class="shrink-0 w-14 h-14 rounded-2xl bg-gradient-to-br from-brand-amber to-brand-amber-light flex items-center justify-center shadow-lg" aria-hidden="true">
                     <span class="material-symbols-outlined text-white text-[26px]">verified</span>
                 </div>
@@ -132,9 +197,18 @@
             </div>
 
             <div class="space-y-4 font-body text-text-muted text-lg leading-relaxed">
-                <p>Livförsäkringar.se ägs inte av något försäkringsbolag. Inget försäkringsbolag kan köpa en bättre placering i vår jämförelse.</p>
-                <p>Vår ambition är att presentera försäkringsalternativ utifrån sakliga kriterier som pris, villkor och tillgänglig produktinformation. Vi gör ingen individuell behovsanalys och lämnar ingen personlig rekommendation baserad på hela din ekonomi, familjesituation eller försäkringsbehov.</p>
-                <p>I vissa fall kan vi få marknadsföringsersättning om du klickar vidare från vår webbplats och tecknar en försäkring. Det påverkar inte ditt pris och ska inte påverka hur resultaten sorteras eller presenteras.</p>
+                <div class="flex gap-4 items-start">
+                    <span class="material-symbols-outlined text-brand-teal text-[20px] shrink-0 mt-1" aria-hidden="true">check_circle</span>
+                    <p>Livförsäkringar.se ägs inte av något försäkringsbolag. Inget försäkringsbolag kan köpa en bättre placering i vår jämförelse.</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="material-symbols-outlined text-brand-teal text-[20px] shrink-0 mt-1" aria-hidden="true">check_circle</span>
+                    <p>Vår ambition är att presentera försäkringsalternativ utifrån sakliga kriterier som pris, villkor och tillgänglig produktinformation. Vi gör ingen individuell behovsanalys och lämnar ingen personlig rekommendation baserad på hela din ekonomi, familjesituation eller försäkringsbehov.</p>
+                </div>
+                <div class="flex gap-4 items-start">
+                    <span class="material-symbols-outlined text-brand-teal text-[20px] shrink-0 mt-1" aria-hidden="true">check_circle</span>
+                    <p>I vissa fall kan vi få marknadsföringsersättning om du klickar vidare från vår webbplats och tecknar en försäkring. Det påverkar inte ditt pris och ska inte påverka hur resultaten sorteras eller presenteras.</p>
+                </div>
             </div>
         </section>
 
