@@ -414,20 +414,26 @@
                 const maxFmt = new Intl.NumberFormat('sv-SE').format(ins.belopp_max);
                 reasons.push(`Maxbelopp ${maxFmt} kr — under önskat belopp`);
             }
-            if (scenarios.includes('elitsport') && ins.undantag_sport && ins.undantag_sport.length > 0) {
-                reasons.push(`Undantar riskfyllda sporter (${ins.undantag_sport.join(', ')})`);
-            }
-            if (scenarios.includes('utlands') && ins.krav_sverige === true) {
-                reasons.push('Kräver bosättning i Sverige/Norden');
+            if (scenarios.includes('ingen_halso') && ins.halso_deklaration === true) {
+                reasons.push('Kräver hälsodeklaration');
             }
             if (scenarios.includes('barn') && ins.nedtrappning === true) {
                 reasons.push('Beloppet trappas ner med åren — ej idealiskt med barn');
             }
-            if (scenarios.includes('bostadskop') && ins.belopp_max && ins.belopp_max < 2000000) {
-                reasons.push('Maxbelopp under 2 Mkr — ej lämplig för bolåneskydd');
+            if (scenarios.includes('barn') && (!ins.slutalder || ins.slutalder < 85)) {
+                reasons.push('Slutålder under 85 år — ej idealiskt för långsiktigt skydd till barn blir vuxna');
             }
-            if (scenarios.includes('examen') && ins.halso_deklaration === true) {
-                reasons.push('Kräver hälsodeklaration — kan vara svår att få godkänd för nyexaminerade');
+            if (scenarios.includes('ingen_nedtrappning') && ins.nedtrappning === true) {
+                reasons.push('Beloppet trappas ner med åren');
+            }
+            if (scenarios.includes('hog_slutalder') && (!ins.slutalder || ins.slutalder < 85)) {
+                reasons.push('Slutålder under 85 år');
+            }
+            if (scenarios.includes('riskfylld_sport') && ins.undantag_sport && ins.undantag_sport.length > 0) {
+                reasons.push(`Undantar riskfyllda sporter (${ins.undantag_sport.join(', ')})`);
+            }
+            if (scenarios.includes('utlands') && ins.krav_sverige === true) {
+                reasons.push('Kräver bosättning i Sverige/Norden');
             }
 
             if (reasons.length > 0) excluded.push({ ...ins, _reasons: reasons });

@@ -264,77 +264,64 @@
         <!-- 8 scenario cards — 4-column grid matching the Stitch screenshot -->
         <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full max-w-6xl mb-12">
 
-            <!-- 1. Gift/Sambo -->
-            <button class="scenario-card" data-scenario="gift_sambo" onclick="toggleCard(this)">
+            <!-- 1. Ingen hälsodeklaration -->
+            <button class="scenario-card" data-scenario="ingen_halso" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
-                    <span class="material-symbols-outlined text-brand-teal text-[28px]">favorite</span>
+                    <span class="material-symbols-outlined text-brand-teal text-[28px]">health_and_safety</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Gift/Sambo</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Har en partner. Visa försäkringar utan sportundantag och med högre belopp.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Ingen hälsodeklaration</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Vissa bolag kräver att du svarar på frågor om din hälsa innan du kan teckna. Välj detta om du vill se bolag som inte ställer sådana krav.</p>
             </button>
 
-            <!-- 2. Barn -->
+            <!-- 2. Jag har barn -->
             <button class="scenario-card" data-scenario="barn" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                     <span class="material-symbols-outlined text-brand-teal text-[28px]">child_care</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Barn</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Har barn. Filtrera på försäkringar som gäller länge och utan nedtrappning.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Jag har barn</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Visar försäkringar utan nedtrappning och med hög slutålder — så att skyddet varar hela tiden dina barn kan behöva det.</p>
             </button>
 
-            <!-- 3. Bostadsägare -->
-            <button class="scenario-card" data-scenario="bostadskop" onclick="toggleCard(this)">
+            <!-- 3. Inget sjunkande belopp -->
+            <button class="scenario-card" data-scenario="ingen_nedtrappning" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
-                    <span class="material-symbols-outlined text-brand-teal text-[28px]">home</span>
+                    <span class="material-symbols-outlined text-brand-teal text-[28px]">money_off</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bostadsägare</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Har bostadsrätt, villa eller fritidshus. Filtrera på högre ersättningsbelopp.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Inget sjunkande belopp</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Hos vissa bolag minskar utbetalningsbeloppet när du blir äldre. Välj detta för att bara se försäkringar där beloppet är fast hela löptiden.</p>
             </button>
 
-            <!-- 4. Elitsport -->
-            <button class="scenario-card" data-scenario="elitsport" onclick="toggleCard(this)">
+            <!-- 4. Skydd långt upp i åldern -->
+            <button class="scenario-card" data-scenario="hog_slutalder" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
-                    <span class="material-symbols-outlined text-brand-teal text-[28px]">sprint</span>
+                    <span class="material-symbols-outlined text-brand-teal text-[28px]">elderly</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Elitsport</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Specialanpassat skydd för dig som lever
-                    ett aktivt liv med högre risker.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Skydd långt upp i åldern</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Försäkringens slutålder avgör hur länge du är täckt. Välj detta för att filtrera fram bolag som ger skydd till minst 85 års ålder.</p>
             </button>
 
-            <!-- 5. Examen -->
-            <button class="scenario-card" data-scenario="examen" onclick="toggleCard(this)">
+            <!-- 5. Riskfylld sport -->
+            <button class="scenario-card" data-scenario="riskfylld_sport" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
-                    <span class="material-symbols-outlined text-brand-teal text-[28px]">school</span>
+                    <span class="material-symbols-outlined text-brand-teal text-[28px]">sports_martial_arts</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Examen</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Nyss tagit examen? Börja bygga din
-                    ekonomiska trygghet tidigt med lägre premier.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Riskfylld sport</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Kampsport, motorsport, fallskärm eller privat flygning? Vissa bolag undantar dessa aktiviteter. Välj detta för att se bolag utan sportundantag.</p>
             </button>
 
-            <!-- 6. Företagare -->
-            <button class="scenario-card" data-scenario="foretagare" onclick="toggleCard(this)">
-                <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-                <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
-                    <span class="material-symbols-outlined text-brand-teal text-[28px]">business_center</span>
-                </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Företagare</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Skydda ditt livsverk och säkra inkomsten
-                    för både dig och dina anställda.</p>
-            </button>
-
-            <!-- 7. Flyttat till utlandet -->
+            <!-- 6. Bor eller reser utomlands -->
             <button class="scenario-card" data-scenario="utlands" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-5">
                     <span class="material-symbols-outlined text-brand-teal text-[28px]">flight_takeoff</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Flyttat till utlandet</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Bor utanför Sverige? Se vilka bolag som tillåter bosättning utomlands.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bor eller reser utomlands</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">De flesta försäkringar gäller globalt, men begränsas vid längre bosättning utomlands. Välj detta för att se bolag med bredast geografisk täckning.</p>
             </button>
 
             <!-- 8. Jämför alla — special card -->
