@@ -262,7 +262,7 @@
             ⚠️ Livförsäkringar.se lämnar ingen rådgivning. Kontakta ett försäkringsbolag för personlig rådgivning.
         </p>
 
-        <!-- 8 scenario cards — 4-column grid matching the Stitch screenshot -->
+        <!-- 7 scenario cards + Jämför alla — 3-column grid -->
         <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-6xl mb-12">
 
             <!-- 1. Ingen hälsodeklaration -->
@@ -315,18 +315,28 @@
                 <p class="text-text-muted text-sm font-light leading-relaxed">Kampsport, motorsport, fallskärm eller privat flygning? Vissa bolag undantar dessa aktiviteter. Välj detta för att se bolag utan sportundantag.</p>
             </button>
 
-            <!-- 6. Bor eller reser utomlands -->
+            <!-- 6. Bor utomlands -->
             <button class="scenario-card" data-scenario="utlands" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
                     <span class="material-symbols-outlined text-brand-teal text-[22px]">flight_takeoff</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bor eller reser utomlands</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">De flesta försäkringar gäller globalt, men begränsas vid längre bosättning utomlands. Välj detta för att se bolag med bredast geografisk täckning.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bor utomlands</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Alla svenska livförsäkringar kräver att du bor i Sverige eller Norden när du tecknar. Välj detta för att se vilka bolag som har de lägsta geografiska kraven.</p>
+            </button>
+
+            <!-- 7. Jag är fullt arbetsför -->
+            <button class="scenario-card" data-scenario="arbetsfor" onclick="toggleCard(this)">
+                <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
+                <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
+                    <span class="material-symbols-outlined text-brand-teal text-[22px]">how_to_reg</span>
+                </div>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Jag är fullt arbetsför</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Två bolag kräver att du är fullt arbetsför för att teckna. Välj detta om det stämmer in på dig — annars filtreras de automatiskt bort.</p>
             </button>
 
             <!-- 8. Jämför alla — special card -->
-            <button class="scenario-card card-all lg:col-start-2" data-scenario="standard" onclick="toggleCard(this)">
+            <button class="scenario-card card-all" data-scenario="standard" onclick="toggleCard(this)">
                 <span class="check-badge" style="background: #E8A838;"><span
                         class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-amber/10 rounded-2xl flex items-center justify-center mb-5">

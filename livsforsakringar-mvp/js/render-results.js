@@ -432,8 +432,11 @@
             if (scenarios.includes('riskfylld_sport') && ins.undantag_sport && ins.undantag_sport.length > 0) {
                 reasons.push(`Undantar riskfyllda sporter (${ins.undantag_sport.join(', ')})`);
             }
-            if (scenarios.includes('utlands') && ins.krav_sverige === true) {
+            if (scenarios.includes('utlands') && (ins.krav_sverige === true || ins.krav_sverige_detalj)) {
                 reasons.push('Kräver bosättning i Sverige/Norden');
+            }
+            if (!scenarios.includes('arbetsfor') && ins.krav_arbetsfor === true) {
+                reasons.push('Kräver fullt arbetsför — välj "Jag är fullt arbetsför" på föregående sida för att inkludera');
             }
 
             if (reasons.length > 0) excluded.push({ ...ins, _reasons: reasons });
