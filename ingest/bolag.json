@@ -1,0 +1,93 @@
+[
+  {
+    "bolag": "JustInCase",
+    "villkor_url": "https://justincase.se/app/uploads/2025/06/JIC0001-Forsakringsvillkor-Livforsakring.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Idun Liv",
+    "villkor_url": "https://www.idunliv.se/media/md0d15iq/i0001-forsakringsvillkor-livforsakring.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Folksam",
+    "villkor_url": "https://s7g10.scene7.com/is/content/folksam/S12222_3678pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "If",
+    "villkor_url": "https://www.if.se/globalassets/se/dokument/privat/livforsakring-villkor.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Trygg-Hansa",
+    "villkor_url": "https://portal.trygghansa.se/sitecollectiondocuments/privat/p04261.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Skandia",
+    "villkor_url": "https://skandia.shop.strd.se/ftp/pdf/6355.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Länsförsäkringar",
+    "villkor_url": "https://www.lansforsakringar.se/globalassets/aa-global/dokument/villkor/individuell-livforsakring/11592_00_livforsakring_villkor_webb.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "SEB Pension & Försäkring",
+    "villkor_url": "https://webapp.sebgroup.com/mb/mblib.nsf/alldocsbyunid/E20F6FB3599A98BEC1257E81004264A2/$FILE/TLV50071_Villkor_Ar_2006_Trygg_Livforsakring_Trygg_Riskskydd.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Nordea Liv & Pension",
+    "villkor_url": "https://www.nordea.se/Images/154-12035/livforsakring-gruppliv-villkor.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Bliwa",
+    "villkor_url": "https://kund.bliwa.se/globalassets/2026/blanketter-och-villkor/bliwa.seblanketter/gruppforsakring/information/forkopsinformation-gruppforsakring-a2-.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Euro Accident",
+    "villkor_url": "https://euroaccident.com/download/18.77a2ba771961b7bc68bc3/1744278510722/Villkor%20Individuella%20f%C3%B6rs%C3%A4kringar%202025.pdf",
+    "typ": "pdf",
+    "kommentar": "Produkt 1: Livförsäkring Individuell"
+  },
+  {
+    "bolag": "ICA Försäkring",
+    "villkor_url": "https://assets.icanet.se/image/upload/v1701092551/forsakring/Villkor%20och%20blanketter/Personf%C3%B6rs%C3%A4kring/Livf%C3%B6rs%C3%A4kring/villkor-livforsakring-icaforsakring.pdf",
+    "typ": "pdf"
+  },
+  {
+    "bolag": "Evident Life",
+    "villkor_url": "https://azapp-el-prod-product-api.azurewebsites.net/api/v1/products/ELP01001/document/terms?language=sv",
+    "typ": "pdf",
+    "kommentar": "API-endpoint — kan kräva headers, testa"
+  },
+  {
+    "bolag": "Handelsbanken",
+    "villkor_url": "https://www.handelsbanken.se/tron/public/info/contents/v1/document/32-120768",
+    "typ": "pdf",
+    "kommentar": "API-endpoint — testa om den returnerar PDF direkt"
+  },
+  {
+    "bolag": "SPP",
+    "villkor_url": null,
+    "typ": "manuell",
+    "kommentar": "Laddat manuellt från villkorpdf/spp/"
+  },
+  {
+    "bolag": "Swedbank",
+    "villkor_url": null,
+    "typ": "manuell",
+    "kommentar": "Kräver inloggning — ladda ner manuellt och spara som ingest/pdf/swedbank.pdf"
+  },
+  {
+    "bolag": "Movestic",
+    "villkor_url": null,
+    "typ": "manuell",
+    "kommentar": "Kräver inloggning — ladda ner manuellt och spara som ingest/pdf/movestic.pdf"
+  }
+]

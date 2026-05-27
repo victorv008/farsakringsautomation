@@ -1,9 +1,15 @@
 {
+  "type": "module",
   "dependencies": {
     "pdfjs-dist": "^5.6.205",
-    "xlsx": "^0.18.5"
+    "xlsx": "^0.18.5",
+    "@supabase/supabase-js": "^2.43.4",
+    "openai": "^4.52.7",
+    "axios": "^1.6.8",
+    "dotenv": "^16.3.1"
   },
-  "devDependencies": {
-    "pdf-parse": "^2.4.5"
+  "devDependencies": {},
+  "scripts": {
+    "ingest": "node ingest/ingest.js"
   }
 }

@@ -1,0 +1,1143 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Audit — Livförsäkringar.se</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg-card: rgba(255,255,255,0.03);
+    --bg-card-hover: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.15);
+    --text: #e8e8ed;
+    --text-secondary: #8b8b9e;
+    --text-muted: #5a5a6e;
+    --accent: #6366f1;
+    --accent-glow: rgba(99,102,241,0.3);
+    --green: #22c55e;
+    --green-bg: rgba(34,197,94,0.12);
+    --green-border: rgba(34,197,94,0.25);
+    --yellow: #eab308;
+    --yellow-bg: rgba(234,179,8,0.12);
+    --yellow-border: rgba(234,179,8,0.25);
+    --red: #ef4444;
+    --red-bg: rgba(239,68,68,0.12);
+    --red-border: rgba(239,68,68,0.25);
+    --blue: #3b82f6;
+    --blue-bg: rgba(59,130,246,0.12);
+    --orange: #f97316;
+    --orange-bg: rgba(249,115,22,0.12);
+    --orange-border: rgba(249,115,22,0.25);
+    --radius: 16px;
+    --radius-sm: 10px;
+    --radius-xs: 6px;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%; left: -50%;
+    width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 20% 50%, rgba(99,102,241,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 20%, rgba(139,92,246,0.04) 0%, transparent 50%);
+    z-index: -1;
+  }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+
+  /* HEADER */
+  .header { padding: 48px 0 32px; text-align: center; }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 16px; background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: 100px;
+    font-size: 12px; font-weight: 500; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 20px;
+  }
+  .header-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(1.3)} }
+
+  .header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(32px, 5vw, 52px); font-weight: 700;
+    background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+  }
+  .header-meta { color: var(--text-secondary); font-size: 15px; }
+
+  /* SCORE RING */
+  .score-section {
+    display: flex; justify-content: center; gap: 40px;
+    flex-wrap: wrap; margin: 40px 0;
+  }
+  .score-ring-wrap { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .score-ring-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; text-align: center; }
+  .ring-svg { transform: rotate(-90deg); }
+  .ring-bg { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 8; }
+  .ring-val { fill: none; stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset 1s ease; }
+  .ring-text { fill: var(--text); font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; dominant-baseline: middle; text-anchor: middle; }
+  .ring-text-sm { fill: var(--text-secondary); font-size: 11px; dominant-baseline: middle; text-anchor: middle; }
+  .ring-main .ring-val { stroke: var(--yellow); }
+  .ring-tech .ring-val { stroke: var(--red); }
+  .ring-content .ring-val { stroke: var(--orange); }
+  .ring-arch .ring-val { stroke: var(--green); }
+  .ring-social .ring-val { stroke: var(--red); }
+
+  /* TABS */
+  .tabs-container { margin: 0 0 40px; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); background: rgba(10,10,15,0.85); padding: 12px 0; }
+  .tabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; }
+  .tab-btn {
+    flex-shrink: 0; padding: 8px 20px; border-radius: var(--radius-xs);
+    border: 1px solid transparent; background: transparent;
+    color: var(--text-secondary); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+  }
+  .tab-btn:hover { color: var(--text); background: var(--bg-card); border-color: var(--border); }
+  .tab-btn.active { color: #fff; background: var(--accent); border-color: var(--accent); }
+
+  /* TAB PANELS */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 28px; margin-bottom: 16px;
+  }
+  .card-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 18px;
+    font-weight: 600; margin-bottom: 16px; color: var(--text);
+  }
+  .card-subtitle { font-size: 13px; color: var(--text-secondary); margin-bottom: 20px; }
+
+  /* BADGES */
+  .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 10px; border-radius: 100px; font-size: 11px; font-weight: 600;
+    letter-spacing: 0.5px; text-transform: uppercase;
+  }
+  .badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+  .badge-yellow { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-border); }
+  .badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+  .badge-orange { background: var(--orange-bg); color: var(--orange); border: 1px solid var(--orange-border); }
+  .badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid rgba(59,130,246,0.25); }
+
+  /* ISSUE ROWS */
+  .issue-list { display: flex; flex-direction: column; gap: 10px; }
+  .issue-row {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 14px 16px; border-radius: var(--radius-sm);
+    background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+  }
+  .issue-icon { font-size: 18px; flex-shrink: 0; margin-top: 2px; }
+  .issue-title { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  .issue-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .issue-fix { font-size: 12px; color: var(--accent); margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
+
+  /* PAGE TABLE */
+  .page-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .page-table th { text-align: left; padding: 10px 14px; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .page-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+  .page-table tr:last-child td { border-bottom: none; }
+  .page-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* KEYWORD TABLE */
+  .kw-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .kw-table th { text-align: left; padding: 10px 14px; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .kw-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  .kw-table tr:last-child td { border-bottom: none; }
+
+  /* GRID */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 768px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+
+  /* STAT BOXES */
+  .stat-box {
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 20px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .stat-val { font-family: 'Space Grotesk', sans-serif; font-size: 32px; font-weight: 700; }
+  .stat-label { font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; }
+  .stat-note { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* ACTION PLAN */
+  .action-item {
+    display: flex; gap: 16px; padding: 20px;
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    background: var(--bg-card); margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .action-num {
+    flex-shrink: 0; width: 32px; height: 32px;
+    border-radius: 50%; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px;
+  }
+  .action-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .action-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+  .action-time { font-size: 11px; color: var(--text-muted); margin-top: 8px; text-transform: uppercase; letter-spacing: 0.8px; }
+
+  /* BLOG CARDS */
+  .blog-card {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 20px; background: var(--bg-card); margin-bottom: 12px;
+  }
+  .blog-kw { font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; margin-bottom: 8px; }
+  .blog-title { font-weight: 600; font-size: 15px; margin-bottom: 6px; }
+  .blog-intent { font-size: 12px; color: var(--text-secondary); }
+  .blog-outline { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .blog-outline li { font-size: 13px; color: var(--text-secondary); padding: 3px 0; }
+  .blog-outline li::before { content: "H2 "; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+
+  /* CODE */
+  code {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    background: rgba(255,255,255,0.06); padding: 2px 6px;
+    border-radius: 4px; color: #a5b4fc;
+  }
+  pre {
+    background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: #e2e8f0; overflow-x: auto; margin: 12px 0; line-height: 1.7;
+  }
+
+  /* DIVIDER */
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+
+  /* COMPETITOR TABLE */
+  .comp-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .comp-table th { text-align: left; padding: 10px 14px; color: var(--text-secondary); font-weight: 500; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+  .comp-table td { padding: 12px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; }
+
+  /* FOOTER */
+  .report-footer { text-align: center; padding: 40px 0; color: var(--text-muted); font-size: 13px; border-top: 1px solid var(--border); margin-top: 60px; }
+
+  /* INTERNAL LINK VIZ */
+  .link-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .link-node {
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 14px; background: var(--bg-card); text-align: center;
+  }
+  .link-node-name { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .link-node-links { font-size: 12px; color: var(--text-secondary); }
+
+  ul.bullet { list-style: disc; padding-left: 20px; }
+  ul.bullet li { font-size: 13px; color: var(--text-secondary); padding: 3px 0; }
+  ul.bullet li strong { color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge"><span class="dot"></span>SEO Audit — Livförsäkringar.se</div>
+    <h1>Full Website SEO Audit</h1>
+    <p class="header-meta">Livförsäkringar.se &nbsp;·&nbsp; 6 sidor granskade &nbsp;·&nbsp; 21 maj 2026</p>
+  </div>
+
+  <!-- SCORE RINGS -->
+  <div class="score-section">
+    <div class="score-ring-wrap">
+      <svg class="ring-svg ring-main" width="110" height="110" viewBox="0 0 110 110">
+        <circle class="ring-bg" cx="55" cy="55" r="45"/>
+        <circle class="ring-val" cx="55" cy="55" r="45" stroke-dasharray="283" stroke-dashoffset="161"/>
+        <text class="ring-text" x="55" y="52" transform="rotate(90,55,55)">43</text>
+        <text class="ring-text-sm" x="55" y="67" transform="rotate(90,55,55)">/100</text>
+      </svg>
+      <div class="score-ring-label">Totalt</div>
+    </div>
+    <div class="score-ring-wrap">
+      <svg class="ring-svg ring-tech" width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-bg" cx="40" cy="40" r="32"/>
+        <circle class="ring-val" cx="40" cy="40" r="32" stroke-dasharray="201" stroke-dashoffset="137"/>
+        <text class="ring-text" style="font-size:16px" x="40" y="38" transform="rotate(90,40,40)">32</text>
+        <text class="ring-text-sm" x="40" y="52" transform="rotate(90,40,40)">/100</text>
+      </svg>
+      <div class="score-ring-label">Teknisk SEO</div>
+    </div>
+    <div class="score-ring-wrap">
+      <svg class="ring-svg ring-content" width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-bg" cx="40" cy="40" r="32"/>
+        <circle class="ring-val" cx="40" cy="40" r="32" stroke-dasharray="201" stroke-dashoffset="117"/>
+        <text class="ring-text" style="font-size:16px" x="40" y="38" transform="rotate(90,40,40)">42</text>
+        <text class="ring-text-sm" x="40" y="52" transform="rotate(90,40,40)">/100</text>
+      </svg>
+      <div class="score-ring-label">Innehåll</div>
+    </div>
+    <div class="score-ring-wrap">
+      <svg class="ring-svg ring-arch" width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-bg" cx="40" cy="40" r="32"/>
+        <circle class="ring-val" cx="40" cy="40" r="32" stroke-dasharray="201" stroke-dashoffset="54"/>
+        <text class="ring-text" style="font-size:16px" x="40" y="38" transform="rotate(90,40,40)">73</text>
+        <text class="ring-text-sm" x="40" y="52" transform="rotate(90,40,40)">/100</text>
+      </svg>
+      <div class="score-ring-label">Arkitektur</div>
+    </div>
+    <div class="score-ring-wrap">
+      <svg class="ring-svg ring-social" width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-bg" cx="40" cy="40" r="32"/>
+        <circle class="ring-val" cx="40" cy="40" r="32" stroke-dasharray="201" stroke-dashoffset="201"/>
+        <text class="ring-text" style="font-size:16px" x="40" y="38" transform="rotate(90,40,40)">0</text>
+        <text class="ring-text-sm" x="40" y="52" transform="rotate(90,40,40)">/100</text>
+      </svg>
+      <div class="score-ring-label">Social / Schema</div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-container">
+    <div class="tabs" id="tabs">
+      <button class="tab-btn active" onclick="switchTab('executive')">Sammanfattning</button>
+      <button class="tab-btn" onclick="switchTab('pages')">Sidanalys</button>
+      <button class="tab-btn" onclick="switchTab('sitewide')">Siteövergripande</button>
+      <button class="tab-btn" onclick="switchTab('technical')">Teknisk SEO</button>
+      <button class="tab-btn" onclick="switchTab('content')">Innehållsstrategi</button>
+      <button class="tab-btn" onclick="switchTab('links')">Intern länkning</button>
+      <button class="tab-btn" onclick="switchTab('action')">Åtgärdsplan</button>
+    </div>
+  </div>
+
+  <!-- ======= TAB: EXECUTIVE SUMMARY ======= -->
+  <div class="tab-panel active" id="tab-executive">
+
+    <div class="grid-3" style="margin-bottom:16px">
+      <div class="stat-box">
+        <div class="stat-val" style="color:var(--red)">0</div>
+        <div class="stat-label">Robots.txt / Sitemap</div>
+        <div class="stat-note">Googlebot har inga crawlingdirektiv</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" style="color:var(--red)">0</div>
+        <div class="stat-label">OG-taggar på sidan</div>
+        <div class="stat-note">Ingen social preview-data på någon sida</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" style="color:var(--orange)">3/6</div>
+        <div class="stat-label">Sidor med metabeskrivning</div>
+        <div class="stat-note">faq, om-oss, sa-fungerar-det saknar</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Kritisk bedömning</div>
+      <p style="font-size:14px; color:var(--text-secondary); line-height:1.7; margin-bottom:16px">
+        Livförsäkringar.se är ett välbyggt jämförelseverktyg med ren design och bra användarupplevelse — men ur ett SEO-perspektiv är sidan nästan osynlig. Det saknas tekniska grundförutsättningar (robots.txt, sitemap, schema), meta-data är bristfällig, och det finns inte ett enda indexerbart redaktionellt innehåll för Google att ranka.
+      </p>
+      <p style="font-size:14px; color:var(--text-secondary); line-height:1.7">
+        Den goda nyheten: konkurrenterna Kompricer.se och Ekonomival.se rankar primärt på editorial content — exakt det du saknar idag. Det innebär att en blogg/guide-sektion med 6–7 välskrivna artiklar kan ge påtagliga rankingsresultat inom 3–6 månader, utan att behöva bygga om något befintligt.
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Topp 3 prioriteringar</div>
+      <div class="issue-list">
+        <div class="issue-row" style="border-color:rgba(239,68,68,0.2); background:var(--red-bg)">
+          <div class="issue-icon">🚨</div>
+          <div>
+            <div class="issue-title">Skapa robots.txt och sitemap.xml omedelbart</div>
+            <div class="issue-desc">Utan dessa vet Google inte hur den ska crawla sidan. Det är som att öppna en butik utan skylt. En sitemap specificerar vilka sidor som ska indexeras; robots.txt styr vad som INTE ska indexeras (t.ex. resultat.html).</div>
+            <div class="issue-fix">→ 30 minuter · Högsta möjliga impact</div>
+          </div>
+        </div>
+        <div class="issue-row" style="border-color:rgba(234,179,8,0.2); background:var(--yellow-bg)">
+          <div class="issue-icon">⚡</div>
+          <div>
+            <div class="issue-title">Lägg till OG-taggar och meta descriptions på alla sidor</div>
+            <div class="issue-desc">Tre sidor saknar helt meta description. Ingen sida har OG-taggar — om någon delar en länk på LinkedIn eller Twitter ser de bara en tom förhandsgranskning. Detta påverkar CTR direkt.</div>
+            <div class="issue-fix">→ 2 timmar · Hög impact</div>
+          </div>
+        </div>
+        <div class="issue-row" style="border-color:rgba(99,102,241,0.2); background:rgba(99,102,241,0.08)">
+          <div class="issue-icon">✍️</div>
+          <div>
+            <div class="issue-title">Bygg en blogg/guide-sektion med 6–7 artiklar</div>
+            <div class="issue-desc">Det är den enskilt viktigaste rankingfaktorn du saknar. Konkurrenterna rankar på "hur mycket livförsäkring behöver jag", "livförsäkring utan hälsodeklaration" osv. Du kan enkelt ta den platsen med välskrivet innehåll.</div>
+            <div class="issue-fix">→ Pågående · Störst långsiktig impact</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Konkurrentöversikt</div>
+      <table class="comp-table">
+        <tr>
+          <th>Konkurrent</th>
+          <th>Styrka</th>
+          <th>Svaghet du kan exploatera</th>
+        </tr>
+        <tr>
+          <td><strong>Konsumenternas.se</strong></td>
+          <td>Auktoritativ myndighetsimage, mycket backlinks, lång historik</td>
+          <td>Gammal design, inget interaktivt jämförelseverktyg — du slår dem på UX</td>
+        </tr>
+        <tr>
+          <td><strong>Compricer.se</strong></td>
+          <td>Bred täckning av alla försäkringstyper, starkt domänanseende</td>
+          <td>Livförsäkring är bara en liten del av deras sajt — du kan ha djupare, mer specialiserat innehåll</td>
+        </tr>
+        <tr>
+          <td><strong>Ekonomival.se</strong></td>
+          <td>Specifika jämförelseguider, bra meta-data</td>
+          <td>Rankar på "bästa livförsäkring" men har svagare verktyg än du</td>
+        </tr>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ======= TAB: PAGE BREAKDOWN ======= -->
+  <div class="tab-panel" id="tab-pages">
+
+    <div class="card">
+      <div class="card-title">Sidanalys — alla 6 sidor</div>
+      <table class="page-table">
+        <tr>
+          <th>Sida</th>
+          <th>Titel</th>
+          <th>H1</th>
+          <th>Meta desc</th>
+          <th>OG</th>
+          <th>Index</th>
+          <th>Status</th>
+        </tr>
+        <tr>
+          <td><code>index.html</code></td>
+          <td style="font-size:12px">Livförsäkringar.se – Jämför…<br><span style="color:var(--yellow);font-size:11px">175 tecken (för lång)</span></td>
+          <td style="font-size:12px">"Börja här för ditt prisförslag"<br><span style="color:var(--red);font-size:11px">Saknar "livförsäkring"!</span></td>
+          <td><span class="badge badge-yellow">80 tecken — för kort</span></td>
+          <td><span class="badge badge-red">Saknas</span></td>
+          <td><span class="badge badge-green">Ja</span></td>
+          <td><span class="badge badge-orange">Åtgärd krävs</span></td>
+        </tr>
+        <tr>
+          <td><code>livssituation.html</code></td>
+          <td style="font-size:12px">Livssituation – Livförsäkringar.se<br><span style="color:var(--green);font-size:11px">OK längd</span></td>
+          <td style="font-size:12px">"Din livssituation"<br><span style="color:var(--yellow);font-size:11px">Saknar keyword</span></td>
+          <td><span class="badge badge-yellow">80 tecken — för kort</span></td>
+          <td><span class="badge badge-red">Saknas</span></td>
+          <td><span class="badge badge-green">Ja</span></td>
+          <td><span class="badge badge-orange">Åtgärd krävs</span></td>
+        </tr>
+        <tr>
+          <td><code>resultat.html</code></td>
+          <td style="font-size:12px">Livförsäkringar.se – Jämför…<br><span style="color:var(--red);font-size:11px">Identisk som index!</span></td>
+          <td style="font-size:12px">Dynamisk (JS)</td>
+          <td><span class="badge badge-red">Saknas</span></td>
+          <td><span class="badge badge-red">Saknas</span></td>
+          <td><span class="badge badge-green">noindex ✓</span></td>
+          <td><span class="badge badge-green">Korrekt</span></td>
+        </tr>
+        <tr>
+          <td><code>sa-fungerar-det.html</code></td>
+          <td style="font-size:12px">Så fungerar det – Livförsäkringar.se</td>
+          <td style="font-size:12px">"Så fungerar det"</td>
+          <td><span class="badge badge-red">Saknas helt</span></td>
+          <td><span class="badge badge-red">Saknas</span></td>
+          <td><span class="badge badge-green">Ja</span></td>
+          <td><span class="badge badge-red">Kritisk åtgärd</span></td>
+        </tr>
+        <tr>
+          <td><code>faq.html</code></td>
+          <td style="font-size:12px">Vanliga frågor – Livförsäkringar.se</td>
+          <td style="font-size:12px">"Vanliga frågor"</td>
+          <td><span class="badge badge-red">Saknas helt</span></td>
+          <td><span class="badge badge-red">Saknas</span></td>
+          <td><span class="badge badge-green">Ja</span></td>
+          <td><span class="badge badge-red">Kritisk åtgärd</span></td>
+        </tr>
+        <tr>
+          <td><code>om-oss.html</code></td>
+          <td style="font-size:12px">Om oss – Livförsäkringar.se</td>
+          <td style="font-size:12px">"Vi förenklar det komplexa."</td>
+          <td><span class="badge badge-red">Saknas helt</span></td>
+          <td><span class="badge badge-red">Saknas</span></td>
+          <td><span class="badge badge-green">Ja</span></td>
+          <td><span class="badge badge-orange">Åtgärd krävs</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">index.html — Detaljanalys</div>
+        <div class="issue-list">
+          <div class="issue-row">
+            <div class="issue-icon">🔴</div>
+            <div>
+              <div class="issue-title">H1 saknar primärt keyword</div>
+              <div class="issue-desc">H1 är "Börja här för ditt prisförslag". Google ger stor vikt till H1-texten. Ändra till något i stil med "Jämför livförsäkringar — hitta bästa priset".</div>
+            </div>
+          </div>
+          <div class="issue-row">
+            <div class="issue-icon">🟡</div>
+            <div>
+              <div class="issue-title">Meta description för lång (175 tecken)</div>
+              <div class="issue-desc">Google trunkerar allt över ~155 tecken i SERP. Korta ner så att hela budskapet syns.</div>
+            </div>
+          </div>
+          <div class="issue-row">
+            <div class="issue-icon">🟡</div>
+            <div>
+              <div class="issue-title">Titel troligen för lång</div>
+              <div class="issue-desc">Granska att titeln är under 60 tecken. Titlar trunkeras i sökresultaten vid ≈600px, ca 60 tecken.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">faq.html — Möjligheter</div>
+        <div class="issue-list">
+          <div class="issue-row">
+            <div class="issue-icon">⭐</div>
+            <div>
+              <div class="issue-title">Featured snippet-potential</div>
+              <div class="issue-desc">FAQ-sidor med tydliga frågor och svar är idealiska för Google's "People also ask"-rutor. Lägg till FAQ Schema (structured data) för att maximera chansen.</div>
+            </div>
+          </div>
+          <div class="issue-row">
+            <div class="issue-icon">🔴</div>
+            <div>
+              <div class="issue-title">Saknar meta description</div>
+              <div class="issue-desc">Förslag: "Vanliga frågor om livförsäkring — vad kostar det, behöver du hälsodeklaration och hur fungerar nedtrappning? Enkla svar på svåra frågor."</div>
+            </div>
+          </div>
+          <div class="issue-row">
+            <div class="issue-icon">🔵</div>
+            <div>
+              <div class="issue-title">För få frågor — expandera</div>
+              <div class="issue-desc">5 frågor är för lite för att ranka på FAQ-relaterade sökningar. Sikta på 10–15 frågor som täcker vanliga söktermer.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======= TAB: SITE-WIDE ISSUES ======= -->
+  <div class="tab-panel" id="tab-sitewide">
+
+    <div class="card">
+      <div class="card-title">Siteövergripande problem — Prioriterade</div>
+      <div class="issue-list">
+
+        <div class="issue-row" style="border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05)">
+          <div class="issue-icon">🚨</div>
+          <div>
+            <div class="issue-title">Ingen robots.txt</div>
+            <div class="issue-desc">Utan robots.txt saknar Googlebot vägledning om vad som ska/inte ska crawlas. Risken är att resurser som CSS/JS crawlas i onödan, och att t.ex. resultat.html (dynamisk) riskerar att indexeras felaktigt om noindex-taggen av misstag tas bort.</div>
+            <div class="issue-fix">Lösning: Skapa /robots.txt med Sitemap-pekare och Disallow för /resultat.html</div>
+          </div>
+        </div>
+
+        <div class="issue-row" style="border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05)">
+          <div class="issue-icon">🚨</div>
+          <div>
+            <div class="issue-title">Ingen sitemap.xml</div>
+            <div class="issue-desc">En sitemap talar om för Google exakt vilka sidor som finns och när de senast ändrades. Utan sitemap kan det ta veckor/månader extra innan en ny sida hittas och indexeras.</div>
+            <div class="issue-fix">Lösning: Skapa /sitemap.xml med alla 5 indexerbara sidor</div>
+          </div>
+        </div>
+
+        <div class="issue-row" style="border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05)">
+          <div class="issue-icon">🚨</div>
+          <div>
+            <div class="issue-title">Inga Open Graph-taggar på någon sida</div>
+            <div class="issue-desc">När någon delar en länk på LinkedIn, Twitter/X, Slack eller Facebook ser de inget — bara en tom ruta. OG-taggar är standard och tar 20 minuter att lägga till. Påverkar CTR från social trafik direkt.</div>
+            <div class="issue-fix">Lösning: Lägg till og:title, og:description, og:image, og:url i &lt;head&gt; på alla sidor</div>
+          </div>
+        </div>
+
+        <div class="issue-row" style="border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05)">
+          <div class="issue-icon">🚨</div>
+          <div>
+            <div class="issue-title">Ingen favicon</div>
+            <div class="issue-desc">Saknas. En favicon är ett mikro-trovärdhetssignal i webbläsarfliken och i bokmärken. Bör matcha brand-amber-logotypen.</div>
+            <div class="issue-fix">Lösning: Generera favicon.ico + apple-touch-icon.png, lägg till &lt;link rel="icon"&gt;</div>
+          </div>
+        </div>
+
+        <div class="issue-row" style="border-color:rgba(234,179,8,0.3); background:rgba(234,179,8,0.05)">
+          <div class="issue-icon">⚠️</div>
+          <div>
+            <div class="issue-title">Tailwind CSS laddas från CDN</div>
+            <div class="issue-desc">Tailwind CDN genererar CSS i realtid via JavaScript i webbläsaren. Det innebär att Googlebot kan uppleva rendering-fördröjning och missa stilad HTML. Det påverkar Core Web Vitals (LCP, CLS) negativt. Långsiktigt bör Tailwind kompileras statiskt.</div>
+            <div class="issue-fix">Kortsiktig lösning: Acceptabel nu. Långsiktig: Byt till statiskt kompilerad CSS (npm tailwindcss build)</div>
+          </div>
+        </div>
+
+        <div class="issue-row" style="border-color:rgba(234,179,8,0.3); background:rgba(234,179,8,0.05)">
+          <div class="issue-icon">⚠️</div>
+          <div>
+            <div class="issue-title">Noll strukturerad data (Schema.org)</div>
+            <div class="issue-desc">Schema gör att Google kan visa "rich results" i sökresultaten — betyg, FAQ, brödsmulor osv. FAQ-sidor med FAQPage-schema kan utlösa "People also ask"-rutor direkt i SERP, vilket ökar klickfrekvensen dramatiskt.</div>
+            <div class="issue-fix">Prioritera: FAQPage schema på faq.html, Organization schema på om-oss.html, WebSite schema på index.html</div>
+          </div>
+        </div>
+
+        <div class="issue-row" style="border-color:rgba(234,179,8,0.3); background:rgba(234,179,8,0.05)">
+          <div class="issue-icon">⚠️</div>
+          <div>
+            <div class="issue-title">Ingen kanonisk URL (&lt;link rel="canonical"&gt;)</div>
+            <div class="issue-desc">Om sidan kan nås via flera URL:er (med/utan trailing slash, http/https) kan Google se det som duplicate content. Kanoniska taggar förhindrar detta.</div>
+            <div class="issue-fix">Lägg till &lt;link rel="canonical" href="https://livforsakringar.se/[sida]"&gt; på varje sida</div>
+          </div>
+        </div>
+
+        <div class="issue-row">
+          <div class="issue-icon">🔵</div>
+          <div>
+            <div class="issue-title">Ingen hreflang (liten risk, nämns för fullständighetens skull)</div>
+            <div class="issue-desc">Sajten är på svenska och riktar sig till Sverige — hreflang är inte kritiskt nu men relevant om ni expanderar till Norge/Finland.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======= TAB: TECHNICAL SEO ======= -->
+  <div class="tab-panel" id="tab-technical">
+
+    <div class="grid-2" style="margin-bottom:16px">
+      <div class="card">
+        <div class="card-title">robots.txt — Vad ska skapas</div>
+        <pre>User-agent: *
+Allow: /
+Disallow: /resultat.html
+
+Sitemap: https://livforsakringar.se/sitemap.xml</pre>
+        <p style="font-size:13px; color:var(--text-secondary); margin-top:8px">Spara som <code>/robots.txt</code> i projektets rot (samma mapp som index.html)</p>
+      </div>
+      <div class="card">
+        <div class="card-title">sitemap.xml — Vad ska skapas</div>
+        <pre style="font-size:11px">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"&gt;
+  &lt;url&gt;&lt;loc&gt;https://livforsakringar.se/&lt;/loc&gt;
+       &lt;priority&gt;1.0&lt;/priority&gt;&lt;/url&gt;
+  &lt;url&gt;&lt;loc&gt;https://livforsakringar.se/sa-fungerar-det.html&lt;/loc&gt;
+       &lt;priority&gt;0.7&lt;/priority&gt;&lt;/url&gt;
+  &lt;url&gt;&lt;loc&gt;https://livforsakringar.se/faq.html&lt;/loc&gt;
+       &lt;priority&gt;0.8&lt;/priority&gt;&lt;/url&gt;
+  &lt;url&gt;&lt;loc&gt;https://livforsakringar.se/om-oss.html&lt;/loc&gt;
+       &lt;priority&gt;0.5&lt;/priority&gt;&lt;/url&gt;
+  &lt;url&gt;&lt;loc&gt;https://livforsakringar.se/livssituation.html&lt;/loc&gt;
+       &lt;priority&gt;0.6&lt;/priority&gt;&lt;/url&gt;
+&lt;/urlset&gt;</pre>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">OG-taggar — Mall för varje sida</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:16px">Lägg till i &lt;head&gt; på varje sida. Byt ut titel/description/URL per sida:</p>
+      <pre>&lt;!-- Open Graph --&gt;
+&lt;meta property="og:type"       content="website" /&gt;
+&lt;meta property="og:site_name"  content="Livförsäkringar.se" /&gt;
+&lt;meta property="og:locale"     content="sv_SE" /&gt;
+&lt;meta property="og:url"        content="https://livforsakringar.se/" /&gt;
+&lt;meta property="og:title"      content="Jämför livförsäkringar – Livförsäkringar.se" /&gt;
+&lt;meta property="og:description" content="Jämför livförsäkringar från svenska bolag. Filtrera på ålder, belopp och livssituation. Gratis och oberoende." /&gt;
+&lt;meta property="og:image"      content="https://livforsakringar.se/og-image.png" /&gt;
+
+&lt;!-- Twitter / X --&gt;
+&lt;meta name="twitter:card"        content="summary_large_image" /&gt;
+&lt;meta name="twitter:title"       content="Jämför livförsäkringar – Livförsäkringar.se" /&gt;
+&lt;meta name="twitter:description" content="Jämför livförsäkringar från svenska bolag. Gratis och oberoende." /&gt;
+&lt;meta name="twitter:image"       content="https://livforsakringar.se/og-image.png" /&gt;</pre>
+      <p style="font-size:12px; color:var(--text-muted); margin-top:8px">OG-bild: skapa en 1200×630px bild med logotyp och tagline. Spara som <code>/og-image.png</code></p>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Föreslagna meta descriptions (per sida)</div>
+      <table class="page-table">
+        <tr>
+          <th>Sida</th>
+          <th>Föreslagen meta description</th>
+          <th>Tecken</th>
+        </tr>
+        <tr>
+          <td><code>index.html</code></td>
+          <td style="font-size:12px">Jämför livförsäkringar från Folksam, Skandia, Länsförsäkringar och fler. Filtrera på din ålder och önskat belopp — gratis och oberoende.</td>
+          <td><span class="badge badge-green">148</span></td>
+        </tr>
+        <tr>
+          <td><code>faq.html</code></td>
+          <td style="font-size:12px">Vanliga frågor om livförsäkring — vad är nedtrappning, behöver du hälsodeklaration, vad kostar det? Enkla svar på komplexa frågor.</td>
+          <td><span class="badge badge-green">143</span></td>
+        </tr>
+        <tr>
+          <td><code>sa-fungerar-det.html</code></td>
+          <td style="font-size:12px">Så fungerar vår oberoende livförsäkringsjämförelse. Tre steg: fyll i din ålder, filtrera på belopp och se vad som passar just dig.</td>
+          <td><span class="badge badge-green">140</span></td>
+        </tr>
+        <tr>
+          <td><code>om-oss.html</code></td>
+          <td style="font-size:12px">Vi är en oberoende jämförelsetjänst för livförsäkringar i Sverige. Ingen rådgivning, ingen provision — bara transparent information.</td>
+          <td><span class="badge badge-green">137</span></td>
+        </tr>
+        <tr>
+          <td><code>livssituation.html</code></td>
+          <td style="font-size:12px">Berätta om din livssituation och se vilka livförsäkringar som faktiskt passar dig — barnfamilj, bostadsköp, utomlands och mer.</td>
+          <td><span class="badge badge-green">139</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Schema.org — FAQPage (kopiera in på faq.html)</div>
+      <pre style="font-size:11px">&lt;script type="application/ld+json"&gt;
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Vad är nedtrappning?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Nedtrappning innebär att försäkringsbeloppet minskar ju äldre du blir..."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Behöver jag fylla i en hälsodeklaration?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "De flesta bolag kräver en hälsodeklaration vid tecknande..."
+      }
+    }
+    // ... upprepa för varje fråga
+  ]
+}
+&lt;/script&gt;</pre>
+    </div>
+
+  </div>
+
+  <!-- ======= TAB: CONTENT STRATEGY ======= -->
+  <div class="tab-panel" id="tab-content">
+
+    <div class="card">
+      <div class="card-title">Primärt target keyword</div>
+      <div class="grid-2">
+        <div>
+          <div style="font-size:13px; color:var(--text-secondary); margin-bottom:12px">Baserat på konkurrentanalys och sökbeteende:</div>
+          <table class="kw-table">
+            <tr><th>Keyword</th><th>Typ</th><th>Intent</th><th>Svårighetsgrad</th></tr>
+            <tr>
+              <td><strong>jämför livförsäkring</strong></td>
+              <td><span class="badge badge-blue">Primärt</span></td>
+              <td>Kommersiell</td>
+              <td><span class="badge badge-yellow">Medium</span></td>
+            </tr>
+            <tr>
+              <td>livförsäkring jämförelse</td>
+              <td><span class="badge badge-green">Sekundärt</span></td>
+              <td>Kommersiell</td>
+              <td><span class="badge badge-yellow">Medium</span></td>
+            </tr>
+            <tr>
+              <td>billigaste livförsäkring</td>
+              <td><span class="badge badge-green">Sekundärt</span></td>
+              <td>Kommersiell</td>
+              <td><span class="badge badge-green">Lägre</span></td>
+            </tr>
+            <tr>
+              <td>bästa livförsäkring</td>
+              <td><span class="badge badge-green">Sekundärt</span></td>
+              <td>Kommersiell</td>
+              <td><span class="badge badge-red">Hög</span></td>
+            </tr>
+            <tr>
+              <td>livförsäkring pris</td>
+              <td><span class="badge badge-orange">Long-tail</span></td>
+              <td>Informationell</td>
+              <td><span class="badge badge-green">Lägre</span></td>
+            </tr>
+          </table>
+        </div>
+        <div>
+          <div style="font-size:13px; color:var(--text-secondary); margin-bottom:12px">LSI-keywords att integrera på index.html:</div>
+          <ul class="bullet">
+            <li><strong>riskförsäkring</strong> — alternativt namn</li>
+            <li><strong>dödsfallsersättning</strong> — vad utbetalas</li>
+            <li><strong>förmånstagare</strong> — vem får pengarna</li>
+            <li><strong>skydda familjen</strong> — emotionell trigger</li>
+            <li><strong>ekonomisk trygghet</strong> — värdeproposition</li>
+            <li><strong>bolåneskydd</strong> — specifikt use case</li>
+            <li><strong>premie</strong> — vad användaren betalar</li>
+            <li><strong>teckningsålder</strong> — teknisk term</li>
+            <li><strong>slutålder</strong> — hur länge gäller den</li>
+            <li><strong>nedtrappning</strong> — differentiator</li>
+            <li><strong>hälsodeklaration</strong> — vanlig fråga</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Bloggstrategi — 7 rekommenderade artiklar</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px">Dessa sökordskluster rankar dina konkurrenter på idag. En välskriven 1000–1500 ord lång artikel per ämne kan börja ge trafik inom 3–6 månader. Börja med #1 och #2 — de har bäst potential för snabb vinst.</p>
+
+      <div class="blog-card">
+        <div class="blog-kw">target: "hur mycket livförsäkring behöver jag" · "livförsäkring belopp"</div>
+        <div class="blog-title">1. Hur mycket livförsäkring behöver du egentligen?</div>
+        <div class="blog-intent"><span class="badge badge-blue">Informationell</span> Hög sökvolym · Låg konkurrens · Naturlig CTA till jämförelseverktyget</div>
+        <div class="blog-outline">
+          <ul>
+            <li>Tumregeln: 3–5 gånger din årslön</li>
+            <li>Räkna ut ditt bolånebehov</li>
+            <li>Barnfamilj vs. singel — olika behov</li>
+            <li>Räkna på ett exempel (inkomst 40 000 kr/mån)</li>
+            <li>Hur länge bör försäkringen gälla?</li>
+            <li>Jämför din profil → [länk till verktyget]</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-kw">target: "livförsäkring utan hälsodeklaration" · "livförsäkring sjukdom"</div>
+        <div class="blog-title">2. Livförsäkring utan hälsodeklaration — vilka bolag erbjuder det?</div>
+        <div class="blog-intent"><span class="badge badge-blue">Informationell/kommersiell</span> Specifik nisch · Låg konkurrens · Rankbar på 60–90 dagar</div>
+        <div class="blog-outline">
+          <ul>
+            <li>Vad är en hälsodeklaration och varför kräver bolagen den?</li>
+            <li>Vilka svenska bolag erbjuder utan hälsodeklaration</li>
+            <li>Fallgropar: lägre belopp, kortare löptid</li>
+            <li>Är det värt det? Vem passar det för?</li>
+            <li>Se alla alternativ → [länk till verktyget]</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-kw">target: "livförsäkring pris" · "livförsäkring kostnad per månad"</div>
+        <div class="blog-title">3. Vad kostar en livförsäkring 2026? Priser per ålder och belopp</div>
+        <div class="blog-intent"><span class="badge badge-blue">Informationell</span> Evergreen · Hög avsikt att jämföra</div>
+        <div class="blog-outline">
+          <ul>
+            <li>Genomsnittlig premie per åldersgrupp</li>
+            <li>Hur belopp påverkar priset (0,5–5 Mkr)</li>
+            <li>Pristabell: 30 år, 40 år, 50 år × 1 Mkr / 2 Mkr / 3 Mkr</li>
+            <li>Varför skiljer sig bolagen åt?</li>
+            <li>Jämför exakta priser för din ålder → [länk]</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-kw">target: "livförsäkring barnfamilj" · "livförsäkring med barn"</div>
+        <div class="blog-title">4. Livförsäkring för barnfamiljer — vad du behöver tänka på</div>
+        <div class="blog-intent"><span class="badge badge-orange">Kommersiell</span> Specifik persona · Direkt koppling till "barn"-scenariot i appen</div>
+        <div class="blog-outline">
+          <ul>
+            <li>Varför barnfamiljer behöver mer skydd</li>
+            <li>Räkna ut behovet: bolån + barns uppväxt</li>
+            <li>Undvik nedtrappning — varför det spelar roll</li>
+            <li>Exempel: vad händer om du dör när barnet är 3 år?</li>
+            <li>Filtrera på barnfamilj → [länk]</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-kw">target: "livförsäkring bostadsköp" · "livförsäkring bolån"</div>
+        <div class="blog-title">5. Behöver du livförsäkring när du köper bostad?</div>
+        <div class="blog-intent"><span class="badge badge-orange">Kommersiell</span> Trigger: livshändelse, hög köpintention</div>
+        <div class="blog-outline">
+          <ul>
+            <li>Vad banken egentligen kräver (och inte)</li>
+            <li>Hur stort belopp täcker ditt bolån?</li>
+            <li>Vad händer med lånet om du dör — praktiskt exempel</li>
+            <li>Vilka bolag har bäst bolåneskydd?</li>
+            <li>Jämför nu → [länk]</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-kw">target: "vad är livförsäkring" · "livförsäkring förklarat"</div>
+        <div class="blog-title">6. Vad är en livförsäkring? En enkel förklaring</div>
+        <div class="blog-intent"><span class="badge badge-blue">Informationell</span> Top-of-funnel · Lockar bredare publik</div>
+        <div class="blog-outline">
+          <ul>
+            <li>Definitionen: vad är det?</li>
+            <li>Riskförsäkring vs. kapitalförsäkring — skillnaden</li>
+            <li>Vem betalar ut pengarna och till vem?</li>
+            <li>Förmånstagare — vad innebär det?</li>
+            <li>När ska du INTE teckna?</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="blog-card">
+        <div class="blog-kw">target: "nedtrappning livförsäkring" · "livförsäkring slutålder"</div>
+        <div class="blog-title">7. Vad är nedtrappning — och är det ett problem?</div>
+        <div class="blog-intent"><span class="badge badge-blue">Informationell</span> Nisch · Hög relevans för äldre köpare</div>
+        <div class="blog-outline">
+          <ul>
+            <li>Hur nedtrappning fungerar — diagram</li>
+            <li>Vilka bolag trappas ner och hur snabbt</li>
+            <li>Är det alltid dåligt? (beror på din situation)</li>
+            <li>Alternativ: fast belopp hela löptiden</li>
+            <li>Jämför bolag med/utan nedtrappning → [länk]</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <div class="card-title">Var ska bloggen läggas?</div>
+      <div class="grid-2">
+        <div>
+          <div class="issue-title" style="margin-bottom:8px; font-size:15px">Alternativ A — Underkataloger (rekommenderat)</div>
+          <div style="font-size:13px; color:var(--text-secondary)">Skapa artiklar som <code>/guider/hur-mycket-livforsakring.html</code>. Fördelen är att Google ser dem som en del av samma domän och länkjuice flödar till jämförelseverktyget.</div>
+        </div>
+        <div>
+          <div class="issue-title" style="margin-bottom:8px; font-size:15px">Alternativ B — Subdomain</div>
+          <div style="font-size:13px; color:var(--text-secondary)"><code>blogg.livforsakringar.se</code> — Enklare att hantera separat men delar inte länkjuice lika effektivt med main domain. Undvik om möjligt.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======= TAB: INTERNAL LINKING ======= -->
+  <div class="tab-panel" id="tab-links">
+
+    <div class="card">
+      <div class="card-title">Nuläge — intern länkstruktur</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:20px">Idag länkas sidor <em>enbart</em> via navigationsmenyn och CTA-knappar. Det finns inga redaktionella kors-länkar i sidinnehållet. Google använder interna länkar för att förstå vilka sidor som är viktigast (länkjuice).</p>
+      <div class="link-grid">
+        <div class="link-node">
+          <div class="link-node-name">index.html</div>
+          <div class="link-node-links">Länkas till av: alla sidor (nav)<br>Länkar till: livssituation, resultat</div>
+        </div>
+        <div class="link-node">
+          <div class="link-node-name">livssituation.html</div>
+          <div class="link-node-links">Länkas till av: index (nav + flow)<br>Länkar till: resultat</div>
+        </div>
+        <div class="link-node">
+          <div class="link-node-name">resultat.html</div>
+          <div class="link-node-links">Länkas till av: livssituation<br>noindex — korrekt</div>
+        </div>
+        <div class="link-node">
+          <div class="link-node-name">faq.html</div>
+          <div class="link-node-links">Länkas till av: nav på alla sidor<br>Länkar ej till något innehåll</div>
+        </div>
+        <div class="link-node">
+          <div class="link-node-name">sa-fungerar-det.html</div>
+          <div class="link-node-links">Länkas till av: nav på alla sidor<br>Länkar ej till något innehåll</div>
+        </div>
+        <div class="link-node">
+          <div class="link-node-name">om-oss.html</div>
+          <div class="link-node-links">Länkas till av: nav på alla sidor<br>Länkar ej till något innehåll</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Rekommenderade länktillägg</div>
+      <div class="issue-list">
+        <div class="issue-row">
+          <div class="issue-icon">🔗</div>
+          <div>
+            <div class="issue-title">faq.html → sa-fungerar-det.html</div>
+            <div class="issue-desc">I FAQ-svaret om hur tjänsten fungerar: lägg till en länk "Läs mer om hur jämförelsen fungerar → Så fungerar det". Naturlig övergång och stärker sa-fungerar-det som sida.</div>
+          </div>
+        </div>
+        <div class="issue-row">
+          <div class="issue-icon">🔗</div>
+          <div>
+            <div class="issue-title">sa-fungerar-det.html → faq.html</div>
+            <div class="issue-desc">I avslutet på "Så fungerar det"-sidan: "Har du fler frågor? Läs våra vanliga frågor." Skapar en triangel av kors-trafik mellan info-sidorna.</div>
+          </div>
+        </div>
+        <div class="issue-row">
+          <div class="issue-icon">🔗</div>
+          <div>
+            <div class="issue-title">om-oss.html → faq.html och sa-fungerar-det.html</div>
+            <div class="issue-desc">Om-oss förklarar att ni är oberoende — länka naturligt till FAQ ("Vanliga frågor om vår tjänst") och Så fungerar det.</div>
+          </div>
+        </div>
+        <div class="issue-row">
+          <div class="issue-icon">🔗</div>
+          <div>
+            <div class="issue-title">Framtida bloggar → index.html (jämförelseverktyget)</div>
+            <div class="issue-desc">Varje bloggartikel bör ha en tydlig CTA med intern länk till jämförelseverktyget, helst med ankartexten "jämför livförsäkringar" (targetkeyword). Detta är den viktigaste länkstrategin på sikt.</div>
+          </div>
+        </div>
+        <div class="issue-row">
+          <div class="issue-icon">🔗</div>
+          <div>
+            <div class="issue-title">index.html → faq.html med ankartext om specifika begrepp</div>
+            <div class="issue-desc">Om landingssidan nämner "nedtrappning" eller "hälsodeklaration" — länka till FAQ-förklaringen. Det skapar djup och håller besökare på sajten längre (minskar bounce rate).</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ======= TAB: ACTION PLAN ======= -->
+  <div class="tab-panel" id="tab-action">
+
+    <div class="card">
+      <div class="card-title">Prioriterad åtgärdsplan</div>
+      <p style="font-size:13px; color:var(--text-secondary); margin-bottom:24px">Sorterat efter impact / tidsåtgång. Börja uppifrån.</p>
+
+      <div class="action-item" style="border-color:rgba(239,68,68,0.3)">
+        <div class="action-num" style="background:var(--red)">1</div>
+        <div>
+          <div class="action-title">Skapa robots.txt och sitemap.xml</div>
+          <div class="action-desc">Se mall i fliken "Teknisk SEO". Spara i projektets rot och deploya till Vercel. Skicka sedan in sitemapen i Google Search Console.</div>
+          <div class="action-time">⏱ 30 minuter · Impact: Kritisk</div>
+        </div>
+      </div>
+
+      <div class="action-item" style="border-color:rgba(239,68,68,0.3)">
+        <div class="action-num" style="background:var(--red)">2</div>
+        <div>
+          <div class="action-title">Registrera sajten i Google Search Console</div>
+          <div class="action-desc">Gå till search.google.com/search-console. Verifiera domänen via DNS-record (Vercel stödjer detta direkt). Skicka in sitemap.xml. Börja följa indexeringsstatus.</div>
+          <div class="action-time">⏱ 20 minuter · Impact: Kritisk (utan detta ser du ingenting)</div>
+        </div>
+      </div>
+
+      <div class="action-item" style="border-color:rgba(234,179,8,0.3)">
+        <div class="action-num" style="background:var(--yellow); color:#000">3</div>
+        <div>
+          <div class="action-title">Lägg till OG-taggar på alla sidor</div>
+          <div class="action-desc">Använd mallen i "Teknisk SEO"-fliken. Skapa en 1200×630 OG-bild med er logotyp och "Jämför livförsäkringar — gratis och oberoende". Lägg till Twitter Card-taggar samtidigt.</div>
+          <div class="action-time">⏱ 2 timmar · Impact: Hög (social CTR)</div>
+        </div>
+      </div>
+
+      <div class="action-item" style="border-color:rgba(234,179,8,0.3)">
+        <div class="action-num" style="background:var(--yellow); color:#000">4</div>
+        <div>
+          <div class="action-title">Uppdatera meta descriptions och H1 på index.html</div>
+          <div class="action-desc">Ändra H1 till "Jämför livförsäkringar — hitta bästa priset" (inkluderar primärkeyword). Ersätt meta description med den i Sidanalys-fliken (148 tecken). Lägg till canonical-tagg.</div>
+          <div class="action-time">⏱ 1 timme · Impact: Hög (SERP CTR)</div>
+        </div>
+      </div>
+
+      <div class="action-item" style="border-color:rgba(234,179,8,0.3)">
+        <div class="action-num" style="background:var(--yellow); color:#000">5</div>
+        <div>
+          <div class="action-title">Lägg till meta descriptions på faq.html, sa-fungerar-det.html, om-oss.html</div>
+          <div class="action-desc">Använd de föreslagna texterna i Sidanalys-fliken. Alla tre sidor saknar helt meta description idag — de visas i SERP utan text.</div>
+          <div class="action-time">⏱ 30 minuter · Impact: Hög</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">6</div>
+        <div>
+          <div class="action-title">Lägg till FAQPage Schema på faq.html</div>
+          <div class="action-desc">Kopiera JSON-LD-mallen från "Teknisk SEO"-fliken. Fyll i alla 5 (sedan fler) frågor. Det kan trigga "People also ask"-rutor i Google för sökningar relaterade till livförsäkring.</div>
+          <div class="action-time">⏱ 1 timme · Impact: Medium-hög (rich results)</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">7</div>
+        <div>
+          <div class="action-title">Skapa favicon</div>
+          <div class="action-desc">Generera via favicon.io eller liknande. Använd shield_with_heart-ikonen i brand-amber (#E8A838). Lägg till &lt;link rel="icon"&gt; i alla sidor.</div>
+          <div class="action-time">⏱ 30 minuter · Impact: Trovärdighet</div>
+        </div>
+      </div>
+
+      <div class="action-item">
+        <div class="action-num">8</div>
+        <div>
+          <div class="action-title">Expandera FAQ-sidan till 12–15 frågor</div>
+          <div class="action-desc">Lägg till frågor om: "Vad är teckningsålder?", "Vad händer om jag inte betalar premien?", "Kan jag ha flera livförsäkringar?", "Hur länge gäller försäkringen?", "Vad är förmånstagare?" etc. Mer innehåll = fler sökord.</div>
+          <div class="action-time">⏱ 2 timmar · Impact: Medium (long-tail keywords)</div>
+        </div>
+      </div>
+
+      <div class="action-item" style="border-color:rgba(99,102,241,0.3); background:rgba(99,102,241,0.05)">
+        <div class="action-num">9</div>
+        <div>
+          <div class="action-title">Skriv artikel #1: "Hur mycket livförsäkring behöver du?"</div>
+          <div class="action-desc">Börja med denna — störst sökvolym, lägre konkurrens, och den konverterar naturligt till jämförelseverktyget. Sikta på 1200–1500 ord. Publicera på /guider/hur-mycket-livforsakring.html.</div>
+          <div class="action-time">⏱ 4–6 timmar · Impact: Hög på 3–6 månader</div>
+        </div>
+      </div>
+
+      <div class="action-item" style="border-color:rgba(99,102,241,0.3); background:rgba(99,102,241,0.05)">
+        <div class="action-num">10</div>
+        <div>
+          <div class="action-title">Skriv artikel #2: "Livförsäkring utan hälsodeklaration"</div>
+          <div class="action-desc">Nischkeyword med tydlig informationell intent. Du har redan data i insurance.json om vilka bolag som kräver hälsodeklaration — använd det i artikeln. Unikt faktainnehåll konkurrenter inte har.</div>
+          <div class="action-time">⏱ 3–4 timmar · Impact: Hög, snabbare ranking</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <div class="card-title">Tidslinje</div>
+      <div style="font-size:13px; color:var(--text-secondary); line-height:2">
+        <div style="display:flex; gap:16px; padding:10px 0; border-bottom:1px solid var(--border)"><span style="color:var(--red); font-weight:600; min-width:100px">Vecka 1</span><span>Åtgärd 1–5: robots.txt, sitemap, Search Console, OG-taggar, meta descriptions</span></div>
+        <div style="display:flex; gap:16px; padding:10px 0; border-bottom:1px solid var(--border)"><span style="color:var(--yellow); font-weight:600; min-width:100px">Vecka 2</span><span>Åtgärd 6–8: FAQ Schema, favicon, expandera FAQ</span></div>
+        <div style="display:flex; gap:16px; padding:10px 0; border-bottom:1px solid var(--border)"><span style="color:var(--accent); font-weight:600; min-width:100px">Vecka 3–4</span><span>Åtgärd 9–10: Skriv artikel 1 och 2, publicera, intern länkning</span></div>
+        <div style="display:flex; gap:16px; padding:10px 0; border-bottom:1px solid var(--border)"><span style="color:var(--green); font-weight:600; min-width:100px">Månad 2–3</span><span>Artikel 3–5 (pris, barnfamilj, bostadsköp). Följ upp indexering i Search Console.</span></div>
+        <div style="display:flex; gap:16px; padding:10px 0"><span style="color:var(--green); font-weight:600; min-width:100px">Månad 4–6</span><span>Artikel 6–7. Börja analysera vilka sidor som ger trafik. Optimera high-performers.</span></div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="report-footer container">
+  Genererad av Claude Code SEO Audit · Livförsäkringar.se · 21 maj 2026
+</div>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+</script>
+</body>
+</html>

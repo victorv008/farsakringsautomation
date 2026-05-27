@@ -325,18 +325,20 @@
                 <p class="text-text-muted text-sm font-light leading-relaxed">Alla svenska livförsäkringar kräver att du bor i Sverige eller Norden när du tecknar. Välj detta för att se vilka bolag som har de lägsta geografiska kraven.</p>
             </button>
 
-            <!-- 7. Jag är fullt arbetsför -->
-            <button class="scenario-card" data-scenario="arbetsfor" onclick="toggleCard(this)">
+            <!-- 7-8. Sista raden — centrerad -->
+            <div class="col-span-full flex justify-center gap-5">
+            <!-- 7. Nedsatt arbetsförmåga -->
+            <button class="scenario-card" data-scenario="arbetsfor" style="width: calc((100% - 2.5rem) / 3)" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
                     <span class="material-symbols-outlined text-brand-teal text-[22px]">how_to_reg</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Jag är fullt arbetsför</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Två bolag kräver att du är fullt arbetsför för att teckna. Välj detta om det stämmer in på dig — annars filtreras de automatiskt bort.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Nedsatt arbetsförmåga?</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Några bolag nekar teckning vid pågående sjukdom eller nedsatt arbetsförmåga. Uppfyller du det kravet visas alla bolag — annars filtreras de automatiskt bort.</p>
             </button>
 
             <!-- 8. Jämför alla — special card -->
-            <button class="scenario-card card-all" data-scenario="standard" onclick="toggleCard(this)">
+            <button class="scenario-card card-all" style="width: calc((100% - 2.5rem) / 3)" data-scenario="standard" onclick="toggleCard(this)">
                 <span class="check-badge" style="background: #E8A838;"><span
                         class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-amber/10 rounded-2xl flex items-center justify-center mb-5">
@@ -346,6 +348,7 @@
                 <p class="text-text-muted text-sm font-light leading-relaxed">Se alla alternativ sida vid sida utan
                     förfiltrering.</p>
             </button>
+            </div>
 
         </div>
 
