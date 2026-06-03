@@ -192,6 +192,28 @@
             opacity: 1;
             transform: scale(1);
         }
+
+        /* ── MOBILE OPTIMIZATIONS ── */
+        @media (max-width: 768px) {
+            body {
+                overflow: hidden;
+            }
+
+            .blob-teal, .blob-amber {
+                animation-duration: 0.5s;
+                transform: scale(0.6);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .last-row-wrapper {
+                flex-direction: column;
+            }
+
+            .last-row-card {
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 
@@ -326,9 +348,9 @@
             </button>
 
             <!-- 7-8. Sista raden — centrerad -->
-            <div class="col-span-full flex justify-center gap-5">
+            <div class="last-row-wrapper col-span-full flex justify-center gap-5">
             <!-- 7. Nedsatt arbetsförmåga -->
-            <button class="scenario-card" data-scenario="arbetsfor" style="width: calc((100% - 2.5rem) / 3)" onclick="toggleCard(this)">
+            <button class="scenario-card last-row-card" data-scenario="arbetsfor" style="width: calc((100% - 2.5rem) / 3)" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
                     <span class="material-symbols-outlined text-brand-teal text-[22px]">how_to_reg</span>
@@ -338,7 +360,7 @@
             </button>
 
             <!-- 8. Jämför alla — special card -->
-            <button class="scenario-card card-all" style="width: calc((100% - 2.5rem) / 3)" data-scenario="standard" onclick="toggleCard(this)">
+            <button class="scenario-card card-all last-row-card" style="width: calc((100% - 2.5rem) / 3)" data-scenario="standard" onclick="toggleCard(this)">
                 <span class="check-badge" style="background: #E8A838;"><span
                         class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-amber/10 rounded-2xl flex items-center justify-center mb-5">
