@@ -195,13 +195,13 @@
 
         /* ── MOBILE OPTIMIZATIONS ── */
         @media (max-width: 768px) {
-            body {
-                overflow: hidden;
+            html, body {
+                overflow-x: hidden;
             }
 
             .blob-teal, .blob-amber {
-                animation-duration: 0.5s;
-                transform: scale(0.6);
+                animation-duration: 0.5s !important;
+                transform: scale(0.6) !important;
             }
         }
 

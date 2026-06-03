@@ -326,7 +326,7 @@
                             <div class="flex items-baseline gap-2 mt-2">
                                 <span id="amount-display"
                                     class="font-headline text-4xl sm:text-5xl font-extrabold text-brand-teal tracking-tight">
-                                    2 500 000
+                                    1 000 000
                                 </span>
                                 <span class="text-xl font-medium text-text-muted">kr</span>
                             </div>
@@ -394,16 +394,21 @@
         const amountDisplay = document.getElementById('amount-display');
         const amountTrack = document.getElementById('amount-track');
 
-        // Sliders dynamik
-        amountSlider.addEventListener('input', function () {
-            const val = this.value;
+        // Uppdatera display och track
+        function updateAmountDisplay() {
+            const val = amountSlider.value;
             amountDisplay.textContent = new Intl.NumberFormat('sv-SE').format(val);
-            // Calculate percentage for filled track width
-            const min = this.min ? this.min : 500000;
-            const max = this.max ? this.max : 5000000;
+            const min = amountSlider.min ? amountSlider.min : 500000;
+            const max = amountSlider.max ? amountSlider.max : 5000000;
             const percent = ((val - min) / (max - min)) * 100;
             amountTrack.style.width = `calc(${percent}% + (${8 - percent * 0.15}px))`;
-        });
+        }
+
+        // Initiera vid sidladdning
+        updateAmountDisplay();
+
+        // Sliders dynamik
+        amountSlider.addEventListener('input', updateAmountDisplay);
 
         document.getElementById('step1-form').addEventListener('submit', function (e) {
             e.preventDefault();
