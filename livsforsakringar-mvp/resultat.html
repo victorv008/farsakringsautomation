@@ -232,6 +232,37 @@
         #mfm-apply { background: #00595c; color: #fff; }
 
         body.no-scroll { overflow: hidden; }
+
+        /* ── MOBILE OPTIMIZATIONS ── */
+        @media (max-width: 768px) {
+            html, body {
+                overflow-x: hidden;
+            }
+
+            .blob-teal {
+                transform: scale(0.4) !important;
+                transform-origin: center;
+                opacity: 0.5 !important;
+                right: -20% !important;
+                top: -10% !important;
+                z-index: 0 !important;
+            }
+
+            .blob-amber {
+                transform: scale(0.4) !important;
+                transform-origin: center;
+                opacity: 0.5 !important;
+                bottom: -15% !important;
+                right: -10% !important;
+                z-index: 0 !important;
+            }
+
+            /* Ensure all content sits above blobs */
+            header, main, footer, .filter-panel, .results, button, [role="region"] {
+                position: relative;
+                z-index: 1;
+            }
+        }
     </style>
 </head>
 <body class="blob-bg text-[#00595c] font-body min-h-screen flex flex-col selection:bg-[#00595c] selection:text-white relative overflow-x-hidden">
