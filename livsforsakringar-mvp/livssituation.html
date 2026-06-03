@@ -354,7 +354,7 @@
 
         <!-- Sticky CTA bar -->
         <div class="flex flex-col items-center gap-3">
-            <button id="cta-btn" class="cta-btn" disabled onclick="goToResults()">
+            <button id="cta-btn" class="cta-btn" onclick="goToResults()">
                 Visa resultat
                 <span id="cta-counter" class="selection-counter"></span>
                 <span class="material-symbols-outlined text-[22px]">arrow_forward</span>
@@ -427,28 +427,25 @@
         }
 
         function updateCTA() {
-            const btn = document.getElementById('cta-btn');
             const counter = document.getElementById('cta-counter');
             const hint = document.getElementById('cta-hint');
             const count = selected.size;
 
             if (count > 0) {
-                btn.disabled = false;
                 counter.textContent = count;
                 counter.classList.add('visible');
                 hint.style.opacity = '0';
             } else {
-                btn.disabled = true;
                 counter.classList.remove('visible');
                 hint.style.opacity = '1';
             }
         }
 
         function goToResults() {
-            // Store all selected scenarios as a comma-separated string
-            sessionStorage.setItem('ins_scenarios', Array.from(selected).join(','));
-            // Also keep the first one as primary 'ins_scenario' for backwards compatibility
-            sessionStorage.setItem('ins_scenario', Array.from(selected)[0] || 'standard');
+            // If no scenarios selected, use 'standard' (compare all)
+            const scenarios = selected.size > 0 ? Array.from(selected) : ['standard'];
+            sessionStorage.setItem('ins_scenarios', scenarios.join(','));
+            sessionStorage.setItem('ins_scenario', scenarios[0]);
             transitionTo('resultat.html');
         }
     </script>
