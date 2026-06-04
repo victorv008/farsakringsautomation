@@ -79,15 +79,18 @@ def filter_insurers(insurers, age, amount, scenarios):
     return matched, excluded
 
 # Test-cases: (scenario_name, scenarios_list, expected_count, expected_bolag_if_specific)
+# Testparametrar: ålder 32, belopp 2 500 000 kr
+# ICA exkluderas alltid av beloppsfilter (max 2 000 000 kr)
+# Movestic (krav_arbetsfor=true) exkluderas i alla scenarios utom 'arbetsfor'
 tests = [
-    ('standard (jämför alla)', ['standard'], 16, None),
+    ('standard (jämför alla)', ['standard'], 15, None),   # ICA exkluderas av belopp
     ('ingen_halso', ['ingen_halso'], 1, ['JustInCase']),
-    ('barn', ['barn'], 3, ['Folksam', 'JustInCase', 'Movestic']),
-    ('ingen_nedtrappning', ['ingen_nedtrappning'], 11, None),
-    ('hog_slutalder', ['hog_slutalder'], 3, ['Folksam', 'JustInCase', 'Movestic']),
-    ('riskfylld_sport', ['riskfylld_sport'], 14, None),
+    ('barn', ['barn'], 2, ['Folksam', 'JustInCase']),      # Movestic exkluderas av arbetsfor-filter
+    ('ingen_nedtrappning', ['ingen_nedtrappning'], 9, None),
+    ('hog_slutalder', ['hog_slutalder'], 2, ['Folksam', 'JustInCase']),  # Movestic exkluderas av arbetsfor-filter
+    ('riskfylld_sport', ['riskfylld_sport'], 12, None),
     ('utlands', ['utlands'], 0, []),
-    ('arbetsfor (default - ingen vald)', [], 14, None),  # 16 - 2 som kräver arbetsför
+    ('arbetsfor (default - ingen vald)', [], 14, None),    # 16 - ICA (belopp) - Movestic (arbetsfor)
 ]
 
 print("=" * 70)

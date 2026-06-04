@@ -17,13 +17,7 @@ jobs:
           python-version: '3.11'
 
       - name: Kör filtertest
-        id: test
-        run: |
-          python3 scripts/filtertest.py > testresultat.txt 2>&1
-          cat testresultat.txt
-          exit_code=$?
-          echo "exit_code=$exit_code" >> $GITHUB_OUTPUT
-          exit $exit_code
+        run: python3 scripts/filtertest.py
 
       - name: Skicka e-post vid fel
         if: failure()
