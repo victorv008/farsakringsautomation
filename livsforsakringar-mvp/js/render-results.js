@@ -414,6 +414,14 @@
                 const maxFmt = new Intl.NumberFormat('sv-SE').format(ins.belopp_max);
                 reasons.push(`Maxbelopp ${maxFmt} kr — under önskat belopp`);
             }
+
+            // If "Jämför alla" (standard) is selected, skip all scenario-based filters
+            if (scenarios.includes('standard')) {
+                if (reasons.length > 0) excluded.push({ ...ins, _reasons: reasons });
+                else matched.push(ins);
+                return;
+            }
+
             if (scenarios.includes('ingen_halso') && ins.halso_deklaration === true) {
                 reasons.push('Kräver hälsodeklaration');
             }
