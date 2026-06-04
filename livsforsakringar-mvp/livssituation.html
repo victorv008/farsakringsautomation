@@ -395,9 +395,6 @@
                 <span id="cta-counter" class="selection-counter"></span>
                 <span class="material-symbols-outlined text-[22px]">arrow_forward</span>
             </button>
-            <p id="cta-hint" class="text-text-muted text-sm font-light transition-opacity duration-300">
-                Välj minst ett alternativ för att fortsätta
-            </p>
         </div>
 
     </main>
@@ -428,34 +425,46 @@
     </footer>
 
     <script>
-        // ── Multi-select logic ──
+        // ── Filter logic ──
+        // "Jämför alla" är förvald. Väljer man ett specifikt filter avmarkeras "Jämför alla".
+        // Klickar man "Jämför alla" igen rensas alla specifika filter.
+        // "Visa resultat" är alltid aktiv.
         const selected = new Set();
+
+        function init() {
+            const standardCard = document.querySelector('[data-scenario="standard"]');
+            selected.add('standard');
+            standardCard.classList.add('selected');
+            updateCTA();
+        }
 
         function toggleCard(card) {
             const scenario = card.dataset.scenario;
             const allCards = document.querySelectorAll('.scenario-card');
+            const standardCard = document.querySelector('[data-scenario="standard"]');
 
             if (scenario === 'standard') {
-                // "Jämför alla" — select or deselect everything
-                if (selected.has('standard')) {
-                    selected.clear();
-                    allCards.forEach(c => c.classList.remove('selected'));
-                } else {
-                    allCards.forEach(c => {
-                        selected.add(c.dataset.scenario);
-                        c.classList.add('selected');
-                    });
-                }
+                // Rensa alla specifika filter, välj bara "Jämför alla"
+                selected.clear();
+                allCards.forEach(c => c.classList.remove('selected'));
+                selected.add('standard');
+                standardCard.classList.add('selected');
             } else {
+                // Toggla det klickade kortet
                 if (selected.has(scenario)) {
                     selected.delete(scenario);
                     card.classList.remove('selected');
-                    // If "Jämför alla" was selected, deselect it too
-                    const allCard = document.querySelector('[data-scenario="standard"]');
-                    if (allCard) { selected.delete('standard'); allCard.classList.remove('selected'); }
                 } else {
                     selected.add(scenario);
                     card.classList.add('selected');
+                }
+                // Avmarkera alltid "Jämför alla" när ett specifikt filter väljs/avmarkeras
+                selected.delete('standard');
+                standardCard.classList.remove('selected');
+                // Om inga specifika filter kvar, återgå till "Jämför alla"
+                if (selected.size === 0) {
+                    selected.add('standard');
+                    standardCard.classList.add('selected');
                 }
             }
 
@@ -464,26 +473,23 @@
 
         function updateCTA() {
             const counter = document.getElementById('cta-counter');
-            const hint = document.getElementById('cta-hint');
-            const count = selected.size;
-
-            if (count > 0) {
-                counter.textContent = count;
+            const specificCount = Array.from(selected).filter(s => s !== 'standard').length;
+            if (specificCount > 0) {
+                counter.textContent = specificCount;
                 counter.classList.add('visible');
-                hint.style.opacity = '0';
             } else {
                 counter.classList.remove('visible');
-                hint.style.opacity = '1';
             }
         }
 
         function goToResults() {
-            // If no scenarios selected, use 'standard' (compare all)
-            const scenarios = selected.size > 0 ? Array.from(selected) : ['standard'];
+            const scenarios = Array.from(selected);
             sessionStorage.setItem('ins_scenarios', scenarios.join(','));
             sessionStorage.setItem('ins_scenario', scenarios[0]);
             transitionTo('resultat.html');
         }
+
+        init();
     </script>
     <script src="js/transitions.js"></script>
 </body>
