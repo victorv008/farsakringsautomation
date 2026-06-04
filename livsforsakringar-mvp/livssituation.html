@@ -428,14 +428,50 @@
         // ── Filter logic ──
         // "Jämför alla" är förvald. Väljer man ett specifikt filter avmarkeras "Jämför alla".
         // Klickar man "Jämför alla" igen rensas alla specifika filter.
-        // "Visa resultat" är alltid aktiv.
+        // Bubblan på knappen visar antal matchande bolag i realtid.
         const selected = new Set();
 
         function init() {
             const standardCard = document.querySelector('[data-scenario="standard"]');
             selected.add('standard');
             standardCard.classList.add('selected');
-            updateCTA();
+
+            fetch('data/insurance.json')
+                .then(r => r.json())
+                .then(data => {
+                    window.insuranceData = data.bolag;
+                    updateMatchCount();
+                });
+        }
+
+        function countMatches(scenarios) {
+            if (!window.insuranceData) return null;
+            const bolag = window.insuranceData;
+
+            if (scenarios.includes('standard')) return bolag.length;
+
+            return bolag.filter(ins => {
+                if (scenarios.includes('ingen_halso') && ins.halso_deklaration === true) return false;
+                if (scenarios.includes('barn')) {
+                    if (ins.nedtrappning === true) return false;
+                    if (!ins.slutalder || ins.slutalder < 85) return false;
+                }
+                if (scenarios.includes('ingen_nedtrappning') && ins.nedtrappning === true) return false;
+                if (scenarios.includes('hog_slutalder') && (!ins.slutalder || ins.slutalder < 85)) return false;
+                if (scenarios.includes('riskfylld_sport') && ins.undantag_sport && ins.undantag_sport.length > 0) return false;
+                if (scenarios.includes('utlands') && (ins.krav_sverige === true || ins.krav_sverige_detalj)) return false;
+                if (!scenarios.includes('arbetsfor') && ins.krav_arbetsfor === true) return false;
+                return true;
+            }).length;
+        }
+
+        function updateMatchCount() {
+            const counter = document.getElementById('cta-counter');
+            const count = countMatches(Array.from(selected));
+            if (count !== null) {
+                counter.textContent = count;
+                counter.classList.add('visible');
+            }
         }
 
         function toggleCard(card) {
@@ -444,13 +480,11 @@
             const standardCard = document.querySelector('[data-scenario="standard"]');
 
             if (scenario === 'standard') {
-                // Rensa alla specifika filter, välj bara "Jämför alla"
                 selected.clear();
                 allCards.forEach(c => c.classList.remove('selected'));
                 selected.add('standard');
                 standardCard.classList.add('selected');
             } else {
-                // Toggla det klickade kortet
                 if (selected.has(scenario)) {
                     selected.delete(scenario);
                     card.classList.remove('selected');
@@ -458,28 +492,15 @@
                     selected.add(scenario);
                     card.classList.add('selected');
                 }
-                // Avmarkera alltid "Jämför alla" när ett specifikt filter väljs/avmarkeras
                 selected.delete('standard');
                 standardCard.classList.remove('selected');
-                // Om inga specifika filter kvar, återgå till "Jämför alla"
                 if (selected.size === 0) {
                     selected.add('standard');
                     standardCard.classList.add('selected');
                 }
             }
 
-            updateCTA();
-        }
-
-        function updateCTA() {
-            const counter = document.getElementById('cta-counter');
-            const specificCount = Array.from(selected).filter(s => s !== 'standard').length;
-            if (specificCount > 0) {
-                counter.textContent = specificCount;
-                counter.classList.add('visible');
-            } else {
-                counter.classList.remove('visible');
-            }
+            updateMatchCount();
         }
 
         function goToResults() {

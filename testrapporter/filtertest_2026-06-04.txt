@@ -1,0 +1,31 @@
+=== DAGLIG FILTERTEST — livsforsakringar.se ===
+Datum: 2026-06-04
+Tidsstämpel: 2026-06-04 20:34:02
+
+TESTRESULTAT:
+OK  | ingen_halso:       1 bolag visas (förväntat 1)
+OK  | barn:              3 bolag visas (förväntat 3)
+OK  | ingen_nedtrappning: 11 bolag visas (förväntat 11)
+OK  | hog_slutalder:     3 bolag visas (förväntat 3)
+OK  | riskfylld_sport:   14 bolag visas (förväntat 14)
+OK  | utlands:           0 bolag visas (förväntat 0)
+FEL | arbetsfor:         14 bolag visas (förväntat 2)
+
+🚨 VARNING — AVVIKELSE HITTAD
+
+Scenario: arbetsfor
+- Förväntat: 2 bolag visas
+- Faktiskt: 14 bolag visas
+
+Visas (felaktigt): Allmänna Änke- och Pupillkassan, Evident Life, Folksam, Handelsbanken Liv, Idun Liv, If, JustInCase, Länsförsäkringar, Nordea, SEB, Skandia, SPP, Swedbank, Trygg-Hansa
+Filtreras (korrekt): ICA Försäkring, Movestic
+
+Analys: Filtret för 'arbetsfor'-scenariot filtrerar bort ICA Försäkring och Movestic (krav_arbetsfor=True),
+men förväntat beteende är att ENDAST 2 bolag ska visas. Testförväntningen (passed_count: 2) stämmer
+inte med nuvarande filterlogik — antingen är förväntningen felaktig eller så saknas ytterligare
+filtervillkor för detta scenario.
+
+Totalt: 16 bolag i databasen
+6 av 7 tester godkända.
+
+Körtid: 2026-06-04
