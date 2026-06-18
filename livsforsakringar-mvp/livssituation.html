@@ -219,15 +219,6 @@
             }
         }
 
-        @media (max-width: 640px) {
-            .last-row-wrapper {
-                flex-direction: column;
-            }
-
-            .last-row-card {
-                width: 100% !important;
-            }
-        }
     </style>
 </head>
 
@@ -298,7 +289,7 @@
             ⚠️ Livförsäkringar.se lämnar ingen rådgivning. Kontakta ett försäkringsbolag för personlig rådgivning.
         </p>
 
-        <!-- 7 scenario cards + Jämför alla — 3-column grid -->
+        <!-- 6 scenariokort inkl. Rensa filter — 3+3 grid -->
         <div id="cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full max-w-6xl mb-12">
 
             <!-- 1. Ingen hälsodeklaration -->
@@ -311,17 +302,7 @@
                 <p class="text-text-muted text-sm font-light leading-relaxed">Vissa bolag kräver att du svarar på frågor om din hälsa innan du kan teckna. Välj detta om du vill se bolag som inte ställer sådana krav.</p>
             </button>
 
-            <!-- 2. Jag har barn -->
-            <button class="scenario-card" data-scenario="barn" onclick="toggleCard(this)">
-                <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-                <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
-                    <span class="material-symbols-outlined text-brand-teal text-[22px]">child_care</span>
-                </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Jag har barn</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Visar försäkringar utan nedtrappning och med hög slutålder — så att skyddet varar hela tiden dina barn kan behöva det.</p>
-            </button>
-
-            <!-- 3. Inget sjunkande belopp -->
+            <!-- 2. Inget sjunkande belopp -->
             <button class="scenario-card" data-scenario="ingen_nedtrappning" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
@@ -331,7 +312,7 @@
                 <p class="text-text-muted text-sm font-light leading-relaxed">Hos vissa bolag minskar utbetalningsbeloppet när du blir äldre. Välj detta för att bara se försäkringar där beloppet är fast hela löptiden.</p>
             </button>
 
-            <!-- 4. Skydd långt upp i åldern -->
+            <!-- 3. Skydd långt upp i åldern -->
             <button class="scenario-card" data-scenario="hog_slutalder" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
@@ -341,7 +322,7 @@
                 <p class="text-text-muted text-sm font-light leading-relaxed">Försäkringens slutålder avgör hur länge du är täckt. Välj detta för att filtrera fram bolag som ger skydd till minst 85 års ålder.</p>
             </button>
 
-            <!-- 5. Riskfylld sport -->
+            <!-- 4. Riskfylld sport -->
             <button class="scenario-card" data-scenario="riskfylld_sport" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
@@ -351,20 +332,8 @@
                 <p class="text-text-muted text-sm font-light leading-relaxed">Kampsport, motorsport, fallskärm eller privat flygning? Vissa bolag undantar dessa aktiviteter. Välj detta för att se bolag utan sportundantag.</p>
             </button>
 
-            <!-- 6. Bor utomlands -->
-            <button class="scenario-card" data-scenario="utlands" onclick="toggleCard(this)">
-                <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
-                <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
-                    <span class="material-symbols-outlined text-brand-teal text-[22px]">flight_takeoff</span>
-                </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Bor utomlands</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Alla svenska livförsäkringar kräver att du bor i Sverige eller Norden när du tecknar. Välj detta för att se vilka bolag som har de lägsta geografiska kraven.</p>
-            </button>
-
-            <!-- 7-8. Sista raden — centrerad -->
-            <div class="last-row-wrapper col-span-full flex justify-center gap-5">
-            <!-- 7. Nedsatt arbetsförmåga -->
-            <button class="scenario-card last-row-card" data-scenario="arbetsfor" style="width: calc((100% - 2.5rem) / 3)" onclick="toggleCard(this)">
+            <!-- 5. Nedsatt arbetsförmåga -->
+            <button class="scenario-card" data-scenario="arbetsfor" onclick="toggleCard(this)">
                 <span class="check-badge"><span class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-10 h-10 bg-brand-teal/10 rounded-2xl flex items-center justify-center mb-3">
                     <span class="material-symbols-outlined text-brand-teal text-[22px]">how_to_reg</span>
@@ -373,18 +342,16 @@
                 <p class="text-text-muted text-sm font-light leading-relaxed">Några bolag nekar teckning vid pågående sjukdom eller nedsatt arbetsförmåga. Uppfyller du det kravet visas alla bolag — annars filtreras de automatiskt bort.</p>
             </button>
 
-            <!-- 8. Jämför alla — special card -->
-            <button class="scenario-card card-all last-row-card" style="width: calc((100% - 2.5rem) / 3)" data-scenario="standard" onclick="toggleCard(this)">
+            <!-- 6. Rensa filter -->
+            <button class="scenario-card card-all" data-scenario="standard" onclick="toggleCard(this)">
                 <span class="check-badge" style="background: #E8A838;"><span
                         class="material-symbols-outlined text-[16px]">check</span></span>
                 <div class="w-12 h-12 bg-brand-amber/10 rounded-2xl flex items-center justify-center mb-5">
                     <span class="material-symbols-outlined text-brand-amber text-[28px]">dashboard</span>
                 </div>
-                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Jämför alla</h3>
-                <p class="text-text-muted text-sm font-light leading-relaxed">Se alla alternativ sida vid sida utan
-                    förfiltrering.</p>
+                <h3 class="font-headline text-lg font-bold text-text-main mb-2">Rensa filter</h3>
+                <p class="text-text-muted text-sm font-light leading-relaxed">Tar bort alla filter och visar alla försäkringsbolag.</p>
             </button>
-            </div>
 
         </div>
 
