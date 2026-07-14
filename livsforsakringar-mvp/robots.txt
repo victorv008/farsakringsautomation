@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://livforsakringar.se/sitemap.xml
+Sitemap: https://www.livforsakringar.se/sitemap.xml
