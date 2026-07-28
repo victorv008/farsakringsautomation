@@ -1,10 +1,6 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    { "source": "/integritetspolicy", "destination": "/privacy-policy.html" },
-    { "source": "/anvandarvillkor", "destination": "/terms.html" }
-  ],
   "headers": [
     {
       "source": "/(.*)",
