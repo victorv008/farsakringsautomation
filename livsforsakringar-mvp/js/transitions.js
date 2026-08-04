@@ -107,6 +107,39 @@ function initBlobAnimations() {
     });
 }
 
+// ─── MOBILE MENU TOGGLE ──────────────────────────────────────────────────────
+function initMobileMenu() {
+    const toggle = document.getElementById('mobile-menu-toggle');
+    const menu = document.getElementById('mobile-menu');
+    if (!toggle || !menu) return;
+
+    const icon = toggle.querySelector('.material-symbols-outlined');
+
+    function closeMenu() {
+        menu.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+        if (icon) icon.textContent = 'menu';
+    }
+
+    function openMenu() {
+        menu.classList.add('is-open');
+        toggle.setAttribute('aria-expanded', 'true');
+        if (icon) icon.textContent = 'close';
+    }
+
+    toggle.addEventListener('click', () => {
+        if (menu.classList.contains('is-open')) {
+            closeMenu();
+        } else {
+            openMenu();
+        }
+    });
+
+    menu.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', closeMenu);
+    });
+}
+
 // ─── INTERCEPT ALL INTERNAL LINKS ────────────────────────────────────────────
 document.addEventListener('click', (e) => {
     const link = e.target.closest('a');
@@ -122,4 +155,5 @@ document.addEventListener('click', (e) => {
 document.addEventListener('DOMContentLoaded', () => {
     initStagger();
     initBlobAnimations(); // 🌊 water current effect on all blob shapes
+    initMobileMenu();
 });
