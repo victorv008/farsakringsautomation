@@ -9,8 +9,6 @@ Thumbs.db
 *.log
 
 # Lokala mappar som inte ska pushas
-.claude/*
-!.claude/skills/
+.claude/
 prisbilder/
 spreadsheet/
-seo-reports/
