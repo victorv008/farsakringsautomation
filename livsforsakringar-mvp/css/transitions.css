@@ -99,6 +99,22 @@
 .nav-cta:hover { background: #14a0a5; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(13, 115, 119, 0.4); }
 .nav-cta:active { transform: translateY(0); }
 
+/* ── MOBILE MENU ── */
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1.5rem 1.25rem;
+}
+.mobile-menu.is-open { display: flex; }
+.mobile-menu .nav-link { padding: 0.75rem 1rem; text-align: left; }
+.mobile-menu .nav-cta { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: 0.5rem; }
+@media (min-width: 1024px) {
+    .mobile-menu { display: none !important; }
+}
+
 /**
  * These @keyframes hook into the browser's native ::view-transition-* 
  * pseudo-elements, giving us cinematic GPU-accelerated page transitions.
