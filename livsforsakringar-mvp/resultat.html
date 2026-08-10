@@ -5,7 +5,7 @@
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Dina livförsäkringsalternativ – jämför och välj</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<meta name="description" content="Se vilka livförsäkringsbolag som matchar din livssituation. Jämför pris, villkor och täckning – och välj det skydd som passar dig bäst."/>
+<meta name="description" content="Se vilka livförsäkringsbolag som matchar dina uppgifter. Jämför åldersgränser, belopp och villkor sida vid sida."/>
 <link rel="canonical" href="https://www.livforsakringar.se/resultat">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
@@ -338,7 +338,7 @@
 <div class="bg-[#f3f3f3] rounded-xl p-6 flex items-start sm:items-center gap-4 text-[#00595c]/80 border-none">
 <span class="material-symbols-outlined text-[#00595c] text-2xl shrink-0">info</span>
 <div>
-<p id="context-banner" class="font-body text-sm leading-relaxed">Priser och villkor visas för: <strong class="text-[#00595c]">32 år, 2 500 000 kr</strong>. Livförsäkringar.se lämnar ingen rådgivning – kontakta bolaget direkt för personlig rådgivning.</p>
+<p id="context-banner" class="font-body text-sm leading-relaxed">Livförsäkringar.se lämnar ingen rådgivning – kontakta bolaget direkt för personlig rådgivning.</p>
 </div>
 </div>
 </section>
@@ -379,23 +379,24 @@
 <!-- Egenskaper -->
 <div class="mb-8">
 <h3 class="font-label text-xs uppercase tracking-wider text-on-surface-variant mb-4 font-semibold">Viktiga Egenskaper</h3>
+<p class="text-xs text-on-surface-variant/80 mb-4 leading-relaxed">Filtren bygger på uppgifter vi registrerat per maj 2026. Kontrollera fullständiga villkor hos bolaget innan du tecknar.</p>
 <div class="space-y-4">
 <label class="flex items-center justify-between cursor-pointer group">
-<span class="text-sm text-on-surface">Ingen hälsodeklaration</span>
+<span class="text-sm text-on-surface">Utan hälsodeklaration</span>
 <div class="relative">
 <input class="sr-only peer" type="checkbox" data-filter="no_halso"/>
 <div class="w-10 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </div>
 </label>
 <label class="flex items-center justify-between cursor-pointer group">
-<span class="text-sm text-on-surface">Beloppet sänks inte (ej nedtrappning)</span>
+<span class="text-sm text-on-surface">Utan nedtrappning</span>
 <div class="relative">
 <input class="sr-only peer" type="checkbox" data-filter="no_nedtrappning"/>
 <div class="w-10 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
 </div>
 </label>
 <label class="flex items-center justify-between cursor-pointer group">
-<span class="text-sm text-on-surface">Inget krav på arbetsförhet</span>
+<span class="text-sm text-on-surface">Utan krav på arbetsförhet</span>
 <div class="relative">
 <input class="sr-only peer" type="checkbox" data-filter="no_arbetsfor"/>
 <div class="w-10 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -409,7 +410,7 @@
 </div>
 </label>
 <label class="flex items-center justify-between cursor-pointer group">
-<span class="text-sm text-on-surface">Inga sportundantag</span>
+<span class="text-sm text-on-surface">Utan registrerade sportundantag</span>
 <div class="relative">
 <input class="sr-only peer" type="checkbox" data-filter="no_sport"/>
 <div class="w-10 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
@@ -456,7 +457,7 @@
 <footer class="bg-[#f3f3f3] dark:bg-[#1a1c1c] w-full py-16 px-8 mt-auto">
 <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
 <div class="font-['Plus_Jakarta_Sans'] font-bold text-[#00595c]">
-<p class="font-['Inter'] leading-relaxed text-sm text-[#1a1c1c]/70 dark:text-[#f9f9f9]/70">© 2026 Livförsäkringar.se – Oberoende prisinformation. Vi lämnar ingen finansiell rådgivning.</p>
+<p class="font-['Inter'] leading-relaxed text-sm text-[#1a1c1c]/70 dark:text-[#f9f9f9]/70">© 2026 Livförsäkringar.se – Vi ägs inte av något försäkringsbolag och lämnar ingen finansiell rådgivning. Uppgifter per maj 2026.</p>
 </div>
 <div class="flex flex-wrap gap-6 md:justify-end">
 <a class="font-['Inter'] leading-relaxed text-sm text-[#1a1c1c]/70 dark:text-[#f9f9f9]/70 hover:text-[#fdba49] transition-colors fade-in duration-300" href="/integritetspolicy">Integritetspolicy</a>
