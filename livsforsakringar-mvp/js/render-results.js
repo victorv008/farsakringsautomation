@@ -468,6 +468,12 @@
             </h1>
         </div>`;
 
+        if (matched.length > 0) {
+            html += `<p class="text-xs text-[#00595c]/50 mb-5 leading-relaxed">
+                Priser märkta med ~ är uppskattade och beräknade utifrån bolagets pristabell — de kan skilja sig från bolagets eget pris. Kontrollera aktuellt pris hos bolaget innan du tecknar. Uppgifter per maj 2026.
+            </p>`;
+        }
+
         if (matched.length === 0) {
             html += `<div class="bg-white rounded-2xl p-10 text-center border border-[#00595c]/10 shadow-sm">
                 <span class="material-symbols-outlined text-5xl text-[#00595c]/40">search_off</span>
@@ -517,9 +523,9 @@
         if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
         if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
 
-        const ribbon = index === 0 && monthlyPrice ? `
+        const ribbon = index === 0 && monthlyPrice && state.sortBy === 'price' ? `
             <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#0D7377] to-[#14a0a5] rounded-t-[20px]"></div>
-            <span class="absolute top-3 right-4 bg-[#0D7377] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">💰 Lägst pris</span>` : '';
+            <span class="absolute top-3 right-4 bg-[#0D7377] text-white text-[10px] font-bold px-2 py-0.5 rounded-full">💰 Lägst pris av visade</span>` : '';
 
         const link = ins.webbsida ? ins.webbsida : '#';
 
