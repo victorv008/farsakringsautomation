@@ -10,6 +10,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/transitions.css"/>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
   :root{
@@ -23,16 +24,44 @@
   html{-webkit-text-size-adjust:100%;}
   body{
     font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
-    background:var(--surface); color:var(--main); line-height:1.55;
+    color:var(--main); line-height:1.55;
     min-height:100vh; position:relative; overflow-x:hidden;
+    background-color:#f7fbfb;
+    background-image:radial-gradient(at bottom right, #ffffff, #eaf6f6);
   }
-  /* Diskret bakgrundsmönster — samma blob-känsla som sajten, mer nedtonad */
-  body::before{
-    content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
-    background:
-      radial-gradient(60vw 60vw at 8% -10%, rgba(110,198,192,.16), transparent 60%),
-      radial-gradient(50vw 50vw at 100% 8%, rgba(232,168,56,.10), transparent 60%),
-      radial-gradient(70vw 50vw at 50% 110%, rgba(20,160,165,.08), transparent 60%);
+
+  /* ── Levande bakgrund — samma former och rörelse som resten av sajten,
+        men nedtonad så diagram och siffror behåller kontrasten ── */
+  .bakgrund{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:-10;}
+  .blob-teal{
+    background:linear-gradient(135deg,#6ec6c0 0%,#8bd4ce 100%);
+    border-radius:40% 70% 60% 40% / 50% 40% 60% 50%;
+  }
+  .blob-amber{
+    background:linear-gradient(135deg,#fac973 0%,#ffe3ad 100%);
+    border-radius:50% 60% 40% 60% / 40% 50% 60% 40%;
+  }
+  .bakgrund > div{position:absolute;}
+  .b1,.b2{filter:blur(42px);}
+  .b1{top:-30%;left:-24%;width:84vw;height:112vh;opacity:.55;transform:rotate(-15deg);}
+  .b2{bottom:-10%;right:-12%;width:50vw;height:50vw;opacity:.52;transform:rotate(10deg);}
+  .b3{top:6%;left:52%;width:12vw;height:12vw;border-radius:50%;
+      border:2vw solid rgba(255,255,255,.34);backdrop-filter:blur(2px);}
+  .b4{top:26%;left:70%;width:8vw;height:8vw;border-radius:50%;
+      border:1.2vw solid rgba(255,255,255,.26);backdrop-filter:blur(2px);}
+  .b5{bottom:14%;left:8%;width:10vw;height:10vw;border-radius:50%;
+      border:1.5vw solid rgba(255,255,255,.24);}
+  .b6{bottom:4%;right:38%;width:11vw;height:11vw;border-radius:50%;
+      border:1.5vw solid rgba(139,212,206,.30);}
+  @media(max-width:768px){
+    .b1,.b2{filter:blur(34px);}
+    .b1{width:96vw;height:70vh;top:-16%;left:-32%;opacity:.46;}
+    .b2{width:76vw;height:60vh;bottom:-14%;right:-30%;opacity:.44;}
+    .b3,.b4,.b5,.b6{display:none;}
+  }
+  /* Respektera systemets inställning för minskad rörelse */
+  @media(prefers-reduced-motion:reduce){
+    .bakgrund > div{animation:none !important;}
   }
   .headline{font-family:'Plus Jakarta Sans',sans-serif;}
   .num{font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
@@ -40,7 +69,7 @@
   /* ── Inloggning ── */
   #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
   .login-card{
-    width:100%;max-width:400px;background:rgba(255,255,255,.82);backdrop-filter:blur(16px);
+    width:100%;max-width:400px;background:rgba(255,255,255,.90);backdrop-filter:blur(18px);
     border:1px solid var(--line);border-radius:24px;padding:36px 30px;box-shadow:var(--shadow-lg);
   }
   .login-badge{
@@ -72,7 +101,7 @@
   /* ── Topprad ── */
   header.top{
     position:sticky;top:0;z-index:50;
-    background:rgba(250,252,252,.82);backdrop-filter:blur(14px);
+    background:rgba(250,252,252,.88);backdrop-filter:blur(16px);
     border-bottom:1px solid var(--line);
   }
   .top-inner{
@@ -88,8 +117,17 @@
   .segment button{
     border:none;background:transparent;cursor:pointer;padding:7px 13px;border-radius:999px;
     font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;color:var(--muted);
-    transition:background .18s,color .18s;
+    white-space:nowrap;transition:background .18s,color .18s;
   }
+  @media(max-width:520px){
+    .top-inner{flex-wrap:nowrap;gap:8px;padding:12px 14px;}
+    .brand{font-size:15px;}
+    .brand .material-symbols-outlined{font-size:20px;}
+    .segment{padding:2px;}
+    .segment button{padding:6px 8px;font-size:11px;}
+    .icon-btn{width:34px;height:34px;flex-shrink:0;}
+  }
+  @media(max-width:380px){ .brand span:not(.material-symbols-outlined){display:none;} }
   .segment button.on{background:var(--teal);color:#fff;box-shadow:0 2px 8px rgba(13,115,119,.25);}
   .icon-btn{
     border:1px solid var(--line);background:#fff;cursor:pointer;width:38px;height:38px;
@@ -111,7 +149,7 @@
 
   /* ── Kort ── */
   .card{
-    background:rgba(255,255,255,.78);backdrop-filter:blur(12px);
+    background:rgba(255,255,255,.86);backdrop-filter:blur(14px);
     border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);
     position:relative;overflow:hidden;
   }
@@ -128,7 +166,7 @@
 
   /* ── KPI ── */
   .kpi{
-    background:rgba(255,255,255,.78);backdrop-filter:blur(12px);
+    background:rgba(255,255,255,.86);backdrop-filter:blur(14px);
     border:1px solid var(--line);border-radius:18px;padding:15px 16px;box-shadow:var(--shadow);
     position:relative;overflow:hidden;
   }
@@ -171,6 +209,17 @@
 </style>
 </head>
 <body>
+
+<!-- Levande bakgrund. Animationsklasserna kommer från css/transitions.css,
+     samma som resten av sajten använder. -->
+<div class="bakgrund" aria-hidden="true">
+  <div class="b1 blob-teal  blob-anim-main"></div>
+  <div class="b2 blob-amber blob-anim-amber"></div>
+  <div class="b3 blob-anim-ring-a"></div>
+  <div class="b4 blob-anim-ring-b"></div>
+  <div class="b5 blob-anim-ring-c"></div>
+  <div class="b6 blob-anim-ring-d"></div>
+</div>
 
 <!-- ══════════ INLOGGNING ══════════ -->
 <div id="login">
