@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html class="light" lang="sv">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Statistik – Livförsäkringar.se</title>
+<meta name="robots" content="noindex, nofollow"/>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  :root{
+    --teal:#0D7377; --teal-light:#14a0a5; --amber:#E8A838; --amber-light:#f0c273;
+    --surface:#FAFCFC; --elevated:#FFFFFF; --main:#1A2024; --muted:#5C6B73;
+    --line:rgba(13,115,119,.10); --line-strong:rgba(13,115,119,.18);
+    --shadow:0 4px 20px rgba(13,115,119,.06);
+    --shadow-lg:0 12px 40px rgba(13,115,119,.10);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    background:var(--surface); color:var(--main); line-height:1.55;
+    min-height:100vh; position:relative; overflow-x:hidden;
+  }
+  /* Diskret bakgrundsmönster — samma blob-känsla som sajten, mer nedtonad */
+  body::before{
+    content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
+    background:
+      radial-gradient(60vw 60vw at 8% -10%, rgba(110,198,192,.16), transparent 60%),
+      radial-gradient(50vw 50vw at 100% 8%, rgba(232,168,56,.10), transparent 60%),
+      radial-gradient(70vw 50vw at 50% 110%, rgba(20,160,165,.08), transparent 60%);
+  }
+  .headline{font-family:'Plus Jakarta Sans',sans-serif;}
+  .num{font-variant-numeric:tabular-nums;letter-spacing:-.02em;}
+
+  /* ── Inloggning ── */
+  #login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+  .login-card{
+    width:100%;max-width:400px;background:rgba(255,255,255,.82);backdrop-filter:blur(16px);
+    border:1px solid var(--line);border-radius:24px;padding:36px 30px;box-shadow:var(--shadow-lg);
+  }
+  .login-badge{
+    display:inline-flex;align-items:center;gap:9px;padding:6px 14px;margin-bottom:22px;
+    background:rgba(13,115,119,.06);border:1px solid var(--line);border-radius:999px;
+    font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--teal);
+  }
+  .login-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);}
+  .login-card h1{font-size:26px;font-weight:800;color:var(--teal);letter-spacing:-.02em;margin-bottom:6px;}
+  .login-card p{color:var(--muted);font-size:14px;margin-bottom:24px;}
+  input[type=password]{
+    width:100%;padding:14px 16px;border:1px solid var(--line-strong);border-radius:14px;
+    font-size:16px;font-family:inherit;background:#fff;color:var(--main);transition:border-color .2s,box-shadow .2s;
+  }
+  input[type=password]:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 4px rgba(13,115,119,.10);}
+  .btn{
+    width:100%;margin-top:12px;padding:14px 20px;border:none;border-radius:14px;cursor:pointer;
+    background:var(--teal);color:#fff;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:15px;
+    display:flex;align-items:center;justify-content:center;gap:8px;
+    box-shadow:0 4px 14px rgba(13,115,119,.28);transition:background .2s,transform .2s,box-shadow .2s;
+  }
+  .btn:hover:not(:disabled){background:var(--teal-light);transform:translateY(-1px);box-shadow:0 8px 20px rgba(13,115,119,.34);}
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+  .fel{
+    margin-top:14px;padding:11px 14px;border-radius:12px;font-size:13.5px;
+    background:rgba(186,26,26,.07);border:1px solid rgba(186,26,26,.20);color:#8c1414;
+  }
+
+  /* ── Topprad ── */
+  header.top{
+    position:sticky;top:0;z-index:50;
+    background:rgba(250,252,252,.82);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{
+    max-width:1240px;margin:0 auto;padding:14px 18px;
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:center;gap:9px;font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:800;color:var(--teal);font-size:17px;letter-spacing:-.01em;}
+  .brand .material-symbols-outlined{color:var(--amber);font-size:23px;}
+  .top-spacer{flex:1;}
+  .segment{display:flex;gap:3px;background:rgba(13,115,119,.06);border:1px solid var(--line);
+    border-radius:999px;padding:3px;}
+  .segment button{
+    border:none;background:transparent;cursor:pointer;padding:7px 13px;border-radius:999px;
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:12.5px;color:var(--muted);
+    transition:background .18s,color .18s;
+  }
+  .segment button.on{background:var(--teal);color:#fff;box-shadow:0 2px 8px rgba(13,115,119,.25);}
+  .icon-btn{
+    border:1px solid var(--line);background:#fff;cursor:pointer;width:38px;height:38px;
+    border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--teal);
+    transition:background .18s,transform .18s;
+  }
+  .icon-btn:hover{background:rgba(13,115,119,.06);}
+  .icon-btn.snurr .material-symbols-outlined{animation:snurr 1s linear infinite;}
+  @keyframes snurr{to{transform:rotate(360deg);}}
+
+  /* ── Layout ── */
+  main{max-width:1240px;margin:0 auto;padding:20px 18px 70px;}
+  .grid{display:grid;gap:14px;}
+  .kpis{grid-template-columns:repeat(2,1fr);margin-bottom:18px;}
+  @media(min-width:760px){.kpis{grid-template-columns:repeat(4,1fr);gap:16px;}}
+  .cards{grid-template-columns:1fr;}
+  @media(min-width:900px){.cards{grid-template-columns:repeat(2,1fr);gap:16px;}
+    .wide{grid-column:1 / -1;}}
+
+  /* ── Kort ── */
+  .card{
+    background:rgba(255,255,255,.78);backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .card::before{
+    content:'';position:absolute;top:0;left:18px;right:18px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(13,115,119,.28),transparent);
+  }
+  .card h2{
+    font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:700;color:var(--teal);
+    letter-spacing:.03em;margin-bottom:3px;display:flex;align-items:center;gap:7px;
+  }
+  .card h2 .material-symbols-outlined{font-size:17px;color:var(--amber);}
+  .card .hint{font-size:11.5px;color:var(--muted);margin-bottom:14px;}
+
+  /* ── KPI ── */
+  .kpi{
+    background:rgba(255,255,255,.78);backdrop-filter:blur(12px);
+    border:1px solid var(--line);border-radius:18px;padding:15px 16px;box-shadow:var(--shadow);
+    position:relative;overflow:hidden;
+  }
+  .kpi::after{
+    content:'';position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;
+    background:linear-gradient(180deg,var(--teal),var(--teal-light));
+  }
+  .kpi.amber::after{background:linear-gradient(180deg,var(--amber),var(--amber-light));}
+  .kpi .label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.05em;
+    text-transform:uppercase;margin-bottom:5px;}
+  .kpi .value{font-family:'Plus Jakarta Sans',sans-serif;font-size:30px;font-weight:800;
+    color:var(--teal);line-height:1.05;}
+  .kpi.amber .value{color:#b8791f;}
+  .kpi .sub{font-size:11.5px;color:var(--muted);margin-top:4px;}
+  @media(min-width:760px){.kpi .value{font-size:36px;}}
+
+  /* ── Diagram ── */
+  .chart-wrap{position:relative;height:210px;}
+  .chart-wrap.tall{height:260px;}
+  @media(min-width:900px){.chart-wrap{height:240px;} .chart-wrap.tall{height:300px;}}
+
+  /* ── Listor ── */
+  .lista{display:flex;flex-direction:column;gap:7px;}
+  .rad{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:12px;
+    background:rgba(13,115,119,.035);border:1px solid rgba(13,115,119,.06);}
+  .rad .rank{width:21px;height:21px;border-radius:7px;background:var(--teal);color:#fff;
+    font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;
+    font-family:'Plus Jakarta Sans',sans-serif;}
+  .rad .txt{flex:1;font-size:13px;min-width:0;overflow-wrap:anywhere;}
+  .rad .val{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;color:var(--teal);flex-shrink:0;}
+  .rad.varning{background:rgba(232,168,56,.09);border-color:rgba(232,168,56,.22);}
+  .rad.varning .rank{background:var(--amber);}
+  .rad.varning .val{color:#b8791f;}
+
+  .tom{text-align:center;padding:26px 14px;color:var(--muted);font-size:13px;}
+  .tom .material-symbols-outlined{font-size:30px;opacity:.4;display:block;margin-bottom:7px;}
+
+  footer.bot{max-width:1240px;margin:0 auto;padding:0 18px 34px;color:var(--muted);font-size:11.5px;text-align:center;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+
+<!-- ══════════ INLOGGNING ══════════ -->
+<div id="login">
+  <form class="login-card" id="login-form">
+    <div class="login-badge"><span class="dot"></span> Internt</div>
+    <h1 class="headline">Statistik</h1>
+    <p>Anonym besöksdata för Livförsäkringar.se.</p>
+    <input type="password" id="losen" placeholder="Lösenord" autocomplete="current-password" required/>
+    <button class="btn" type="submit" id="login-btn">
+      <span class="material-symbols-outlined" style="font-size:19px">lock_open</span>
+      <span id="login-btn-text">Logga in</span>
+    </button>
+    <div class="fel hidden" id="login-fel"></div>
+  </form>
+</div>
+
+<!-- ══════════ DASHBOARD ══════════ -->
+<div id="dash" class="hidden">
+  <header class="top">
+    <div class="top-inner">
+      <div class="brand"><span class="material-symbols-outlined">shield_with_heart</span> Statistik</div>
+      <div class="top-spacer"></div>
+      <div class="segment" id="period">
+        <button data-dagar="7">7 d</button>
+        <button data-dagar="30" class="on">30 d</button>
+        <button data-dagar="90">90 d</button>
+        <button data-dagar="365">1 år</button>
+      </div>
+      <button class="icon-btn" id="uppdatera" title="Uppdatera">
+        <span class="material-symbols-outlined" style="font-size:19px">refresh</span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid kpis" id="kpis"></div>
+
+    <div class="grid cards">
+      <div class="card wide">
+        <h2><span class="material-symbols-outlined">show_chart</span> Trafik över tid</h2>
+        <div class="hint">Sökningar och klick vidare per dag</div>
+        <div class="chart-wrap"><canvas id="c-tid"></canvas></div>
+      </div>
+
+      <div class="card wide">
+        <h2><span class="material-symbols-outlined">emoji_events</span> Populäraste bolagen</h2>
+        <div class="hint">Antal klick vidare till bolagets sajt</div>
+        <div class="chart-wrap tall"><canvas id="c-bolag"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="material-symbols-outlined">tune</span> Filteranvändning</h2>
+        <div class="hint">Hur ofta varje filter aktiveras</div>
+        <div class="chart-wrap"><canvas id="c-filter"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="material-symbols-outlined">layers</span> Vanligaste kombinationerna</h2>
+        <div class="hint">Filter som används tillsammans</div>
+        <div class="lista" id="l-kombo"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="material-symbols-outlined">groups</span> Åldersfördelning</h2>
+        <div class="hint">Vilka åldrar använder jämförelsen</div>
+        <div class="chart-wrap"><canvas id="c-alder"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="material-symbols-outlined">payments</span> Önskat belopp</h2>
+        <div class="hint">Vilka försäkringsbelopp efterfrågas</div>
+        <div class="chart-wrap"><canvas id="c-belopp"></canvas></div>
+      </div>
+
+      <div class="card wide">
+        <h2><span class="material-symbols-outlined">search_off</span> Sökningar utan träffar</h2>
+        <div class="hint">Filterkombinationer som ger noll resultat — här tappar ni besökare</div>
+        <div class="lista" id="l-noll"></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="material-symbols-outlined">devices</span> Enhet</h2>
+        <div class="hint">Mobil eller dator</div>
+        <div class="chart-wrap"><canvas id="c-enhet"></canvas></div>
+      </div>
+
+      <div class="card">
+        <h2><span class="material-symbols-outlined">format_list_numbered</span> Klickad position</h2>
+        <div class="hint">Vilken plats i listan klickas — 0 är översta kortet</div>
+        <div class="lista" id="l-position"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bot">
+    Helt anonym data — ingen IP, inga cookies, ingen koppling mellan besök.<br>
+    <span id="uppdaterad"></span>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var FUNKTION = 'https://eptpgmfupemwtkkqcpiw.functions.supabase.co/analytics';
+  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwdHBnbWZ1cGVtd3Rra3FjcGl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk3NDA2MjUsImV4cCI6MjA5NTMxNjYyNX0.A5moYH95Dd615ZgXyw_cm0TpTBMv_yJq6uYP6SeeJyA';
+
+  var TEAL = '#0D7377', TEAL_L = '#14a0a5', AMBER = '#E8A838', AMBER_L = '#f0c273', MUTED = '#5C6B73';
+
+  var FILTERNAMN = {
+    no_halso: 'Utan hälsodeklaration',
+    no_nedtrappning: 'Utan nedtrappning',
+    no_arbetsfor: 'Utan krav på arbetsförhet',
+    long_term: 'Gäller till minst 85 år',
+    no_sport: 'Utan registrerade sportundantag'
+  };
+  var SORTNAMN = { price: 'Lägst pris', max_age: 'Max ålder', max_amount: 'Max belopp' };
+
+  function namnge(n) {
+    if (FILTERNAMN[n]) return FILTERNAMN[n];
+    if (SORTNAMN[n]) return SORTNAMN[n];
+    return String(n).split(' + ').map(function (d) { return FILTERNAMN[d] || d; }).join(' + ');
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var losenord = null, dagar = 30, diagram = {};
+
+  Chart.defaults.font.family = "'Inter', sans-serif";
+  Chart.defaults.font.size = 11;
+  Chart.defaults.color = MUTED;
+
+  /* ── Inloggning ── */
+  $('login-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var val = $('losen').value;
+    if (!val) return;
+    $('login-btn').disabled = true;
+    $('login-btn-text').textContent = 'Kontrollerar…';
+    $('login-fel').classList.add('hidden');
+
+    hamta(val, dagar).then(function (data) {
+      losenord = val;
+      try { sessionStorage.setItem('dash_losen', val); } catch (e) {}
+      $('login').classList.add('hidden');
+      $('dash').classList.remove('hidden');
+      rita(data);
+    }).catch(function (err) {
+      $('login-fel').textContent = err.message;
+      $('login-fel').classList.remove('hidden');
+    }).finally(function () {
+      $('login-btn').disabled = false;
+      $('login-btn-text').textContent = 'Logga in';
+    });
+  });
+
+  function hamta(losen, d) {
+    return fetch(FUNKTION, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ losenord: losen, dagar: d })
+    }).then(function (r) {
+      return r.json().then(function (j) {
+        if (!r.ok) throw new Error(j.fel || ('Fel ' + r.status));
+        return j;
+      });
+    }).catch(function (e) {
+      throw new Error(e.message === 'Failed to fetch' ? 'Kunde inte nå servern.' : e.message);
+    });
+  }
+
+  /* ── Periodval + uppdatering ── */
+  $('period').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    [].forEach.call(this.children, function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    dagar = parseInt(b.getAttribute('data-dagar'), 10);
+    ladda();
+  });
+  $('uppdatera').addEventListener('click', ladda);
+
+  function ladda() {
+    if (!losenord) return;
+    $('uppdatera').classList.add('snurr');
+    hamta(losenord, dagar)
+      .then(rita)
+      .catch(function (e) { alert(e.message); })
+      .finally(function () { $('uppdatera').classList.remove('snurr'); });
+  }
+
+  /* ── Rendering ── */
+  function rita(d) {
+    var f = d.flode;
+    $('kpis').innerHTML =
+      kpi('Unika besök', f.unika_besok, f.sokningar_rader + ' sökningar totalt') +
+      kpi('Klick vidare', f.klick, f.besok_med_klick + ' besök klickade') +
+      kpi('Konvertering', f.konvertering_procent + '%', 'av besöken klickar vidare') +
+      kpi('Utan träffar', d.nollresultat.andel_procent + '%', d.nollresultat.antal + ' sökningar', true);
+
+    linje('c-tid', d.tidsserie);
+    stapelH('c-bolag', d.bolag.slice(0, 10));
+    stapelH('c-filter', d.filter_enskilda.map(function (x) { return { namn: namnge(x.namn), antal: x.antal }; }));
+    stapelV('c-alder', d.alder, TEAL);
+    stapelV('c-belopp', d.belopp, AMBER);
+    ring('c-enhet', d.enhet);
+
+    lista('l-kombo', d.filter_kombinationer.map(function (x) { return { namn: namnge(x.namn), antal: x.antal }; }));
+    lista('l-noll', d.nollresultat.kombinationer.map(function (x) { return { namn: namnge(x.namn), antal: x.antal }; }), true, 'Inga sökningar utan träffar. Bra.');
+    lista('l-position', d.position.map(function (x) {
+      return { namn: x.namn === '0' ? 'Position 1 (översta)' : 'Position ' + (parseInt(x.namn, 10) + 1), antal: x.antal };
+    }));
+
+    $('uppdaterad').textContent = 'Uppdaterad ' + new Date().toLocaleString('sv-SE') +
+      ' · senaste ' + d.period.dagar + ' dagarna';
+  }
+
+  function kpi(label, value, sub, amber) {
+    return '<div class="kpi' + (amber ? ' amber' : '') + '">' +
+      '<div class="label">' + label + '</div>' +
+      '<div class="value num">' + value + '</div>' +
+      '<div class="sub">' + sub + '</div></div>';
+  }
+
+  function lista(id, rader, varning, tomText) {
+    var el = $(id);
+    if (!rader || !rader.length) {
+      el.innerHTML = '<div class="tom"><span class="material-symbols-outlined">' +
+        (varning ? 'check_circle' : 'inbox') + '</span>' + (tomText || 'Ingen data än') + '</div>';
+      return;
+    }
+    el.innerHTML = rader.map(function (r, i) {
+      return '<div class="rad' + (varning ? ' varning' : '') + '">' +
+        '<span class="rank">' + (i + 1) + '</span>' +
+        '<span class="txt">' + esc(r.namn) + '</span>' +
+        '<span class="val num">' + r.antal + '</span></div>';
+    }).join('');
+  }
+
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function nolla(id) { if (diagram[id]) { diagram[id].destroy(); delete diagram[id]; } }
+
+  function tomCanvas(id, text) {
+    nolla(id);
+    var c = $(id), p = c.parentElement;
+    p.innerHTML = '<div class="tom" style="padding-top:60px"><span class="material-symbols-outlined">bar_chart</span>' +
+      (text || 'Ingen data än') + '</div>';
+    return true;
+  }
+
+  function harData(rader) { return rader && rader.length && rader.some(function (r) { return r.antal > 0; }); }
+
+  function linje(id, rader) {
+    if (!rader || !rader.length) return tomCanvas(id);
+    nolla(id);
+    diagram[id] = new Chart($(id), {
+      type: 'line',
+      data: {
+        labels: rader.map(function (r) { return r.datum.slice(5); }),
+        datasets: [
+          { label: 'Sökningar', data: rader.map(function (r) { return r.sokningar; }),
+            borderColor: TEAL, backgroundColor: 'rgba(13,115,119,.10)', fill: true,
+            tension: .35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+          { label: 'Klick', data: rader.map(function (r) { return r.klick; }),
+            borderColor: AMBER, backgroundColor: 'rgba(232,168,56,.10)', fill: true,
+            tension: .35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 }
+        ]
+      },
+      options: bas({ legend: true })
+    });
+  }
+
+  function stapelH(id, rader) {
+    if (!harData(rader)) return tomCanvas(id);
+    nolla(id);
+    diagram[id] = new Chart($(id), {
+      type: 'bar',
+      data: {
+        labels: rader.map(function (r) { return r.namn; }),
+        datasets: [{
+          data: rader.map(function (r) { return r.antal; }),
+          backgroundColor: rader.map(function (_, i) { return i === 0 ? AMBER : 'rgba(13,115,119,.72)'; }),
+          borderRadius: 6, borderSkipped: false, barThickness: 'flex', maxBarThickness: 26
+        }]
+      },
+      options: bas({ horisontell: true })
+    });
+  }
+
+  function stapelV(id, rader, farg) {
+    if (!harData(rader)) return tomCanvas(id);
+    nolla(id);
+    diagram[id] = new Chart($(id), {
+      type: 'bar',
+      data: {
+        labels: rader.map(function (r) { return r.namn; }),
+        datasets: [{ data: rader.map(function (r) { return r.antal; }),
+          backgroundColor: farg, borderRadius: 6, borderSkipped: false, maxBarThickness: 46 }]
+      },
+      options: bas({})
+    });
+  }
+
+  function ring(id, rader) {
+    if (!harData(rader)) return tomCanvas(id);
+    nolla(id);
+    diagram[id] = new Chart($(id), {
+      type: 'doughnut',
+      data: {
+        labels: rader.map(function (r) { return r.namn; }),
+        datasets: [{ data: rader.map(function (r) { return r.antal; }),
+          backgroundColor: [TEAL, AMBER, TEAL_L, AMBER_L], borderWidth: 0 }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '62%',
+        plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 14, usePointStyle: true, pointStyle: 'circle' } } }
+      }
+    });
+  }
+
+  function bas(o) {
+    var rutnat = { color: 'rgba(13,115,119,.07)', drawTicks: false };
+    return {
+      responsive: true, maintainAspectRatio: false,
+      indexAxis: o.horisontell ? 'y' : 'x',
+      plugins: {
+        legend: o.legend ? { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, padding: 14, usePointStyle: true, pointStyle: 'circle' } } : { display: false },
+        tooltip: {
+          backgroundColor: 'rgba(26,32,36,.94)', padding: 10, cornerRadius: 9,
+          titleFont: { family: "'Plus Jakarta Sans'", weight: '700', size: 12 }, bodySpacing: 4, displayColors: false
+        }
+      },
+      scales: {
+        x: { grid: o.horisontell ? rutnat : { display: false }, border: { display: false },
+             ticks: { precision: 0, maxRotation: 0, autoSkip: true } },
+        y: { grid: o.horisontell ? { display: false } : rutnat, border: { display: false },
+             ticks: { precision: 0, autoSkip: false, callback: function (v) {
+               var l = this.getLabelForValue(v);
+               var tak = window.innerWidth < 760 ? 20 : 34;
+               return typeof l === 'string' && l.length > tak ? l.slice(0, tak - 1) + '…' : l;
+             } } }
+      }
+    };
+  }
+
+  /* ── Återuppta session ── */
+  try {
+    var sparat = sessionStorage.getItem('dash_losen');
+    if (sparat) {
+      $('losen').value = sparat;
+      $('login-form').dispatchEvent(new Event('submit', { cancelable: true }));
+    }
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

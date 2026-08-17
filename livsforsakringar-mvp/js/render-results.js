@@ -297,6 +297,7 @@
         return null;
     }
 
+    let _loggTimer = null;
     let _priceExtrapolated = false;
 
     function interpolate(sortedKeys, getValue, x) {
@@ -397,6 +398,24 @@
     }
 
     // ── FILTERING LOGIC ──
+    // ── Klick vidare till bolag: delegerad lyssnare, tyst vid fel ──
+    wrapper.addEventListener('click', function (ev) {
+        try {
+            var lank = ev.target.closest('a[target="_blank"]');
+            if (!lank) return;
+            var kort = lank.closest('.result-card');
+            if (!kort || !window.Analytics) return;
+            var pris = parseInt(kort.getAttribute('data-pris'), 10);
+            var pos = parseInt(kort.getAttribute('data-position'), 10);
+            window.Analytics.loggaKlick({
+                bolag: kort.getAttribute('data-bolag'),
+                pris: Number.isFinite(pris) ? pris : null,
+                position: Number.isFinite(pos) ? pos : null,
+                sortering: state.sortBy
+            });
+        } catch (e) { /* tyst */ }
+    });
+
     function filterInsurers(insurers, age, amount, scenarios) {
         const matched = [];
         const excluded = [];
@@ -502,6 +521,22 @@
 
         wrapper.innerHTML = html;
 
+        // Anonym loggning — får aldrig påverka renderingen
+        try {
+            if (window.Analytics) {
+                var valdaFilter = Object.keys(state.toggles).filter(function (k) { return state.toggles[k]; });
+                clearTimeout(_loggTimer);
+                _loggTimer = setTimeout(function () {
+                    window.Analytics.loggaSokning({
+                        alder: age,
+                        belopp: amount,
+                        filter: valdaFilter,
+                        antalTraffar: matched.length + noPrice.length
+                    });
+                }, 1200); // vänta tills användaren slutat pilla på filtren
+            }
+        } catch (e) { /* tyst */ }
+
         wrapper.querySelectorAll('.result-card').forEach((c, i) => {
             setTimeout(() => c.classList.add('visible'), 60 + i * 70);
         });
@@ -529,7 +564,7 @@
 
         const link = ins.webbsida ? ins.webbsida : '#';
 
-        return `<article class="result-card bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col gap-4 sm:gap-6 relative overflow-hidden border border-[#00595c]/5 hover:shadow-[0_20px_48px_rgba(13,115,119,0.12)] transition-shadow mb-4 sm:mb-6">
+        return `<article data-bolag="${escapeAttr(ins.bolag)}" data-pris="${monthlyPrice || ''}" data-position="${index}" class="result-card bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col gap-4 sm:gap-6 relative overflow-hidden border border-[#00595c]/5 hover:shadow-[0_20px_48px_rgba(13,115,119,0.12)] transition-shadow mb-4 sm:mb-6">
     ${ribbon}
     <div class="flex justify-between items-start gap-3 border-b border-gray-100 pb-4 sm:pb-6">
         <div class="flex items-center gap-3">
@@ -574,7 +609,7 @@
         if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
         if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
 
-        return `<article class="result-card bg-white/70 rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 flex flex-col gap-4 sm:gap-5 border border-dashed border-[#00595c]/15 mb-3 sm:mb-4 opacity-70 hover:opacity-90 transition-opacity">
+        return `<article data-bolag="${escapeAttr(ins.bolag)}" data-pris="" data-position="" class="result-card bg-white/70 rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 flex flex-col gap-4 sm:gap-5 border border-dashed border-[#00595c]/15 mb-3 sm:mb-4 opacity-70 hover:opacity-90 transition-opacity">
     <div class="flex justify-between items-start gap-3 border-b border-gray-100 pb-4">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-200 overflow-hidden p-1.5 shrink-0">
