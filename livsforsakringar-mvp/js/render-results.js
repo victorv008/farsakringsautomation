@@ -470,7 +470,7 @@
 
         if (matched.length > 0) {
             html += `<p class="text-xs text-[#00595c]/50 mb-5 leading-relaxed">
-                Priser märkta med ~ är uppskattade och beräknade utifrån bolagets pristabell — de kan skilja sig från bolagets eget pris. Kontrollera aktuellt pris hos bolaget innan du tecknar. Uppgifter per maj 2026.
+                Priser märkta med ~ är uppskattade och beräknade utifrån bolagets pristabell — de kan skilja sig från bolagets eget pris. Egenskaperna bygger på uppgifter vi registrerat per maj 2026 — kontrollera aktuellt pris och fullständiga villkor hos bolaget innan du tecknar.
             </p>`;
         }
 
@@ -516,9 +516,9 @@
         const maxMkr = ins.belopp_max ? (ins.belopp_max / 1000000) : null;
 
         let badges = '';
-        if (!ins.nedtrappning) badges += badge('check', 'Ingen nedtrappning', 'g');
+        if (!ins.nedtrappning) badges += badge('check', 'Utan nedtrappning', 'g');
         if (ins.nedtrappning) badges += badge('warning', `Nedtrappning från ${ins.nedtrappning_alder} år`, 'r');
-        if (!ins.halso_deklaration) badges += badge('check', 'Ingen hälsodeklaration', 'g');
+        if (!ins.halso_deklaration) badges += badge('check', 'Utan hälsodeklaration', 'g');
         if (ins.slutalder >= 85) badges += badge('check', `Gäller till ${ins.slutalder} år`, 'g');
         if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
         if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
@@ -541,7 +541,7 @@
             </div>
             <div>
                 <h3 class="font-headline font-bold text-base sm:text-xl text-[#00595c]">Livförsäkring</h3>
-                <p class="text-xs sm:text-sm text-[#00595c]/60">${escapeHtml(ins.bolag)}${!ins.halso_deklaration ? ' · Ingen hälsodeklaration' : ''}</p>
+                <p class="text-xs sm:text-sm text-[#00595c]/60">${escapeHtml(ins.bolag)}${!ins.halso_deklaration ? ' · Utan hälsodeklaration' : ''}</p>
             </div>
         </div>
         <div class="text-right shrink-0">
@@ -552,7 +552,7 @@
     <div class="flex flex-wrap gap-2">
         <div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
         <div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
-        ${maxMkr ? `<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">payments</span>Inget maxtak</div>'}
+        ${maxMkr ? `<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">payments</span>Inget registrerat maxtak</div>'}
     </div>
     <div class="flex flex-wrap gap-1.5 sm:gap-2">${badges}</div>
     <div class="pt-3 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
@@ -567,9 +567,9 @@
         const link = ins.webbsida ? ins.webbsida : '#';
 
         let badges = '';
-        if (!ins.nedtrappning) badges += badge('check', 'Ingen nedtrappning', 'g');
+        if (!ins.nedtrappning) badges += badge('check', 'Utan nedtrappning', 'g');
         if (ins.nedtrappning) badges += badge('warning', `Nedtrappning från ${ins.nedtrappning_alder} år`, 'r');
-        if (!ins.halso_deklaration) badges += badge('check', 'Ingen hälsodeklaration', 'g');
+        if (!ins.halso_deklaration) badges += badge('check', 'Utan hälsodeklaration', 'g');
         if (ins.slutalder >= 85) badges += badge('check', `Gäller till ${ins.slutalder} år`, 'g');
         if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
         if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
@@ -596,7 +596,7 @@
     <div class="flex flex-wrap gap-2">
         <div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
         <div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
-        ${maxMkr ? `<div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">payments</span>Inget maxtak</div>'}
+        ${maxMkr ? `<div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">payments</span>Inget registrerat maxtak</div>'}
     </div>
     ${badges ? `<div class="flex flex-wrap gap-1.5 sm:gap-2">${badges}</div>` : ''}
     <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
