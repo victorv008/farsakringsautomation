@@ -135,6 +135,13 @@
     transition:background .18s,transform .18s;
   }
   .icon-btn:hover{background:rgba(13,115,119,.06);}
+  .icon-btn.aktiv{background:var(--amber);border-color:var(--amber);color:#fff;
+    box-shadow:0 2px 10px rgba(232,168,56,.35);}
+  .testbanner{display:none;align-items:center;gap:9px;margin-bottom:16px;padding:11px 15px;
+    background:rgba(232,168,56,.12);border:1px solid rgba(232,168,56,.32);border-radius:14px;
+    font-size:13px;color:#8a5a12;}
+  .testbanner.visas{display:flex;}
+  .testbanner .material-symbols-outlined{font-size:18px;color:var(--amber);flex-shrink:0;}
   .icon-btn.snurr .material-symbols-outlined{animation:snurr 1s linear infinite;}
   @keyframes snurr{to{transform:rotate(360deg);}}
 
@@ -248,6 +255,9 @@
         <button data-dagar="90">90 d</button>
         <button data-dagar="365">1 år</button>
       </div>
+      <button class="icon-btn" id="testvaxel" title="Visa/dölj testdata" aria-pressed="false">
+        <span class="material-symbols-outlined" style="font-size:19px">science</span>
+      </button>
       <button class="icon-btn" id="uppdatera" title="Uppdatera">
         <span class="material-symbols-outlined" style="font-size:19px">refresh</span>
       </button>
@@ -255,6 +265,12 @@
   </header>
 
   <main>
+    <div class="testbanner" id="testbanner">
+      <span class="material-symbols-outlined">science</span>
+      <span><strong>Testdata visas.</strong> Siffrorna nedan innehåller rader från testriggen och
+      speglar inte riktiga besökare. Klicka på kolven igen för att dölja dem.</span>
+    </div>
+
     <div class="grid kpis" id="kpis"></div>
 
     <div class="grid cards">
@@ -345,7 +361,7 @@
   }
 
   var $ = function (id) { return document.getElementById(id); };
-  var losenord = null, dagar = 30, diagram = {};
+  var losenord = null, dagar = 30, visaTest = false, diagram = {};
 
   Chart.defaults.font.family = "'Inter', sans-serif";
   Chart.defaults.font.size = 11;
@@ -379,7 +395,7 @@
     return fetch(FUNKTION, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + ANON, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ losenord: losen, dagar: d })
+      body: JSON.stringify({ losenord: losen, dagar: d, visaTest: visaTest })
     }).then(function (r) {
       return r.json().then(function (j) {
         if (!r.ok) throw new Error(j.fel || ('Fel ' + r.status));
@@ -399,6 +415,14 @@
     ladda();
   });
   $('uppdatera').addEventListener('click', ladda);
+
+  $('testvaxel').addEventListener('click', function () {
+    visaTest = !visaTest;
+    this.classList.toggle('aktiv', visaTest);
+    this.setAttribute('aria-pressed', visaTest ? 'true' : 'false');
+    $('testbanner').classList.toggle('visas', visaTest);
+    ladda();
+  });
 
   function ladda() {
     if (!losenord) return;
@@ -431,8 +455,13 @@
       return { namn: x.namn === '0' ? 'Position 1 (översta)' : 'Position ' + (parseInt(x.namn, 10) + 1), antal: x.antal };
     }));
 
+    var testInfo = '';
+    if (d.testrader && (d.testrader.sokningar || d.testrader.klick)) {
+      testInfo = ' · varav ' + d.testrader.sokningar + ' testsökningar och ' +
+                 d.testrader.klick + ' testklick';
+    }
     $('uppdaterad').textContent = 'Uppdaterad ' + new Date().toLocaleString('sv-SE') +
-      ' · senaste ' + d.period.dagar + ' dagarna';
+      ' · senaste ' + d.period.dagar + ' dagarna' + testInfo;
   }
 
   function kpi(label, value, sub, amber) {
@@ -465,18 +494,43 @@
 
   function nolla(id) { if (diagram[id]) { diagram[id].destroy(); delete diagram[id]; } }
 
+  /**
+   * Visa "ingen data" utan att förstöra canvas-elementet. Att ersätta
+   * förälderns innehåll tar bort canvasen permanent, och nästa rendering
+   * hittar då inget att rita på — dashboarden slutar uppdatera sig.
+   */
   function tomCanvas(id, text) {
     nolla(id);
-    var c = $(id), p = c.parentElement;
-    p.innerHTML = '<div class="tom" style="padding-top:60px"><span class="material-symbols-outlined">bar_chart</span>' +
-      (text || 'Ingen data än') + '</div>';
+    var c = $(id);
+    if (!c) return true;
+    c.style.display = 'none';
+    var p = c.parentElement;
+    var m = p.querySelector('.tom');
+    if (!m) {
+      m = document.createElement('div');
+      m.className = 'tom';
+      m.style.paddingTop = '60px';
+      p.appendChild(m);
+    }
+    m.innerHTML = '<span class="material-symbols-outlined">bar_chart</span>' + (text || 'Ingen data än');
+    m.style.display = '';
     return true;
+  }
+
+  /** Ta fram canvasen igen när det finns data att rita. */
+  function aterstall(id) {
+    var c = $(id);
+    if (!c) return;
+    c.style.display = '';
+    var m = c.parentElement.querySelector('.tom');
+    if (m) m.style.display = 'none';
   }
 
   function harData(rader) { return rader && rader.length && rader.some(function (r) { return r.antal > 0; }); }
 
   function linje(id, rader) {
     if (!rader || !rader.length) return tomCanvas(id);
+    aterstall(id);
     nolla(id);
     diagram[id] = new Chart($(id), {
       type: 'line',
@@ -497,6 +551,7 @@
 
   function stapelH(id, rader) {
     if (!harData(rader)) return tomCanvas(id);
+    aterstall(id);
     nolla(id);
     diagram[id] = new Chart($(id), {
       type: 'bar',
@@ -514,6 +569,7 @@
 
   function stapelV(id, rader, farg) {
     if (!harData(rader)) return tomCanvas(id);
+    aterstall(id);
     nolla(id);
     diagram[id] = new Chart($(id), {
       type: 'bar',
@@ -528,6 +584,7 @@
 
   function ring(id, rader) {
     if (!harData(rader)) return tomCanvas(id);
+    aterstall(id);
     nolla(id);
     diagram[id] = new Chart($(id), {
       type: 'doughnut',
