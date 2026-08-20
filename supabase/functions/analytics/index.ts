@@ -95,7 +95,7 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  let kropp: { losenord?: string; dagar?: number };
+  let kropp: { losenord?: string; dagar?: number; visaTest?: boolean };
   try {
     kropp = await req.json();
   } catch {
@@ -111,16 +111,23 @@ Deno.serve(async (req: Request) => {
   const dagar = [7, 30, 90, 365].includes(Number(kropp.dagar)) ? Number(kropp.dagar) : 30;
   const fran = new Date(Date.now() - dagar * 86400000).toISOString();
 
+  // Testrader döljs som standard. Dashboarden kan be om dem uttryckligen.
+  const visaTest = kropp.visaTest === true;
+
   const db = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
   const [sokRes, klickRes] = await Promise.all([
-    db.from("sokningar").select("sok_id, alder, belopp, filter_valda, antal_traffar, enhet, skapad_at")
-      .gte("skapad_at", fran).order("skapad_at", { ascending: false }).limit(RAD_TAK),
-    db.from("bolagsklick").select("sok_id, bolag, pris_visat, klick_position, sortering, skapad_at")
-      .gte("skapad_at", fran).order("skapad_at", { ascending: false }).limit(RAD_TAK),
+    (visaTest
+      ? db.from("sokningar").select("sok_id, alder, belopp, filter_valda, antal_traffar, enhet, skapad_at, ar_test")
+      : db.from("sokningar").select("sok_id, alder, belopp, filter_valda, antal_traffar, enhet, skapad_at, ar_test").eq("ar_test", false)
+    ).gte("skapad_at", fran).order("skapad_at", { ascending: false }).limit(RAD_TAK),
+    (visaTest
+      ? db.from("bolagsklick").select("sok_id, bolag, pris_visat, klick_position, sortering, skapad_at, ar_test")
+      : db.from("bolagsklick").select("sok_id, bolag, pris_visat, klick_position, sortering, skapad_at, ar_test").eq("ar_test", false)
+    ).gte("skapad_at", fran).order("skapad_at", { ascending: false }).limit(RAD_TAK),
   ]);
 
   if (sokRes.error || klickRes.error) {
@@ -169,7 +176,11 @@ Deno.serve(async (req: Request) => {
     .map(([datum, v]) => ({ datum, ...v }));
 
   return svar({
-    period: { dagar, fran },
+    period: { dagar, fran, visar_testdata: visaTest },
+    testrader: {
+      sokningar: sokningar.filter((s) => s.ar_test === true).length,
+      klick: klick.filter((k) => k.ar_test === true).length,
+    },
     flode: {
       sokningar_rader: sokningar.length,
       unika_besok: unikaSok.size,

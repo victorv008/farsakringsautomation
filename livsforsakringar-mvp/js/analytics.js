@@ -52,6 +52,21 @@
         }
     }
 
+    /**
+     * Testläge. Riggen injicerar __LFTEST__ innan sidan laddas.
+     * Att sätta flaggan i klienten räcker inte — servern kräver att anropet
+     * bär rätt token, så en besökare kan inte förorena statistiken genom att
+     * pilla i konsolen eller i URL:en.
+     */
+    function testlage() {
+        try {
+            var t = window.__LFTEST__;
+            return (t && typeof t.token === 'string' && t.token) ? t.token : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
     function enhet() {
         try {
             return window.matchMedia('(max-width: 1023px)').matches ? 'mobil' : 'desktop';
@@ -64,14 +79,21 @@
 
     function skicka(tabell, rad) {
         try {
+            var token = testlage();
+            var headers = {
+                'apikey': NYCKEL,
+                'Authorization': 'Bearer ' + NYCKEL,
+                'Content-Type': 'application/json',
+                'Prefer': 'return=minimal'
+            };
+            if (token) {
+                headers['x-test-token'] = token;
+                rad.ar_test = true;
+            }
+
             fetch(BAS + '/rest/v1/' + tabell, {
                 method: 'POST',
-                headers: {
-                    'apikey': NYCKEL,
-                    'Authorization': 'Bearer ' + NYCKEL,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=minimal'
-                },
+                headers: headers,
                 body: JSON.stringify(rad),
                 keepalive: true // överlever att fliken navigerar bort
             }).catch(function () { /* tyst */ });
@@ -126,6 +148,9 @@
 
     window.Analytics = {
         loggaSokning: loggaSokning,
-        loggaKlick: loggaKlick
+        loggaKlick: loggaKlick,
+        // Läses av testriggen för att koppla ihop rader med rätt körning
+        sokId: sokId,
+        arTest: function () { return !!testlage(); }
     };
 })();

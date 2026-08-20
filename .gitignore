@@ -18,3 +18,6 @@ spreadsheet/
 # Genererade rapporter — lokala, ska inte pushas
 seo-reports/
 fact-reports/
+
+# Genererade testrapporter
+testrapporter/
