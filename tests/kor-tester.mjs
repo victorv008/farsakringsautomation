@@ -22,7 +22,7 @@ import { webkit } from 'playwright';
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HAR = dirname(fileURLToPath(import.meta.url));
 const ROT = join(HAR, '..');
@@ -48,8 +48,10 @@ const flagga = (namn, standard) => {
 };
 const harFlagga = (namn) => process.argv.includes('--' + namn);
 
-const BAS = flagga('bas', process.env.TEST_BAS_URL ||
-    'https://farsakringsautomation-git-staging-victorv008s-projects.vercel.app');
+// Produktion är standardmål — det är där spårningen faktiskt måste fungera.
+// Staging ligger bakom Vercel SSO och kräver VERCEL_AUTOMATION_BYPASS_SECRET;
+// lokalt körs med --bas http://localhost:PORT.
+const BAS = flagga('bas', process.env.TEST_BAS_URL || 'https://www.livforsakringar.se');
 const KORNINGAR = parseInt(flagga('korningar', '12'), 10);
 const HEADED = harFlagga('headed');
 const SUPABASE_URL = process.env.SUPABASE_URL || 'https://eptpgmfupemwtkkqcpiw.supabase.co';
@@ -96,6 +98,8 @@ const FALL = [
 /* ── Hjälpare ───────────────────────────────────────────────────────────── */
 
 const log = (...a) => console.log(...a);
+// Backtick som konstant — undviker nästlingsproblem i mallsträngar nedan
+const BT = String.fromCharCode(96);
 const vänta = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Bolag ska variera mellan körningar: välj klickposition utifrån körningsnummer
@@ -294,21 +298,37 @@ async function main() {
     log('  Väntar 3 s så sista raden hinner fram…');
     await vänta(3000);
 
+    const slutTid = new Date();
     const db = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } });
     const sokIds = resor.map((r) => r.sok_id).filter(Boolean);
 
-    const [sokRes, klickRes] = await Promise.all([
+    // Fönstret spänner över hela körningen med marginal åt båda håll, så inget
+    // missas på grund av klockskillnad mellan den här maskinen och databasen.
+    const franTid = new Date(startTid.getTime() - 60000).toISOString();
+    const tillTid = new Date(slutTid.getTime() + 60000).toISOString();
+
+    const [sokRes, klickRes, omarktSokRes, omarktKlickRes] = await Promise.all([
         db.from('sokningar').select('*').in('sok_id', sokIds),
         db.from('bolagsklick').select('*').in('sok_id', sokIds),
+        // Omärkta rader som dök upp medan testet kördes. Om någon av dem hör
+        // till oss har testdata läckt in i den riktiga statistiken.
+        db.from('sokningar').select('*').eq('ar_test', false)
+          .gte('skapad_at', franTid).lte('skapad_at', tillTid),
+        db.from('bolagsklick').select('*').eq('ar_test', false)
+          .gte('skapad_at', franTid).lte('skapad_at', tillTid),
     ]);
 
-    if (sokRes.error || klickRes.error) {
-        log('  ✖ Kunde inte läsa tillbaka: ' + (sokRes.error?.message ?? klickRes.error?.message));
+    const lasfel = sokRes.error || klickRes.error || omarktSokRes.error || omarktKlickRes.error;
+    if (lasfel) {
+        log('  ✖ Kunde inte läsa tillbaka: ' + lasfel.message);
         process.exitCode = 1; return;
     }
 
     const rapport = jamfor(resor, sokRes.data ?? [], klickRes.data ?? [], {
-        bas: BAS, start: startTid, blockerade,
+        bas: BAS, start: startTid, slut: slutTid, blockerade,
+        omarktaSokningar: omarktSokRes.data ?? [],
+        omarktaKlick: omarktKlickRes.data ?? [],
+        fonster: { fran: franTid, till: tillTid },
     });
 
     skrivRapport(rapport);
@@ -317,7 +337,7 @@ async function main() {
 
 /* ── Jämförelse ─────────────────────────────────────────────────────────── */
 
-function jamfor(resor, sokRader, klickRader, meta) {
+export function jamfor(resor, sokRader, klickRader, meta) {
     const avvikelser = [];
     const perResa = [];
 
@@ -416,10 +436,82 @@ function jamfor(resor, sokRader, klickRader, meta) {
         });
     }
 
+    /* ── Flaggkontroll ────────────────────────────────────────────────────
+       Poängen med hela övningen: ingen testrad får hamna i den riktiga
+       statistiken. Två oberoende kontroller.
+
+       1. Varje rad som hör till våra sok_id måste ha ar_test = true.
+       2. Inga omärkta rader i körningsfönstret får höra till oss.
+
+       Punkt 2 måste skilja på våra rader och riktiga besökare, som mycket
+       väl kan surfa på sajten samtidigt. Bara rader vars sok_id matchar
+       körningen räknas som läckage — övriga rapporteras som trolig
+       riktig trafik, utan att fälla testet. */
+    const varaSokIds = new Set(resor.map((r) => r.sok_id).filter(Boolean));
+
+    const laktaSok = (meta.omarktaSokningar ?? []).filter((r) => varaSokIds.has(r.sok_id));
+    const laktaKlick = (meta.omarktaKlick ?? []).filter((r) => varaSokIds.has(r.sok_id));
+    const frammandeSok = (meta.omarktaSokningar ?? []).filter((r) => !varaSokIds.has(r.sok_id));
+    const frammandeKlick = (meta.omarktaKlick ?? []).filter((r) => !varaSokIds.has(r.sok_id));
+
+    const omarktaVara = [
+        ...sokRader.filter((r) => r.ar_test !== true),
+        ...klickRader.filter((r) => r.ar_test !== true),
+    ];
+
+    for (const r of omarktaVara) {
+        avvikelser.push({
+            resa: resor.find((x) => x.sok_id === r.sok_id)?.nr ?? 0,
+            typ: 'LACKAGE',
+            text: `Rad med sok_id ${r.sok_id} saknar ar_test — den ligger i den riktiga statistiken.`,
+        });
+    }
+    for (const r of [...laktaSok, ...laktaKlick]) {
+        avvikelser.push({
+            resa: resor.find((x) => x.sok_id === r.sok_id)?.nr ?? 0,
+            typ: 'LACKAGE',
+            text: `Omärkt rad i körningsfönstret hör till körningen (sok_id ${r.sok_id}).`,
+        });
+    }
+
+    const flaggkontroll = {
+        vara_rader: sokRader.length + klickRader.length,
+        alla_markta: omarktaVara.length === 0 && laktaSok.length === 0 && laktaKlick.length === 0,
+        lackage: omarktaVara.length + laktaSok.length + laktaKlick.length,
+        frammande_omarkta_i_fonstret: frammandeSok.length + frammandeKlick.length,
+        fonster: meta.fonster,
+    };
+
     const forvantadeKlick = resor.filter((r) => r.klick).length;
     const faktiskaKlick = klickRader.length;
 
+    /* Underlag för manuell kontroll i dashboarden */
+    const bolagRakning = {};
+    for (const k of klickRader) bolagRakning[k.bolag] = (bolagRakning[k.bolag] ?? 0) + 1;
+    const kombiRakning = {};
+    for (const r of sokRader) {
+        const nyckel = [...(r.filter_valda ?? [])].sort().join(' + ') || '(inga filter)';
+        kombiRakning[nyckel] = (kombiRakning[nyckel] ?? 0) + 1;
+    }
+    const manuellt = {
+        unika_besok: new Set(sokRader.map((r) => r.sok_id)).size,
+        sokningsrader: sokRader.length,
+        klick: klickRader.length,
+        besok_med_klick: new Set(klickRader.map((r) => r.sok_id)).size,
+        konvertering_procent: sokRader.length
+            ? Math.round((new Set(klickRader.map((r) => r.sok_id)).size /
+                          new Set(sokRader.map((r) => r.sok_id)).size) * 1000) / 10
+            : 0,
+        nollresultat: sokRader.filter((r) => r.antal_traffar === 0).length,
+        bolag: Object.entries(bolagRakning).sort((a, b) => b[1] - a[1])
+            .map(([namn, antal]) => ({ namn, antal })),
+        filterkombinationer: Object.entries(kombiRakning).sort((a, b) => b[1] - a[1])
+            .map(([namn, antal]) => ({ namn, antal })),
+    };
+
     return {
+        flaggkontroll,
+        manuellt,
         korning: {
             tidpunkt: meta.start.toISOString(),
             mal: meta.bas,
@@ -431,10 +523,11 @@ function jamfor(resor, sokRader, klickRader, meta) {
             sokningsrader_i_db: sokRader.length,
             klickrader_i_db: faktiskaKlick,
             forvantade_klick: forvantadeKlick,
-            alla_markta_som_test: sokRader.every((s) => s.ar_test === true) &&
-                                  klickRader.every((k) => k.ar_test === true),
+            alla_markta_som_test: flaggkontroll.alla_markta,
+            lackage: flaggkontroll.lackage,
             avvikelser: avvikelser.length,
-            resultat: avvikelser.length === 0 ? 'GODKÄND' : 'AVVIKELSER',
+            resultat: flaggkontroll.lackage > 0 ? 'LÄCKAGE'
+                    : (avvikelser.length === 0 ? 'GODKÄND' : 'AVVIKELSER'),
         },
         avvikelser,
         resor: perResa,
@@ -455,17 +548,41 @@ function skrivRapport(rap) {
     const rader = [];
     rader.push(`# End-to-end-test — ${rap.korning.tidpunkt.slice(0, 16).replace('T', ' ')}`);
     rader.push('');
-    rader.push(s.avvikelser === 0
-        ? '## ✅ GODKÄND — allt loggades och alla värden stämmer'
-        : `## ❌ ${s.avvikelser} AVVIKELSER`);
+    if (s.lackage > 0) {
+        rader.push('## 🚨 LÄCKAGE — ' + s.lackage + ' testrad(er) hamnade i den riktiga statistiken');
+        rader.push('');
+        rader.push('Detta är det allvarligaste utfallet: rader som testet skapat syns nu som');
+        rader.push('riktiga besök i dashboarden. Kör ' + BT + 'npm run test:rensa -- --kor' + BT + ' och');
+        rader.push('kontrollera att TEST_TOKEN i .env matchar tokenen i tabellen ' + BT + 'test_config' + BT + '.');
+    } else if (s.avvikelser === 0) {
+        rader.push('## ✅ GODKÄND — allt loggades, alla värden stämmer, inga rader läckte');
+    } else {
+        rader.push('## ❌ ' + s.avvikelser + ' AVVIKELSER');
+    }
     rader.push('');
     rader.push(`- **Mål:** ${rap.korning.mal}`);
     rader.push(`- **Resor:** ${s.resor}`);
     rader.push(`- **Sökningsrader i databasen:** ${s.sokningsrader_i_db}`);
     rader.push(`- **Klickrader i databasen:** ${s.klickrader_i_db} (förväntade ${s.forvantade_klick})`);
-    rader.push(`- **Alla rader märkta som testdata:** ${s.alla_markta_som_test ? 'ja' : '**NEJ — de syns i dashboarden**'}`);
-    rader.push(`- **Blockerade utgående navigeringar:** ${rap.korning.blockerade_navigeringar}`);
+    rader.push('- **Blockerade utgående navigeringar:** ' + rap.korning.blockerade_navigeringar);
     rader.push('');
+
+    const fk = rap.flaggkontroll;
+    rader.push('## Flaggkontroll');
+    rader.push('');
+    rader.push('| Kontroll | Utfall |');
+    rader.push('|---|---|');
+    rader.push('| Rader skapade av testet | ' + fk.vara_rader + ' |');
+    rader.push('| Alla märkta med ' + BT + 'ar_test' + BT + ' | ' + (fk.alla_markta ? '**ja**' : '**NEJ**') + ' |');
+    rader.push('| Läckta rader | ' + (fk.lackage === 0 ? '0' : '**' + fk.lackage + '**') + ' |');
+    rader.push('| Omärkta rader i fönstret från andra besök | ' + fk.frammande_omarkta_i_fonstret + ' |');
+    rader.push('');
+    if (fk.frammande_omarkta_i_fonstret > 0) {
+        rader.push('> ' + fk.frammande_omarkta_i_fonstret + ' omärkt(a) rad(er) skapades under körningen ' +
+            'men hör inte till testets sok_id. Det är med största sannolikhet riktiga besökare — ' +
+            'de räknas inte som läckage.');
+        rader.push('');
+    }
 
     if (rap.avvikelser.length) {
         rader.push('## Avvikelser');
@@ -489,18 +606,61 @@ function skrivRapport(rap) {
             `${r.avvikelser === 0 ? '✅' : '❌ ' + r.avvikelser} |`);
     }
     rader.push('');
-    rader.push(`_Maskinläsbar version: \`${jsonFil.replace(ROT + '\\', '').replace(ROT + '/', '')}\`_`);
+    const m = rap.manuellt;
+    rader.push('## Kontrollera i dashboarden');
+    rader.push('');
+    rader.push('Testdatan ligger kvar med flit. Öppna dashboarden, slå på testvyn med');
+    rader.push('kolvknappen i toppraden och jämför mot siffrorna nedan. Välj ett');
+    rader.push('tidsintervall som rymmer körningen.');
+    rader.push('');
+    rader.push('| I dashboarden | Ska visa |');
+    rader.push('|---|---|');
+    rader.push('| Unika besök | **' + m.unika_besok + '** |');
+    rader.push('| Klick vidare | **' + m.klick + '** |');
+    rader.push('| Konvertering | **' + m.konvertering_procent + ' %** (' + m.besok_med_klick +
+        ' av ' + m.unika_besok + ' besök) |');
+    rader.push('| Sökningar utan träffar | **' + m.nollresultat + '** |');
+    rader.push('| Sidfoten | varav ' + m.sokningsrader + ' testsökningar och ' + m.klick + ' testklick |');
+    rader.push('');
+    if (m.bolag.length) {
+        rader.push('**Populäraste bolagen** ska innehålla exakt dessa:');
+        rader.push('');
+        rader.push('| Bolag | Klick |');
+        rader.push('|---|---:|');
+        for (const b of m.bolag) rader.push('| ' + b.namn + ' | ' + b.antal + ' |');
+        rader.push('');
+    }
+    if (m.filterkombinationer.length) {
+        rader.push('**Vanligaste kombinationerna** ska innehålla exakt dessa:');
+        rader.push('');
+        rader.push('| Kombination | Antal |');
+        rader.push('|---|---:|');
+        for (const k of m.filterkombinationer) rader.push('| ' + k.namn + ' | ' + k.antal + ' |');
+        rader.push('');
+    }
+    rader.push('När kontrollen är gjord tar ' + BT + 'npm run test:rensa -- --kor' + BT + ' bort raderna.');
+    rader.push('');
+    rader.push('_Maskinläsbar version: ' + BT + jsonFil.replace(ROT + '\\', '').replace(ROT + '/', '') + BT + '_');
 
     const mdFil = join(mapp, `e2e-${stamp}.md`);
     writeFileSync(mdFil, rader.join('\n'), 'utf8');
 
     log('');
     log('  ' + '─'.repeat(58));
-    log(`  ${s.avvikelser === 0 ? '✅ GODKÄND' : '❌ ' + s.avvikelser + ' AVVIKELSER'}`);
+    log('  ' + (s.lackage > 0
+        ? '🚨 LÄCKAGE — ' + s.lackage + ' testrad(er) i den riktiga statistiken'
+        : (s.avvikelser === 0 ? '✅ GODKÄND' : '❌ ' + s.avvikelser + ' AVVIKELSER')));
     log('');
     log(`  Sökningsrader:  ${s.sokningsrader_i_db}`);
     log(`  Klickrader:     ${s.klickrader_i_db} (förväntade ${s.forvantade_klick})`);
-    log(`  Märkta som test: ${s.alla_markta_som_test ? 'alla' : 'NEJ — några saknar flaggan'}`);
+    log('  Märkta som test: ' + (s.alla_markta_som_test ? 'alla ✓' : 'NEJ — några saknar flaggan'));
+    if (rap.flaggkontroll.frammande_omarkta_i_fonstret > 0) {
+        log('  Omärkta rader i fönstret från andra besök: ' +
+            rap.flaggkontroll.frammande_omarkta_i_fonstret + ' (trolig riktig trafik)');
+    }
+    log('');
+    log('  Testdatan ligger kvar för manuell kontroll i dashboarden.');
+    log('  Rensa när du är klar: npm run test:rensa -- --kor');
     if (rap.avvikelser.length) {
         log('');
         for (const a of rap.avvikelser.slice(0, 12)) {
@@ -514,4 +674,11 @@ function skrivRapport(rap) {
     log('');
 }
 
-main().catch((e) => { console.error(e); process.exitCode = 1; });
+// Kör bara när filen startas direkt. Utan det här startar en `import` av
+// modulen hela testsviten som sidoeffekt.
+const korsDirekt = process.argv[1] &&
+    import.meta.url === pathToFileURL(process.argv[1]).href;
+
+if (korsDirekt) {
+    main().catch((e) => { console.error(e); process.exitCode = 1; });
+}

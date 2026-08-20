@@ -14,6 +14,7 @@
   "scripts": {
     "ingest": "node ingest/ingest.js",
     "test": "node tests/kor-tester.mjs",
-    "test:rensa": "node tests/rensa-testdata.mjs"
+    "test:rensa": "node tests/rensa-testdata.mjs",
+    "test:sjalvtest": "node tests/sjalvtest-lackage.mjs"
   }
 }
