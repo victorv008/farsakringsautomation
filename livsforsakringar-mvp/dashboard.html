@@ -586,21 +586,27 @@
     if (!rader || !rader.length) return tomCanvas(id);
     aterstall(id);
     nolla(id);
+    // En enda dags data blir en punkt klistrad mot y-axeln och syns knappt.
+    // Staplar visar samma siffror tydligt. Det är normalläget direkt efter en
+    // testkörning och under de första dagarna efter lansering.
+    var enDag = rader.length === 1;
     diagram[id] = new Chart($(id), {
-      type: 'line',
+      type: enDag ? 'bar' : 'line',
       data: {
         labels: rader.map(function (r) { return r.datum.slice(5); }),
         datasets: [
           // En linje behöver två punkter för att synas. Med en enda dags data
           // — vanligt strax efter en testkörning — måste punkten ritas ut.
           { label: 'Sökningar', data: rader.map(function (r) { return r.sokningar; }),
-            borderColor: TEAL, backgroundColor: 'rgba(13,115,119,.10)', fill: true,
-            tension: .35, borderWidth: 2, pointRadius: rader.length === 1 ? 5 : 0,
-            pointBackgroundColor: TEAL, pointHoverRadius: 5 },
+            borderColor: TEAL, backgroundColor: enDag ? TEAL : 'rgba(13,115,119,.10)',
+            fill: !enDag, tension: .35, borderWidth: enDag ? 0 : 2,
+            borderRadius: 6, maxBarThickness: 54,
+            pointRadius: 0, pointHoverRadius: 5 },
           { label: 'Klick', data: rader.map(function (r) { return r.klick; }),
-            borderColor: AMBER, backgroundColor: 'rgba(232,168,56,.10)', fill: true,
-            tension: .35, borderWidth: 2, pointRadius: rader.length === 1 ? 5 : 0,
-            pointBackgroundColor: AMBER, pointHoverRadius: 5 }
+            borderColor: AMBER, backgroundColor: enDag ? AMBER : 'rgba(232,168,56,.10)',
+            fill: !enDag, tension: .35, borderWidth: enDag ? 0 : 2,
+            borderRadius: 6, maxBarThickness: 54,
+            pointRadius: 0, pointHoverRadius: 5 }
         ]
       },
       options: bas({ legend: true })
