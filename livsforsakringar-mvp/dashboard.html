@@ -141,6 +141,22 @@
     background:rgba(232,168,56,.12);border:1px solid rgba(232,168,56,.32);border-radius:14px;
     font-size:13px;color:#8a5a12;}
   .testbanner.visas{display:flex;}
+  .tomhint{display:none;align-items:center;gap:11px;margin-bottom:16px;padding:13px 16px;
+    background:rgba(13,115,119,.07);border:1px solid rgba(13,115,119,.20);border-radius:14px;
+    font-size:13.5px;color:#0d5f62;}
+  .tomhint.visas{display:flex;}
+  .tomhint .material-symbols-outlined{font-size:19px;color:var(--teal);flex-shrink:0;}
+  .tomhint .txt{flex:1;}
+  .tomhint button{
+    border:none;background:var(--teal);color:#fff;cursor:pointer;flex-shrink:0;
+    padding:8px 14px;border-radius:10px;font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:700;font-size:12.5px;transition:background .18s;
+  }
+  .tomhint button:hover{background:var(--teal-light);}
+  @media(max-width:560px){
+    .tomhint{flex-wrap:wrap;}
+    .tomhint button{width:100%;}
+  }
   .testbanner .material-symbols-outlined{font-size:18px;color:var(--amber);flex-shrink:0;}
   .icon-btn.snurr .material-symbols-outlined{animation:snurr 1s linear infinite;}
   @keyframes snurr{to{transform:rotate(360deg);}}
@@ -265,6 +281,12 @@
   </header>
 
   <main>
+    <div class="tomhint" id="tomhint">
+      <span class="material-symbols-outlined">info</span>
+      <span class="txt" id="tomhint-text"></span>
+      <button type="button" id="tomhint-knapp">Visa testdata</button>
+    </div>
+
     <div class="testbanner" id="testbanner">
       <span class="material-symbols-outlined">science</span>
       <span><strong>Testdata visas.</strong> Siffrorna nedan innehåller rader från testriggen och
@@ -391,11 +413,14 @@
     });
   });
 
-  function hamta(losen, d) {
+  function hamta(losen, d, tvingaTest) {
     return fetch(FUNKTION, {
       method: 'POST',
       headers: { 'Authorization': 'Bearer ' + ANON, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ losenord: losen, dagar: d, visaTest: visaTest })
+      body: JSON.stringify({
+        losenord: losen, dagar: d,
+        visaTest: tvingaTest === true ? true : visaTest
+      })
     }).then(function (r) {
       return r.json().then(function (j) {
         if (!r.ok) throw new Error(j.fel || ('Fel ' + r.status));
@@ -416,6 +441,10 @@
   });
   $('uppdatera').addEventListener('click', ladda);
 
+  $('tomhint-knapp').addEventListener('click', function () {
+    $('testvaxel').click();
+  });
+
   $('testvaxel').addEventListener('click', function () {
     visaTest = !visaTest;
     this.classList.toggle('aktiv', visaTest);
@@ -434,6 +463,29 @@
   }
 
   /* ── Rendering ── */
+  /**
+   * Standardvyn döljer testrader. Är den helt tom kan det bero på att all
+   * data som finns är testdata — då ser sidan trasig ut fast den fungerar.
+   * Fråga en gång till med testdata påslagen och säg till om det finns något
+   * att visa.
+   */
+  function kollaDoldTestdata(d) {
+    var hint = $('tomhint');
+    if (visaTest || !losenord || d.flode.sokningar_rader > 0) {
+      hint.classList.remove('visas');
+      return;
+    }
+    hamta(losenord, dagar, true).then(function (test) {
+      var s = test.flode.sokningar_rader, k = test.flode.klick;
+      if (!s && !k) { hint.classList.remove('visas'); return; }
+      $('tomhint-text').innerHTML =
+        '<strong>Ingen riktig besöksdata än.</strong> Däremot finns ' + s +
+        ' testsökningar och ' + k + ' testklick sparade. De döljs som standard ' +
+        'så att de inte blandas ihop med riktiga besökare.';
+      hint.classList.add('visas');
+    }).catch(function () { /* tyst — hinten är en bekvämlighet, inte kritisk */ });
+  }
+
   function rita(d) {
     var f = d.flode;
     $('kpis').innerHTML =
@@ -462,6 +514,8 @@
     }
     $('uppdaterad').textContent = 'Uppdaterad ' + new Date().toLocaleString('sv-SE') +
       ' · senaste ' + d.period.dagar + ' dagarna' + testInfo;
+
+    kollaDoldTestdata(d);
   }
 
   function kpi(label, value, sub, amber) {
@@ -537,12 +591,16 @@
       data: {
         labels: rader.map(function (r) { return r.datum.slice(5); }),
         datasets: [
+          // En linje behöver två punkter för att synas. Med en enda dags data
+          // — vanligt strax efter en testkörning — måste punkten ritas ut.
           { label: 'Sökningar', data: rader.map(function (r) { return r.sokningar; }),
             borderColor: TEAL, backgroundColor: 'rgba(13,115,119,.10)', fill: true,
-            tension: .35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 },
+            tension: .35, borderWidth: 2, pointRadius: rader.length === 1 ? 5 : 0,
+            pointBackgroundColor: TEAL, pointHoverRadius: 5 },
           { label: 'Klick', data: rader.map(function (r) { return r.klick; }),
             borderColor: AMBER, backgroundColor: 'rgba(232,168,56,.10)', fill: true,
-            tension: .35, borderWidth: 2, pointRadius: 0, pointHoverRadius: 4 }
+            tension: .35, borderWidth: 2, pointRadius: rader.length === 1 ? 5 : 0,
+            pointBackgroundColor: AMBER, pointHoverRadius: 5 }
         ]
       },
       options: bas({ legend: true })
