@@ -3,8 +3,10 @@
 Kör riktiga besök genom sajten med en webbläsare och kontrollerar att allt
 som händer också hamnar i Supabase — med rätt värden.
 
-Testraderna märks med `ar_test = true` och göms i dashboarden, så de aldrig
-blandas ihop med riktiga besökare.
+**Testerna körs mot produktion.** Det är där spårningen faktiskt måste
+fungera, och det är den enda miljön där hela kedjan går att bevisa. Raderna
+märks med `ar_test = true` och göms i dashboarden, så de aldrig blandas ihop
+med riktiga besökare.
 
 ---
 
@@ -26,12 +28,12 @@ SUPABASE_URL=https://eptpgmfupemwtkkqcpiw.supabase.co
 SUPABASE_SECRET_KEY=<service role-nyckeln>
 TEST_TOKEN=<lång slumpsträng, se nedan>
 
-# Bara om du vill köra mot staging (se "Vilket mål" längre ner)
+# Bara om du vill köra mot staging
 VERCEL_AUTOMATION_BYPASS_SECRET=<från Vercel>
 ```
 
-`SUPABASE_SECRET_KEY` används redan av ingest-pipelinen, så den ligger
-troligen där. Skriptet accepterar även namnet `SUPABASE_SERVICE_ROLE_KEY`.
+`SUPABASE_SECRET_KEY` används redan av ingest-pipelinen. Skriptet accepterar
+även namnet `SUPABASE_SERVICE_ROLE_KEY`.
 
 ### 3. Sätt testtoken
 
@@ -53,42 +55,45 @@ insert into public.test_config (id, token) values (1, '<din-token>')
 on conflict (id) do update set token = excluded.token;
 ```
 
-Byt token när som helst genom att köra om samma sak. Testerna slutar då
-fungera tills `.env` uppdaterats — det är meningen.
+### Rotera token
+
+Kör samma SQL med ett nytt värde och uppdatera `.env`. Den gamla tokenen
+slutar fungera omedelbart — försök att skriva `ar_test = true` med den ger
+`401` från databasen. Rotera om en token misstänks ha läckt; den enda skada
+en läckt token kan göra är att någon kan skriva rader som *göms* i
+dashboarden, men rotera ändå.
 
 ---
 
 ## Köra
 
 ```bash
-npm test                                        # 12 körningar mot staging
-node tests/kor-tester.mjs --korningar 20         # fler körningar
-node tests/kor-tester.mjs --bas https://www.livforsakringar.se
-node tests/kor-tester.mjs --headed               # se webbläsaren arbeta
+npm test                                     # 12 körningar mot produktion
+node tests/kor-tester.mjs --korningar 20
+node tests/kor-tester.mjs --headed           # se webbläsaren arbeta
 ```
 
 | Flagga | Standard | Betydelse |
 |---|---|---|
 | `--korningar` | 12 | Antal besök |
-| `--bas` | staging-URL:en | Vilken sajt som testas |
+| `--bas` | `https://www.livforsakringar.se` | Vilken sajt som testas |
 | `--headed` | av | Visa webbläsarfönstret |
 
-### Vilket mål
-
-Standard är staging. **Vercel skyddar previews med SSO**, så staging kräver
-antingen att du stänger av Deployment Protection eller att du sätter
-`VERCEL_AUTOMATION_BYPASS_SECRET` i `.env`
-(Vercel → Project Settings → Deployment Protection → Protection Bypass for
-Automation). Utan den fastnar körningen på en inloggningssida.
-
-Produktion har inget SSO och fungerar direkt med `--bas`.
-
-Går också att köra mot en lokal server:
+### Andra mål
 
 ```bash
+# Lokal server
 npx http-server livsforsakringar-mvp -p 8080 -s
 node tests/kor-tester.mjs --bas http://localhost:8080
+
+# Staging — kräver VERCEL_AUTOMATION_BYPASS_SECRET i .env, eftersom
+# previews ligger bakom Vercel SSO
+node tests/kor-tester.mjs --bas https://farsakringsautomation-git-staging-victorv008s-projects.vercel.app
 ```
+
+Kör du mot ett mål vars `js/analytics.js` är äldre än testflaggan kommer
+raderna att skrivas **omärkta**. Det fångas som `LÄCKAGE` och fäller
+körningen — se nedan.
 
 ---
 
@@ -102,16 +107,40 @@ Varje körning går igenom hela flödet som en besökare:
 4. Aktiverar filter
 5. Klickar vidare till ett bolag
 
-Ålder, belopp, filterkombination och vilket bolag som klickas varierar
-mellan körningarna, så olika vägar täcks i stället för samma resa om och om
-igen. Tre av fallen är avsiktligt konstruerade för att ge **noll träffar** —
-två genom filterkombinationer och ett genom en ålder över alla bolags
-teckningsåldrar.
+Ålder, belopp, filterkombination och vilket bolag som klickas varierar mellan
+körningarna. Tre av fallen ger avsiktligt **noll träffar** — två genom
+filterkombinationer och ett genom en ålder över alla bolags teckningsåldrar.
 
 **Klicket lämnar aldrig sajten.** Länkarna har `target="_blank"`; riggen
 blockerar utgående navigering och stänger fliken direkt. Klicket hinner
-loggas, men bolagets sajt laddas aldrig. Rapporten visar hur många
-navigeringar som blockerades.
+loggas, men bolagets sajt laddas aldrig.
+
+---
+
+## Flaggkontrollen
+
+Detta är poängen med hela upplägget: **ingen testrad får hamna i den riktiga
+statistiken.** Efter varje körning görs två oberoende kontroller.
+
+1. Varje rad som hör till körningens `sok_id` måste ha `ar_test = true`.
+2. Inga omärkta rader i körningsfönstret får höra till körningen.
+
+Slår någon av dem till blir utfallet **`LÄCKAGE`** — inte en varning, utan
+ett hårt fel som väger tyngre än alla andra avvikelser och ger exitkod `1`.
+
+Kontroll 2 skiljer på våra rader och riktiga besökare. En besökare kan surfa
+på sajten medan testet kör; omärkta rader med andra `sok_id` rapporteras
+separat som trolig riktig trafik och fäller inte körningen.
+
+Att detektionen faktiskt fångar ett läckage — och inte bara rapporterar noll
+när allt är rätt — verifieras av ett eget test:
+
+```bash
+npm run test:sjalvtest
+```
+
+Det konstruerar syntetiska läckage och kontrollerar att verdicten blir
+`LÄCKAGE`, samt att en främmande omärkt rad *inte* gör det.
 
 ---
 
@@ -122,29 +151,45 @@ Skrivs till `testrapporter/` i två format:
 - `e2e-<tidpunkt>.md` — att läsa som människa
 - `e2e-<tidpunkt>.json` — att läsa maskinellt
 
-Överst står **GODKÄND** eller antalet avvikelser. Varje avvikelse listas med
-körningsnummer, typ och vad som skilde sig:
+Överst står **GODKÄND**, antalet avvikelser, eller **LÄCKAGE**. Sedan
+flaggkontrollen, alla resor, och sist ett avsnitt med de exakta siffror
+dashboarden ska visa.
 
 | Typ | Betyder |
 |---|---|
+| `LACKAGE` | En testrad ligger i den riktiga statistiken — **hårt fel** |
 | `sokning_saknas` | Körningen nådde resultatsidan men ingen rad skrevs |
 | `klick_saknas` | Ett bolag klickades men ingen rad i `bolagsklick` |
 | `fel_varde` | Ålder, belopp eller antal träffar skiljer sig |
 | `fel_filter` | Fel filter registrerades |
 | `fel_bolag` / `fel_pris` / `fel_position` | Klickraden stämmer inte med kortet |
-| `ej_markt_test` | Raden saknar `ar_test` — **den syns i dashboarden** |
 | `vantade_noll` | Ett nollfall gav träffar ändå |
 | `oväntat_klick` | Rader finns utan att något klickades |
 | `körfel` | JS-fel eller avbrott under körningen |
 
-Skriptet avslutas med kod `0` vid godkänt och `1` vid avvikelser, så det
-går att koppla in i CI.
-
 En detalj: **antalet sökningsrader är fler än antalet körningar.** Varje
 filterändring loggas som en egen rad, vilket är avsiktligt — det är så
 filterbeteende och nollresultat fångas. Jämförelsen använder den sista raden
-per besök, och dashboardens konvertering räknas på unika `sok_id`, inte på
-antal rader.
+per besök, och konverteringen räknas på unika `sok_id`, inte på antal rader.
+
+---
+
+## Manuell kontroll i dashboarden
+
+**Testdatan raderas inte automatiskt.** Den ligger kvar med flit så att den
+går att öppna och granska med ögonen.
+
+Rapporten avslutas med ett avsnitt som listar exakt vad dashboarden ska visa
+— antal besök, antal klick, konverteringsgrad, vilka bolag och vilka
+filterkombinationer. Gör så här:
+
+1. Öppna `/dashboard` och logga in
+2. Slå på testvyn med kolvknappen i toppraden — en amberfärgad banner visas
+3. Välj ett tidsintervall som rymmer körningen
+4. Jämför mot tabellerna i rapporten
+
+Stämmer siffrorna är hela kedjan bevisad: sajten loggar rätt, databasen
+lagrar rätt, Edge Function aggregerar rätt och dashboarden ritar rätt.
 
 ---
 
@@ -157,21 +202,21 @@ npm run test:rensa -- --kor   # raderar på riktigt
 
 Tar bara bort rader med `ar_test = true`. Riktiga besöksrader rörs inte.
 
-I dashboarden finns en knapp med en kolv (🧪) i toppraden som växlar mellan
-att dölja och visa testdata. Testrader är dolda som standard.
-
 ---
 
 ## Om något går fel
 
-**Alla körningar fastnar direkt** — troligen Vercel-SSO. Se "Vilket mål".
+**`LÄCKAGE`** — kontrollera att målets `js/analytics.js` innehåller
+`__LFTEST__`. Saknas det är den deployade versionen äldre än testflaggan.
+Rensa sedan med `npm run test:rensa -- --kor` och kontrollera manuellt att
+inga omärkta rader blev kvar.
 
-**`ej_markt_test` på alla rader** — `TEST_TOKEN` i `.env` matchar inte den i
-`test_config`. Sätt om båda.
+**Alla körningar fastnar direkt** — kör du mot staging? Se "Andra mål".
 
-**`klick_saknas`** — kontrollera att `js/analytics.js` är deployad till den
-sajt du testar mot. En äldre version saknar teststödet.
+**Inga rader alls skrivs** — `TEST_TOKEN` i `.env` matchar inte den i
+`test_config`. Databasen avvisar då hela insert:en med `401` i stället för
+att skriva den omärkt.
 
 **`fel_varde` på `antal_traffar`** — kan betyda att `insurance.json` har
-ändrats sedan testfallen skrevs. Fallen i `kor-tester.mjs` bygger på att
-teckningsåldrarna ligger mellan 56 och 73 år.
+ändrats sedan testfallen skrevs. Fallen bygger på att teckningsåldrarna
+ligger mellan 56 och 73 år.
