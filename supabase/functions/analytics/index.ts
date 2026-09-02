@@ -95,7 +95,14 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  let kropp: { losenord?: string; dagar?: number; visaTest?: boolean };
+  let kropp: {
+    losenord?: string;
+    dagar?: number;
+    visaTest?: boolean;
+    handling?: string;   // undefined = KPI-vyn, som tidigare
+    sok_id?: string;
+    urval?: string;
+  };
   try {
     kropp = await req.json();
   } catch {
@@ -119,15 +126,69 @@ Deno.serve(async (req: Request) => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
+  /* ── Resvy: lista besök ────────────────────────────────────────────────
+     Aggregeringen ligger i vyn resor_sammanfattning, inte här, så RAD_TAK
+     aldrig kan kapa den. */
+  if (kropp.handling === "resor") {
+    let q = db.from("resor_sammanfattning").select("*").gte("start", fran);
+    if (!visaTest) q = q.eq("ar_test", false);
+
+    switch (kropp.urval) {
+      case "utan_klick":   q = q.eq("nadde_resultat", true).eq("utklick", 0); break;
+      case "nollresultat": q = q.eq("sag_nollresultat", true); break;
+      case "med_klick":    q = q.gt("utklick", 0); break;
+      case "mest_filter":  q = q.gt("filterandringar", 0); break;
+    }
+
+    const ordning = kropp.urval === "mest_filter"
+      ? { kolumn: "filterandringar", stigande: false }
+      : { kolumn: "start", stigande: false };
+
+    const res = await q.order(ordning.kolumn, { ascending: ordning.stigande }).limit(50);
+    if (res.error) return svar({ fel: "Kunde inte hämta resor", detalj: res.error.message }, 500);
+
+    return svar({
+      urval: kropp.urval ?? "senaste",
+      period: { dagar, fran, visar_testdata: visaTest },
+      resor: (res.data ?? []).map((r) => ({
+        ...r,
+        slutsteg: !r.nadde_resultat ? "avhopp_innan_resultat"
+                : r.utklick > 0 ? "klickade_vidare"
+                : r.sag_nollresultat ? "nollresultat"
+                : "avhopp_pa_resultat",
+      })),
+    });
+  }
+
+  /* ── Resvy: en enskild resa ───────────────────────────────────────────
+     CHECK-constrainten begränsar sekvens till 1000, så en resa kan aldrig
+     bli större än så. */
+  if (kropp.handling === "resa") {
+    if (typeof kropp.sok_id !== "string" || !/^[0-9a-f-]{36}$/i.test(kropp.sok_id)) {
+      return svar({ fel: "Ogiltigt sok_id" }, 400);
+    }
+    const res = await db.from("handelser")
+      .select("sekvens, typ, sida, ms_sedan_start, enhet, alder, belopp, antal_traffar, data, skapad_at, ar_test")
+      .eq("sok_id", kropp.sok_id)
+      .order("sekvens", { ascending: true })
+      .limit(1001);
+    if (res.error) return svar({ fel: "Kunde inte hämta resan", detalj: res.error.message }, 500);
+    return svar({ sok_id: kropp.sok_id, handelser: res.data ?? [] });
+  }
+
+  const SOK_FALT = "sok_id, alder, belopp, filter_valda, antal_traffar, enhet, skapad_at, ar_test";
+  const KLICK_FALT = "sok_id, bolag, pris_visat, klick_position, sortering, skapad_at, ar_test";
+
+  let sokQ = db.from("sokningar").select(SOK_FALT).gte("skapad_at", fran);
+  let klickQ = db.from("bolagsklick").select(KLICK_FALT).gte("skapad_at", fran);
+  if (!visaTest) {
+    sokQ = sokQ.eq("ar_test", false);
+    klickQ = klickQ.eq("ar_test", false);
+  }
+
   const [sokRes, klickRes] = await Promise.all([
-    (visaTest
-      ? db.from("sokningar").select("sok_id, alder, belopp, filter_valda, antal_traffar, enhet, skapad_at, ar_test")
-      : db.from("sokningar").select("sok_id, alder, belopp, filter_valda, antal_traffar, enhet, skapad_at, ar_test").eq("ar_test", false)
-    ).gte("skapad_at", fran).order("skapad_at", { ascending: false }).limit(RAD_TAK),
-    (visaTest
-      ? db.from("bolagsklick").select("sok_id, bolag, pris_visat, klick_position, sortering, skapad_at, ar_test")
-      : db.from("bolagsklick").select("sok_id, bolag, pris_visat, klick_position, sortering, skapad_at, ar_test").eq("ar_test", false)
-    ).gte("skapad_at", fran).order("skapad_at", { ascending: false }).limit(RAD_TAK),
+    sokQ.order("skapad_at", { ascending: false }).limit(RAD_TAK),
+    klickQ.order("skapad_at", { ascending: false }).limit(RAD_TAK),
   ]);
 
   if (sokRes.error || klickRes.error) {
@@ -175,8 +236,13 @@ Deno.serve(async (req: Request) => {
     .sort((a, b) => a[0].localeCompare(b[0]))
     .map(([datum, v]) => ({ datum, ...v }));
 
+  // limit() kapar de äldsta raderna. Utan den här flaggan blir ett
+  // 90-dagarsdiagram tyst ett 20-dagarsdiagram när taket nås.
+  const trunkerad = sokningar.length >= RAD_TAK || klick.length >= RAD_TAK;
+
   return svar({
     period: { dagar, fran, visar_testdata: visaTest },
+    trunkerad,
     testrader: {
       sokningar: sokningar.filter((s) => s.ar_test === true).length,
       klick: klick.filter((k) => k.ar_test === true).length,

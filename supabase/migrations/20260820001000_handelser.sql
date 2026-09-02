@@ -93,7 +93,10 @@ select
   h.ar_test,
   min(h.skapad_at)                                              as start,
   max(h.skapad_at)                                              as slut,
-  extract(epoch from max(h.skapad_at) - min(h.skapad_at))::int   as langd_sek,
+  -- Längden tas ur ms_sedan_start, inte ur skapad_at. Händelser skickas i
+  -- batch och delar då tidsstämpel, vilket får skapad_at-differensen att
+  -- underskatta resans längd — ofta ända ner till noll.
+  coalesce(max(h.ms_sedan_start) / 1000, 0)                     as langd_sek,
   count(*)                                                      as antal_handelser,
   max(h.enhet)                                                  as enhet,
   max(h.alder)         filter (where h.typ = 'steg1_klart')     as alder,

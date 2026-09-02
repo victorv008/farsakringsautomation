@@ -192,6 +192,14 @@
      *   data   — fritt objekt, hamnar i jsonb
      *   typade — { alder, belopp, antal_traffar } när de ska aggregeras
      */
+    /**
+     * Logga en händelse.
+     *
+     * Varje rad MÅSTE ha exakt samma nycklar som alla andra i batchen —
+     * PostgREST avvisar hela anropet med PGRST102 annars. Därför sätts alla
+     * fält alltid, med null där värde saknas. Lägg aldrig till ett fält
+     * villkorligt här.
+     */
     function loggaHandelse(typ, data, typade) {
         try {
             var id = sokId();
