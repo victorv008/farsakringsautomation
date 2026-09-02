@@ -189,7 +189,12 @@ async function korEnResa(context, fall, index) {
                 const kort = document.querySelectorAll('.result-card:not(.excl)');
                 const k = kort[p] || kort[0];
                 if (!k) return null;
-                const a = k.querySelector('a[target="_blank"]');
+                // Klicka "Gå till bolaget", inte villkorslänken. Korten har två
+                // externa länkar och den första i DOM är villkoren — riggen
+                // testade tidigare fel knapp utan att det syntes, eftersom båda
+                // loggades likadant.
+                const a = k.querySelector('a[data-lank="bolaget"]') ||
+                          k.querySelector('a[target="_blank"]');
                 if (!a) return null;
                 const pris = parseInt(k.getAttribute('data-pris'), 10);
                 const position = parseInt(k.getAttribute('data-position'), 10);
@@ -307,18 +312,22 @@ async function main() {
     const franTid = new Date(startTid.getTime() - 60000).toISOString();
     const tillTid = new Date(slutTid.getTime() + 60000).toISOString();
 
-    const [sokRes, klickRes, omarktSokRes, omarktKlickRes] = await Promise.all([
+    const [sokRes, klickRes, handelseRes, omarktSokRes, omarktKlickRes, omarktHandelseRes] = await Promise.all([
         db.from('sokningar').select('*').in('sok_id', sokIds),
         db.from('bolagsklick').select('*').in('sok_id', sokIds),
+        db.from('handelser').select('*').in('sok_id', sokIds),
         // Omärkta rader som dök upp medan testet kördes. Om någon av dem hör
         // till oss har testdata läckt in i den riktiga statistiken.
         db.from('sokningar').select('*').eq('ar_test', false)
           .gte('skapad_at', franTid).lte('skapad_at', tillTid),
         db.from('bolagsklick').select('*').eq('ar_test', false)
           .gte('skapad_at', franTid).lte('skapad_at', tillTid),
+        db.from('handelser').select('*').eq('ar_test', false)
+          .gte('skapad_at', franTid).lte('skapad_at', tillTid),
     ]);
 
-    const lasfel = sokRes.error || klickRes.error || omarktSokRes.error || omarktKlickRes.error;
+    const lasfel = sokRes.error || klickRes.error || handelseRes.error ||
+                   omarktSokRes.error || omarktKlickRes.error || omarktHandelseRes.error;
     if (lasfel) {
         log('  ✖ Kunde inte läsa tillbaka: ' + lasfel.message);
         process.exitCode = 1; return;
@@ -326,8 +335,10 @@ async function main() {
 
     const rapport = jamfor(resor, sokRes.data ?? [], klickRes.data ?? [], {
         bas: BAS, start: startTid, slut: slutTid, blockerade,
+        handelser: handelseRes.data ?? [],
         omarktaSokningar: omarktSokRes.data ?? [],
         omarktaKlick: omarktKlickRes.data ?? [],
+        omarktaHandelser: omarktHandelseRes.data ?? [],
         fonster: { fran: franTid, till: tillTid },
     });
 
@@ -340,6 +351,7 @@ async function main() {
 export function jamfor(resor, sokRader, klickRader, meta) {
     const avvikelser = [];
     const perResa = [];
+    const handelser = meta.handelser ?? [];
 
     for (const r of resor) {
         const mina = sokRader.filter((s) => s.sok_id === r.sok_id);
@@ -420,6 +432,30 @@ export function jamfor(resor, sokRader, klickRader, meta) {
                 text: `Ingen klickning gjordes men ${minaKlick.length} rad(er) finns i bolagsklick.` });
         }
 
+        // Händelsekedjan: varje resa ska ha nått resultatsidan, och de som
+        // klickade ska ha ett utklick.
+        const minaHandelser = handelser.filter((h) => h.sok_id === r.sok_id);
+        if (r.sok_id) {
+            const typer = new Set(minaHandelser.map((h) => h.typ));
+            if (!typer.has('resultat_visat')) {
+                avvikelser.push({ resa: r.nr, typ: 'handelse_saknas',
+                    text: 'Ingen resultat_visat-händelse loggades trots att resultatsidan nåddes.' });
+            }
+            if (!typer.has('steg1_klart')) {
+                avvikelser.push({ resa: r.nr, typ: 'handelse_saknas',
+                    text: 'Ingen steg1_klart-händelse loggades trots att uppgifter fylldes i.' });
+            }
+            if (r.klick && !typer.has('utklick')) {
+                avvikelser.push({ resa: r.nr, typ: 'handelse_saknas',
+                    text: `Klickade på ${r.klick.bolag} men ingen utklick-händelse loggades.` });
+            }
+            const sekvenser = minaHandelser.map((h) => h.sekvens);
+            if (sekvenser.length !== new Set(sekvenser).size) {
+                avvikelser.push({ resa: r.nr, typ: 'dubbel_sekvens',
+                    text: 'Samma sekvensnummer förekommer flera gånger — tidslinjen går inte att ordna.' });
+            }
+        }
+
         for (const f of r.fel) {
             avvikelser.push({ resa: r.nr, typ: 'körfel', text: f });
         }
@@ -430,7 +466,8 @@ export function jamfor(resor, sokRader, klickRader, meta) {
             gjorde: r.gjorde,
             traffar: r.traffar,
             klick: r.klick,
-            rader_i_db: { sokningar: mina.length, bolagsklick: minaKlick.length },
+            rader_i_db: { sokningar: mina.length, bolagsklick: minaKlick.length,
+                          handelser: minaHandelser.length },
             stammer: punkter,
             avvikelser: avvikelser.filter((a) => a.resa === r.nr).length,
         });
@@ -451,12 +488,15 @@ export function jamfor(resor, sokRader, klickRader, meta) {
 
     const laktaSok = (meta.omarktaSokningar ?? []).filter((r) => varaSokIds.has(r.sok_id));
     const laktaKlick = (meta.omarktaKlick ?? []).filter((r) => varaSokIds.has(r.sok_id));
+    const laktaHandelser = (meta.omarktaHandelser ?? []).filter((r) => varaSokIds.has(r.sok_id));
     const frammandeSok = (meta.omarktaSokningar ?? []).filter((r) => !varaSokIds.has(r.sok_id));
     const frammandeKlick = (meta.omarktaKlick ?? []).filter((r) => !varaSokIds.has(r.sok_id));
+    const frammandeHandelser = (meta.omarktaHandelser ?? []).filter((r) => !varaSokIds.has(r.sok_id));
 
     const omarktaVara = [
         ...sokRader.filter((r) => r.ar_test !== true),
         ...klickRader.filter((r) => r.ar_test !== true),
+        ...handelser.filter((r) => r.ar_test !== true),
     ];
 
     for (const r of omarktaVara) {
@@ -466,7 +506,7 @@ export function jamfor(resor, sokRader, klickRader, meta) {
             text: `Rad med sok_id ${r.sok_id} saknar ar_test — den ligger i den riktiga statistiken.`,
         });
     }
-    for (const r of [...laktaSok, ...laktaKlick]) {
+    for (const r of [...laktaSok, ...laktaKlick, ...laktaHandelser]) {
         avvikelser.push({
             resa: resor.find((x) => x.sok_id === r.sok_id)?.nr ?? 0,
             typ: 'LACKAGE',
@@ -475,10 +515,13 @@ export function jamfor(resor, sokRader, klickRader, meta) {
     }
 
     const flaggkontroll = {
-        vara_rader: sokRader.length + klickRader.length,
-        alla_markta: omarktaVara.length === 0 && laktaSok.length === 0 && laktaKlick.length === 0,
-        lackage: omarktaVara.length + laktaSok.length + laktaKlick.length,
-        frammande_omarkta_i_fonstret: frammandeSok.length + frammandeKlick.length,
+        vara_rader: sokRader.length + klickRader.length + handelser.length,
+        handelser: handelser.length,
+        alla_markta: omarktaVara.length === 0 && laktaSok.length === 0 &&
+                     laktaKlick.length === 0 && laktaHandelser.length === 0,
+        lackage: omarktaVara.length + laktaSok.length + laktaKlick.length + laktaHandelser.length,
+        frammande_omarkta_i_fonstret:
+            frammandeSok.length + frammandeKlick.length + frammandeHandelser.length,
         fonster: meta.fonster,
     };
 
@@ -573,6 +616,7 @@ function skrivRapport(rap) {
     rader.push('| Kontroll | Utfall |');
     rader.push('|---|---|');
     rader.push('| Rader skapade av testet | ' + fk.vara_rader + ' |');
+    rader.push('| varav händelser | ' + (fk.handelser || 0) + ' |');
     rader.push('| Alla märkta med ' + BT + 'ar_test' + BT + ' | ' + (fk.alla_markta ? '**ja**' : '**NEJ**') + ' |');
     rader.push('| Läckta rader | ' + (fk.lackage === 0 ? '0' : '**' + fk.lackage + '**') + ' |');
     rader.push('| Omärkta rader i fönstret från andra besök | ' + fk.frammande_omarkta_i_fonstret + ' |');
@@ -653,6 +697,7 @@ function skrivRapport(rap) {
     log('');
     log(`  Sökningsrader:  ${s.sokningsrader_i_db}`);
     log(`  Klickrader:     ${s.klickrader_i_db} (förväntade ${s.forvantade_klick})`);
+    log(`  Händelser:      ${rap.flaggkontroll.handelser || 0}`);
     log('  Märkta som test: ' + (s.alla_markta_som_test ? 'alla ✓' : 'NEJ — några saknar flaggan'));
     if (rap.flaggkontroll.frammande_omarkta_i_fonstret > 0) {
         log('  Omärkta rader i fönstret från andra besök: ' +
