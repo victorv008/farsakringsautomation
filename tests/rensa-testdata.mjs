@@ -33,17 +33,18 @@ if (!KEY) {
 } else {
     const db = createClient(URL, KEY, { auth: { persistSession: false } });
 
-    const [s, k] = await Promise.all([
+    const [s, k, h] = await Promise.all([
         db.from('sokningar').select('id', { count: 'exact', head: true }).eq('ar_test', true),
         db.from('bolagsklick').select('id', { count: 'exact', head: true }).eq('ar_test', true),
+        db.from('handelser').select('id', { count: 'exact', head: true }).eq('ar_test', true),
     ]);
 
-    if (s.error || k.error) {
-        console.error('\n  ✖ Kunde inte räkna: ' + (s.error?.message ?? k.error?.message) + '\n');
+    if (s.error || k.error || h.error) {
+        console.error('\n  ✖ Kunde inte räkna: ' + (s.error?.message ?? k.error?.message ?? h.error?.message) + '\n');
         process.exitCode = 1;
     } else {
         console.log('');
-        console.log(`  Testrader i databasen:  ${s.count} sökningar, ${k.count} klick`);
+        console.log(`  Testrader i databasen:  ${s.count} sökningar, ${k.count} klick, ${h.count} händelser`);
 
         if (!SKARPT) {
             console.log('');
@@ -53,16 +54,19 @@ if (!KEY) {
         } else {
             const d1 = await db.from('bolagsklick').delete().eq('ar_test', true);
             const d2 = await db.from('sokningar').delete().eq('ar_test', true);
-            if (d1.error || d2.error) {
-                console.error('  ✖ Fel vid radering: ' + (d1.error?.message ?? d2.error?.message));
+            const d3 = await db.from('handelser').delete().eq('ar_test', true);
+            if (d1.error || d2.error || d3.error) {
+                console.error('  ✖ Fel vid radering: ' +
+                    (d1.error?.message ?? d2.error?.message ?? d3.error?.message));
                 process.exitCode = 1;
             } else {
-                const [e1, e2] = await Promise.all([
+                const [e1, e2, e3] = await Promise.all([
                     db.from('sokningar').select('id', { count: 'exact', head: true }).eq('ar_test', true),
                     db.from('bolagsklick').select('id', { count: 'exact', head: true }).eq('ar_test', true),
+                    db.from('handelser').select('id', { count: 'exact', head: true }).eq('ar_test', true),
                 ]);
                 console.log('');
-                console.log(`  ✔ Raderat. Kvarvarande testrader: ${e1.count} sökningar, ${e2.count} klick`);
+                console.log(`  ✔ Raderat. Kvarvarande testrader: ${e1.count} sökningar, ${e2.count} klick, ${e3.count} händelser`);
                 console.log('');
             }
         }

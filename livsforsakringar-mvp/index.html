@@ -500,9 +500,18 @@
             if (age) sessionStorage.setItem('ins_age', age);
             sessionStorage.setItem('ins_amount', amount);
 
+            try {
+                if (window.Analytics) {
+                    window.Analytics.loggaHandelse('steg1_klart', {},
+                        { alder: parseInt(age, 10), belopp: parseInt(amount, 10) });
+                    window.Analytics.spola();   // navigering följer direkt
+                }
+            } catch (e) { /* tyst */ }
+
             transitionTo('livssituation.html');
         });
     </script>
+    <script defer src="js/analytics.js"></script>
     <script src="js/transitions.js"></script>
 </body>
 

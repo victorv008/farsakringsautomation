@@ -227,6 +227,53 @@
   .tom{text-align:center;padding:26px 14px;color:var(--muted);font-size:13px;}
   .tom .material-symbols-outlined{font-size:30px;opacity:.4;display:block;margin-bottom:7px;}
 
+  /* ── Resvy ── */
+  .urval{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .urval button{
+    border:1px solid var(--line);background:rgba(255,255,255,.6);cursor:pointer;
+    padding:7px 12px;border-radius:999px;font-family:'Plus Jakarta Sans',sans-serif;
+    font-weight:700;font-size:11.5px;color:var(--muted);white-space:nowrap;
+    transition:background .18s,color .18s,border-color .18s;
+  }
+  .urval button.on{background:var(--teal);color:#fff;border-color:var(--teal);}
+  .resor{display:flex;flex-direction:column;gap:6px;}
+  .resa{
+    display:grid;gap:2px 10px;padding:11px 13px;border-radius:12px;cursor:pointer;
+    background:rgba(13,115,119,.035);border:1px solid rgba(13,115,119,.07);
+    grid-template-columns:auto 1fr auto;align-items:center;
+    transition:background .15s,border-color .15s;
+  }
+  .resa:hover{background:rgba(13,115,119,.08);border-color:rgba(13,115,119,.16);}
+  .resa.vald{background:rgba(232,168,56,.10);border-color:rgba(232,168,56,.32);}
+  .resa .tid{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);}
+  .resa .mitt{font-size:13px;min-width:0;overflow-wrap:anywhere;}
+  .resa .slut{font-size:11.5px;font-weight:700;padding:3px 9px;border-radius:999px;white-space:nowrap;}
+  .slut.klick{background:var(--green-bg);color:#1f7a4d;}
+  .slut.avhopp{background:var(--amber-bg);color:#8a5a12;}
+  .slut.noll{background:var(--red-bg);color:#a3323a;}
+  .resa .meta{grid-column:1/-1;font-size:11.5px;color:var(--muted);}
+
+  /* ── Tidslinje ── */
+  .tidslinje{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);}
+  .tl-rubrik{font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:14px;
+    color:var(--teal);margin-bottom:3px;}
+  .tl-meta{font-size:11.5px;color:var(--muted);margin-bottom:14px;}
+  .steg{display:grid;grid-template-columns:52px 1fr;gap:12px;padding:8px 0;
+    border-left:2px solid rgba(13,115,119,.14);margin-left:6px;padding-left:14px;position:relative;}
+  .steg::before{content:'';position:absolute;left:-5px;top:14px;width:8px;height:8px;
+    border-radius:50%;background:var(--teal);}
+  .steg.hojdpunkt::before{background:var(--amber);width:10px;height:10px;left:-6px;}
+  .steg .klocka{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11.5px;
+    color:var(--muted);padding-top:1px;}
+  .steg .vad{font-size:13px;}
+  .steg .vad b{font-family:'Plus Jakarta Sans',sans-serif;color:var(--main);}
+  .steg .detalj{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;}
+  @media(max-width:520px){
+    .resa{grid-template-columns:auto 1fr;}
+    .resa .slut{grid-column:2;justify-self:start;margin-top:3px;}
+    .steg{grid-template-columns:44px 1fr;gap:8px;}
+  }
+
   footer.bot{max-width:1240px;margin:0 auto;padding:0 18px 34px;color:var(--muted);font-size:11.5px;text-align:center;}
   .hidden{display:none !important;}
 </style>
@@ -342,6 +389,20 @@
         <h2><span class="material-symbols-outlined">devices</span> Enhet</h2>
         <div class="hint">Mobil eller dator</div>
         <div class="chart-wrap"><canvas id="c-enhet"></canvas></div>
+      </div>
+
+      <div class="card wide">
+        <h2><span class="material-symbols-outlined">route</span> Enskilda besök</h2>
+        <div class="hint">Varje besök för sig — vad någon faktiskt gjorde, steg för steg</div>
+        <div class="urval" id="urval">
+          <button data-urval="senaste" class="on">Senaste</button>
+          <button data-urval="utan_klick">Nådde resultat men klickade inte</button>
+          <button data-urval="nollresultat">Fick nollresultat</button>
+          <button data-urval="med_klick">Klickade vidare</button>
+          <button data-urval="mest_filter">Flest filterändringar</button>
+        </div>
+        <div class="resor" id="resor"></div>
+        <div id="tidslinje"></div>
       </div>
 
       <div class="card">
@@ -516,6 +577,7 @@
       ' · senaste ' + d.period.dagar + ' dagarna' + testInfo;
 
     kollaDoldTestdata(d);
+    laddaResor();
   }
 
   function kpi(label, value, sub, amber) {
@@ -688,6 +750,150 @@
       }
     };
   }
+
+  /* ── Resvy ─────────────────────────────────────────────────────────── */
+
+  var urval = 'senaste';
+
+  var SLUTSTEG = {
+    klickade_vidare:       { text: 'klickade vidare',  klass: 'klick' },
+    avhopp_pa_resultat:    { text: 'avhopp på resultat', klass: 'avhopp' },
+    avhopp_innan_resultat: { text: 'nådde aldrig resultat', klass: 'avhopp' },
+    nollresultat:          { text: 'nollresultat',     klass: 'noll' }
+  };
+
+  var HANDELSENAMN = {
+    sidvisning:          'Sidvisning',
+    sidan_dold:          'Lämnade sidan',
+    steg1_klart:         'Fyllde i uppgifter',
+    livssituation_val:   'Valde livssituation',
+    livssituation_klart: 'Gick vidare från livssituation',
+    resultat_visat:      'Såg resultatet',
+    filter_andrat:       'Ändrade filter',
+    filter_rensat:       'Rensade filter',
+    sortering_andrad:    'Bytte sortering',
+    bolagsval_andrat:    'Ändrade bolagsval',
+    utklick:             'Klickade vidare',
+    uppgifter_andrade:   'Ändrade sina uppgifter',
+    fel:                 'Något gick fel'
+  };
+
+  function mmss(sek) {
+    var m = Math.floor((sek || 0) / 60), s2 = (sek || 0) % 60;
+    return m + ':' + String(s2).padStart(2, '0');
+  }
+
+  function hamtaResor() {
+    if (!losenord) return;
+    return fetch(FUNKTION, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ losenord: losenord, dagar: dagar, visaTest: visaTest,
+                             handling: 'resor', urval: urval })
+    }).then(function (r) { return r.json(); });
+  }
+
+  function ritaResor(d) {
+    var el = $('resor');
+    $('tidslinje').innerHTML = '';
+    var rader = (d && d.resor) || [];
+    if (!rader.length) {
+      el.innerHTML = '<div class="tom"><span class="material-symbols-outlined">inbox</span>' +
+        'Inga besök matchar det här urvalet' +
+        (!visaTest ? ' — testdata är dold, prova kolven i toppraden' : '') + '</div>';
+      return;
+    }
+    el.innerHTML = rader.map(function (r) {
+      var s2 = SLUTSTEG[r.slutsteg] || { text: r.slutsteg, klass: 'avhopp' };
+      var klocka = new Date(r.start).toLocaleTimeString('sv-SE', { hour: '2-digit', minute: '2-digit' });
+      var datum = new Date(r.start).toLocaleDateString('sv-SE', { day: 'numeric', month: 'short' });
+      var uppg = (r.alder ? r.alder + ' år' : 'ingen ålder') +
+                 (r.belopp ? ' · ' + (r.belopp / 1e6).toFixed(1) + ' Mkr' : '');
+      return '<div class="resa" data-sok="' + esc(r.sok_id) + '">' +
+        '<span class="tid">' + datum + ' ' + klocka + '</span>' +
+        '<span class="mitt">' + esc(uppg) + (r.klickat_bolag ? ' → <b>' + esc(r.klickat_bolag) + '</b>' : '') + '</span>' +
+        '<span class="slut ' + s2.klass + '">' + s2.text + '</span>' +
+        '<span class="meta">' + (r.enhet || 'okänd') + ' · ' + mmss(r.langd_sek) + ' · ' +
+          r.antal_handelser + ' händelser' +
+          (r.antal_traffar != null ? ' · ' + r.antal_traffar + ' träffar' : '') +
+          (r.filterandringar ? ' · ' + r.filterandringar + ' filterändringar' : '') +
+        '</span></div>';
+    }).join('');
+  }
+
+  function ritaTidslinje(d) {
+    var el = $('tidslinje');
+    var h = (d && d.handelser) || [];
+    if (!h.length) { el.innerHTML = ''; return; }
+
+    var forsta = h[0], enhet = '';
+    for (var i = 0; i < h.length; i++) { if (h[i].enhet) { enhet = h[i].enhet; break; } }
+    var slut = h[h.length - 1];
+
+    var nar = '';
+    try {
+      var dt = new Date(forsta.skapad_at);
+      if (!isNaN(dt.getTime())) nar = dt.toLocaleString('sv-SE') + ' · ';
+    } catch (e) { /* tyst */ }
+
+    el.innerHTML = '<div class="tidslinje">' +
+      '<div class="tl-rubrik">Besök ' + esc(d.sok_id.slice(0, 8)) + '</div>' +
+      '<div class="tl-meta">' +
+        nar + (enhet || 'okänd enhet') +
+        ' · ' + mmss(Math.round((slut.ms_sedan_start || 0) / 1000)) + ' · ' + h.length + ' händelser' +
+      '</div>' +
+      h.map(function (x) {
+        var t = Math.round((x.ms_sedan_start || 0) / 1000);
+        var d2 = x.data || {};
+        var detalj = [];
+        if (x.alder) detalj.push(x.alder + ' år');
+        if (x.belopp) detalj.push(new Intl.NumberFormat('sv-SE').format(x.belopp) + ' kr');
+        if (x.antal_traffar != null) detalj.push(x.antal_traffar + ' träffar');
+        if (d2.filter) detalj.push(namnge(d2.filter) + (d2.pa ? ' på' : ' av'));
+        if (d2.fran && d2.till) detalj.push(namnge(d2.fran) + ' → ' + namnge(d2.till));
+        if (d2.scenarier && d2.scenarier.length) detalj.push(d2.scenarier.join(', '));
+        if (d2.bolag) detalj.push(d2.bolag + (d2.pris ? ' · ' + d2.pris + ' kr' : '') +
+                                  (d2.position != null ? ' · plats ' + (d2.position + 1) : '') +
+                                  (d2.lank === 'villkor' ? ' · villkorslänken' : ''));
+        if (d2.fran && d2.fran.alder) detalj.push('från ' + d2.fran.alder + ' år, ' +
+          new Intl.NumberFormat('sv-SE').format(d2.fran.belopp) + ' kr');
+        if (x.sida && x.typ === 'sidvisning') detalj.push(x.sida);
+        var viktig = x.typ === 'utklick' || x.typ === 'uppgifter_andrade';
+        return '<div class="steg' + (viktig ? ' hojdpunkt' : '') + '">' +
+          '<span class="klocka">' + mmss(t) + '</span>' +
+          '<span class="vad"><b>' + esc(HANDELSENAMN[x.typ] || x.typ) + '</b>' +
+            (detalj.length ? '<span class="detalj">' + esc(detalj.join(' · ')) + '</span>' : '') +
+          '</span></div>';
+      }).join('') + '</div>';
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function laddaResor() {
+    var p = hamtaResor();
+    if (p) p.then(ritaResor).catch(function () { /* tyst */ });
+  }
+
+  $('urval').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    [].forEach.call(this.children, function (x) { x.classList.remove('on'); });
+    b.classList.add('on');
+    urval = b.getAttribute('data-urval');
+    laddaResor();
+  });
+
+  $('resor').addEventListener('click', function (e) {
+    var rad = e.target.closest('.resa'); if (!rad) return;
+    [].forEach.call(this.children, function (x) { x.classList.remove('vald'); });
+    rad.classList.add('vald');
+    fetch(FUNKTION, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ losenord: losenord, handling: 'resa',
+                             sok_id: rad.getAttribute('data-sok') })
+    }).then(function (r) { return r.json(); })
+      .then(ritaTidslinje)
+      .catch(function () { /* tyst */ });
+  });
 
   /* ── Återuppta session ── */
   try {

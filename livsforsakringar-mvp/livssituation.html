@@ -485,11 +485,19 @@
             const scenarios = Array.from(selected);
             sessionStorage.setItem('ins_scenarios', scenarios.join(','));
             sessionStorage.setItem('ins_scenario', scenarios[0]);
+
+            try {
+                if (window.Analytics) {
+                    window.Analytics.loggaHandelse('livssituation_klart', { scenarier: scenarios });
+                    window.Analytics.spola();   // navigering följer direkt
+                }
+            } catch (e) { /* tyst */ }
             transitionTo('resultat.html');
         }
 
         init();
     </script>
+    <script defer src="js/analytics.js"></script>
     <script src="js/transitions.js"></script>
 </body>
 
