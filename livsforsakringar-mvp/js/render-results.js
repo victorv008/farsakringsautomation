@@ -2,8 +2,10 @@
     const wrapper = document.getElementById('results-wrapper');
     if (!wrapper) return;
 
-    const userAge = parseInt(sessionStorage.getItem('ins_age')) || 32;
-    const userAmount = parseInt(sessionStorage.getItem('ins_amount')) || 2500000;
+    // let, inte const — de ändras när besökaren redigerar sina uppgifter i
+    // steg 3. Alla användningsställen läser dem vid anropstillfället.
+    let userAge = parseInt(sessionStorage.getItem('ins_age')) || 32;
+    let userAmount = parseInt(sessionStorage.getItem('ins_amount')) || 2500000;
     const scenarios = (sessionStorage.getItem('ins_scenarios') || 'standard').split(',');
 
     const banner = document.getElementById('context-banner');
@@ -89,6 +91,100 @@
 
         const clearBtn = document.getElementById('clear-filters');
         if (clearBtn) clearBtn.addEventListener('click', resetFilters);
+
+        wireUppgifter();
+    }
+
+    /* ── Ändra ålder och belopp utan att börja om ────────────────────────── */
+
+    function visaBelopp(varde) {
+        const el = document.getElementById('belopp-display');
+        if (el) el.textContent = new Intl.NumberFormat('sv-SE').format(varde) + ' kr';
+    }
+
+    function visaSammanfattning() {
+        const el = document.getElementById('uppgifter-text');
+        if (el) {
+            el.textContent = userAge + ' år · ' +
+                new Intl.NumberFormat('sv-SE').format(userAmount) + ' kr';
+        }
+    }
+
+    function wireUppgifter() {
+        const kort    = document.getElementById('uppgifter-kort');
+        const andra   = document.getElementById('uppgifter-andra');
+        const spara   = document.getElementById('uppgifter-spara');
+        const avbryt  = document.getElementById('uppgifter-avbryt');
+        const alderIn = document.getElementById('alder-input');
+        const slider  = document.getElementById('belopp-slider');
+        const fel     = document.getElementById('alder-fel');
+        if (!kort || !andra || !spara || !alderIn || !slider) return;
+
+        // Fyll fälten med det som gäller nu
+        function laddaFalt() {
+            alderIn.value = userAge;
+            // Reglaget spänner 500 000–5 000 000. Ligger beloppet utanför
+            // (gamla värden i sessionStorage) klipps det till spannet.
+            slider.value = Math.min(5000000, Math.max(500000, userAmount));
+            visaBelopp(parseInt(slider.value, 10));
+            fel.classList.add('hidden');
+            alderIn.classList.remove('border-[#ba1a1a]');
+        }
+
+        visaSammanfattning();
+
+        andra.addEventListener('click', () => {
+            laddaFalt();
+            kort.classList.add('oppen');
+            alderIn.focus();
+        });
+
+        if (avbryt) avbryt.addEventListener('click', () => kort.classList.remove('oppen'));
+
+        // Bara visningen uppdateras medan reglaget dras — omrenderingen sker
+        // först när man trycker Uppdatera.
+        slider.addEventListener('input', () => visaBelopp(parseInt(slider.value, 10)));
+
+        alderIn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') { e.preventDefault(); spara.click(); }
+        });
+
+        spara.addEventListener('click', () => {
+            const alder = parseInt(alderIn.value, 10);
+            if (!Number.isFinite(alder) || alder < 18 || alder > 85) {
+                fel.classList.remove('hidden');
+                alderIn.classList.add('border-[#ba1a1a]');
+                alderIn.focus();
+                return;
+            }
+            const belopp = parseInt(slider.value, 10);
+            if (alder === userAge && belopp === userAmount) {
+                kort.classList.remove('oppen');
+                return; // inget ändrat, rendera inte om i onödan
+            }
+            uppdateraUppgifter(alder, belopp);
+            kort.classList.remove('oppen');
+        });
+    }
+
+    function uppdateraUppgifter(alder, belopp) {
+        const fran = { alder: userAge, belopp: userAmount };
+        userAge = alder;
+        userAmount = belopp;
+        try {
+            sessionStorage.setItem('ins_age', String(alder));
+            sessionStorage.setItem('ins_amount', String(belopp));
+        } catch (e) { /* privat läge kan blockera — resultatet renderas ändå */ }
+
+        visaSammanfattning();
+        applyAndRender();
+
+        try {
+            if (window.Analytics && window.Analytics.loggaHandelse) {
+                window.Analytics.loggaHandelse('uppgifter_andrade', { fran: fran },
+                    { alder: alder, belopp: belopp });
+            }
+        } catch (e) { /* tyst */ }
     }
 
     function wireMobileDrawer() {
@@ -298,6 +394,7 @@
     }
 
     let _loggTimer = null;
+    let _forstaRendering = true;
     let _priceExtrapolated = false;
 
     function interpolate(sortedKeys, getValue, x) {
@@ -537,9 +634,16 @@
             }
         } catch (e) { /* tyst */ }
 
-        wrapper.querySelectorAll('.result-card').forEach((c, i) => {
-            setTimeout(() => c.classList.add('visible'), 60 + i * 70);
-        });
+        // Trappa bara in korten första gången. Vid omrendering (ändrat filter
+        // eller ändrade uppgifter) ska listan byta innehåll direkt — annars
+        // flimrar hela sidan i över en sekund varje gång.
+        const kort = wrapper.querySelectorAll('.result-card');
+        if (_forstaRendering) {
+            kort.forEach((c, i) => setTimeout(() => c.classList.add('visible'), 60 + i * 70));
+            _forstaRendering = false;
+        } else {
+            kort.forEach((c) => c.classList.add('visible'));
+        }
     }
 
     function renderCard(ins, index) {

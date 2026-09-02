@@ -104,6 +104,35 @@
             font-variation-settings: 'FILL' 1;
         }
 
+        /* ── Uppgiftsredigering (steg 3) ── */
+        #uppgifter-kort { transition: box-shadow .2s ease; }
+        #uppgifter-form { display: none; }
+        #uppgifter-kort.oppen #uppgifter-form { display: block; }
+        #uppgifter-kort.oppen #uppgifter-sammanfattning { display: none; }
+
+        #belopp-slider { -webkit-appearance: none; appearance: none; background: transparent; }
+        #belopp-slider::-webkit-slider-thumb {
+            appearance: none; width: 32px; height: 32px; background: #e8a838;
+            border-radius: 50%; cursor: pointer; border: 4px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(232,168,56,0.4);
+            transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1);
+            margin-top: -12px;
+        }
+        #belopp-slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+        #belopp-slider::-webkit-slider-runnable-track {
+            width: 100%; height: 8px; cursor: pointer;
+            background: rgba(0,89,92,0.1); border-radius: 9999px; border: none;
+        }
+        #belopp-slider::-moz-range-thumb {
+            width: 32px; height: 32px; background: #e8a838; border-radius: 50%;
+            cursor: pointer; border: 4px solid #ffffff;
+            box-shadow: 0 4px 12px rgba(232,168,56,0.4);
+        }
+        #belopp-slider::-moz-range-track {
+            width: 100%; height: 8px; cursor: pointer;
+            background: rgba(0,89,92,0.1); border-radius: 9999px; border: none;
+        }
+
         /* Bolag list compat states */
         .bolag-row { display: flex; align-items: center; gap: 0.75rem; cursor: pointer; padding: 0.15rem 0; }
         .bolag-row.is-incompat { opacity: 0.4; }
@@ -340,6 +369,58 @@
 <div>
 <p id="context-banner" class="font-body text-sm leading-relaxed">Livförsäkringar.se lämnar ingen rådgivning – kontakta bolaget direkt för personlig rådgivning.</p>
 </div>
+</div>
+
+<!-- Ändra ålder och belopp utan att börja om -->
+<div id="uppgifter-kort" class="mt-4 bg-white rounded-xl border border-[#00595c]/10 shadow-[0_2px_12px_rgba(0,89,92,0.05)] overflow-hidden">
+
+    <div id="uppgifter-sammanfattning" class="flex items-center justify-between gap-4 p-4 sm:p-5">
+        <div class="min-w-0">
+            <div class="font-label text-[11px] uppercase tracking-wider text-[#00595c]/60 font-semibold mb-1">Dina uppgifter</div>
+            <div id="uppgifter-text" class="font-headline font-bold text-[#00595c] text-base sm:text-lg">32 år · 2 500 000 kr</div>
+        </div>
+        <button type="button" id="uppgifter-andra"
+            class="shrink-0 inline-flex items-center gap-2 bg-[#00595c]/5 hover:bg-[#00595c]/10 text-[#00595c] font-headline font-bold text-sm px-4 py-2.5 rounded-xl border border-[#00595c]/15 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">tune</span>
+            Ändra
+        </button>
+    </div>
+
+    <div id="uppgifter-form" class="p-4 sm:p-5 pt-0 sm:pt-0">
+        <div class="border-t border-[#00595c]/10 pt-5 grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-8">
+
+            <div>
+                <label for="alder-input" class="block font-label text-[11px] uppercase tracking-wider text-[#00595c]/60 font-semibold mb-2">Din ålder</label>
+                <div class="flex items-center gap-2">
+                    <input type="number" id="alder-input" min="18" max="85" inputmode="numeric"
+                        class="w-24 px-3 py-2.5 rounded-xl border border-[#00595c]/20 text-[#1a1c1c] font-body text-base focus:outline-none focus:border-[#00595c] focus:ring-4 focus:ring-[#00595c]/10"/>
+                    <span class="text-[#00595c]/60 font-body text-sm">år</span>
+                </div>
+                <p id="alder-fel" class="hidden mt-2 text-xs text-[#ba1a1a] font-body">Ange en ålder mellan 18 och 85.</p>
+            </div>
+
+            <div>
+                <label for="belopp-slider" class="block font-label text-[11px] uppercase tracking-wider text-[#00595c]/60 font-semibold mb-2">Önskat belopp</label>
+                <div id="belopp-display" class="font-headline text-2xl font-extrabold text-[#00595c] mb-2">2 500 000 kr</div>
+                <input type="range" id="belopp-slider" min="500000" max="5000000" step="100000"
+                    class="w-full appearance-none bg-transparent"/>
+                <div class="flex justify-between mt-1 text-[11px] text-[#00595c]/50 font-body">
+                    <span>500 000 kr</span><span>5 000 000 kr</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3 mt-5">
+            <button type="button" id="uppgifter-spara"
+                class="flex-1 sm:flex-none bg-[#00595c] hover:bg-[#0d7377] text-white font-headline font-bold text-sm px-6 py-3 rounded-xl transition-colors">
+                Uppdatera
+            </button>
+            <button type="button" id="uppgifter-avbryt"
+                class="flex-1 sm:flex-none text-[#00595c]/70 hover:text-[#00595c] font-headline font-bold text-sm px-6 py-3 rounded-xl border border-[#00595c]/15 hover:bg-[#00595c]/5 transition-colors">
+                Avbryt
+            </button>
+        </div>
+    </div>
 </div>
 </section>
 <!-- Main Grid Layout -->
