@@ -67,8 +67,11 @@
         document.querySelectorAll('input[name="sort"]').forEach(radio => {
             radio.addEventListener('change', () => {
                 if (radio.checked) {
+                    var fran = state.sortBy;
                     state.sortBy = radio.value;
                     applyAndRender();
+                    loggaHandelse('sortering_andrad', { fran: fran, till: radio.value },
+                        { antalTraffar: _sistaTraffar });
                 }
             });
         });
@@ -77,6 +80,9 @@
             cb.addEventListener('change', () => {
                 state.toggles[cb.dataset.filter] = cb.checked;
                 applyAndRender();
+                loggaHandelse('filter_andrat',
+                    { filter: cb.dataset.filter, pa: cb.checked, aktiva_filter: aktivaFilter() },
+                    { antalTraffar: _sistaTraffar });
             });
         });
 
@@ -86,6 +92,16 @@
                 if (cb.checked) state.selectedBolag.add(name);
                 else state.selectedBolag.delete(name);
                 applyAndRender();
+
+                // Debouncas: någon som bockar ur tio bolag i rad ger tio rader
+                // utan informationsvärde. Bara sluttillståndet betyder något.
+                clearTimeout(_bolagTimer);
+                _bolagTimer = setTimeout(function () {
+                    loggaHandelse('bolagsval_andrat', {
+                        antal_valda: state.selectedBolag.size,
+                        antal_totalt: state.allInsurers.length
+                    }, { antalTraffar: _sistaTraffar });
+                }, 1200);
             });
         });
 
@@ -395,6 +411,20 @@
 
     let _loggTimer = null;
     let _forstaRendering = true;
+    let _bolagTimer = null;
+    let _sistaTraffar = null;
+
+    function aktivaFilter() {
+        return Object.keys(state.toggles).filter(function (k) { return state.toggles[k]; });
+    }
+
+    function loggaHandelse(typ, data, typade) {
+        try {
+            if (window.Analytics && window.Analytics.loggaHandelse) {
+                window.Analytics.loggaHandelse(typ, data, typade);
+            }
+        } catch (e) { /* tyst */ }
+    }
     let _priceExtrapolated = false;
 
     function interpolate(sortedKeys, getValue, x) {
@@ -498,18 +528,38 @@
     // ── Klick vidare till bolag: delegerad lyssnare, tyst vid fel ──
     wrapper.addEventListener('click', function (ev) {
         try {
-            var lank = ev.target.closest('a[target="_blank"]');
+            // Kräver data-lank, inte target="_blank" — annars skulle vilken
+            // framtida extern länk som helst i ett kort räknas som bolagsklick.
+            var lank = ev.target.closest('a[data-lank]');
             if (!lank) return;
             var kort = lank.closest('.result-card');
             if (!kort || !window.Analytics) return;
             var pris = parseInt(kort.getAttribute('data-pris'), 10);
             var pos = parseInt(kort.getAttribute('data-position'), 10);
-            window.Analytics.loggaKlick({
-                bolag: kort.getAttribute('data-bolag'),
-                pris: Number.isFinite(pris) ? pris : null,
-                position: Number.isFinite(pos) ? pos : null,
-                sortering: state.sortBy
-            });
+            var vilken = lank.getAttribute('data-lank');
+
+            // bolagsklick-tabellen räknar bara faktiska utklick till bolaget
+            if (vilken === 'bolaget') {
+                window.Analytics.loggaKlick({
+                    bolag: kort.getAttribute('data-bolag'),
+                    pris: Number.isFinite(pris) ? pris : null,
+                    position: Number.isFinite(pos) ? pos : null,
+                    sortering: state.sortBy
+                });
+            }
+
+            if (window.Analytics.loggaHandelse) {
+                window.Analytics.loggaHandelse('utklick', {
+                    bolag: kort.getAttribute('data-bolag'),
+                    pris: Number.isFinite(pris) ? pris : null,
+                    position: Number.isFinite(pos) ? pos : null,
+                    sortering: state.sortBy,
+                    lank: vilken,
+                    korttyp: kort.getAttribute('data-korttyp'),
+                    aktiva_filter: aktivaFilter()
+                }, { antalTraffar: _sistaTraffar });
+                window.Analytics.spola();   // fliken kan lämna sidan direkt
+            }
         } catch (e) { /* tyst */ }
     });
 
@@ -622,6 +672,16 @@
         try {
             if (window.Analytics) {
                 var valdaFilter = Object.keys(state.toggles).filter(function (k) { return state.toggles[k]; });
+                _sistaTraffar = matched.length + noPrice.length;
+                if (_forstaRendering) {
+                    loggaHandelse('resultat_visat', {
+                        scenarier: scenarios,
+                        antal_utan_pris: noPrice.length,
+                        antal_exkluderade: excluded.length,
+                        sortering: state.sortBy
+                    }, { alder: age, belopp: amount, antalTraffar: _sistaTraffar });
+                }
+
                 clearTimeout(_loggTimer);
                 _loggTimer = setTimeout(function () {
                     window.Analytics.loggaSokning({
@@ -668,7 +728,7 @@
 
         const link = ins.webbsida ? ins.webbsida : '#';
 
-        return `<article data-bolag="${escapeAttr(ins.bolag)}" data-pris="${monthlyPrice || ''}" data-position="${index}" class="result-card bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col gap-4 sm:gap-6 relative overflow-hidden border border-[#00595c]/5 hover:shadow-[0_20px_48px_rgba(13,115,119,0.12)] transition-shadow mb-4 sm:mb-6">
+        return `<article data-bolag="${escapeAttr(ins.bolag)}" data-pris="${monthlyPrice || ''}" data-position="${index}" data-korttyp="pris" class="result-card bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col gap-4 sm:gap-6 relative overflow-hidden border border-[#00595c]/5 hover:shadow-[0_20px_48px_rgba(13,115,119,0.12)] transition-shadow mb-4 sm:mb-6">
     ${ribbon}
     <div class="flex justify-between items-start gap-3 border-b border-gray-100 pb-4 sm:pb-6">
         <div class="flex items-center gap-3">
@@ -695,8 +755,8 @@
     </div>
     <div class="flex flex-wrap gap-1.5 sm:gap-2">${badges}</div>
     <div class="pt-3 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-        <a class="text-sm font-semibold text-[#00595c] underline underline-offset-4 hover:text-[#e8a838] transition-colors text-center sm:text-left" href="${link}" target="_blank">Läs fullständiga villkor</a>
-        <a href="${link}" target="_blank" class="bg-[#e8a838] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#f0c273] transition-all flex items-center justify-center gap-2 no-underline text-sm sm:text-base">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+        <a class="text-sm font-semibold text-[#00595c] underline underline-offset-4 hover:text-[#e8a838] transition-colors text-center sm:text-left" href="${link}" target="_blank" data-lank="villkor">Läs fullständiga villkor</a>
+        <a href="${link}" target="_blank" data-lank="bolaget" class="bg-[#e8a838] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#f0c273] transition-all flex items-center justify-center gap-2 no-underline text-sm sm:text-base">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
     </div>
 </article>`;
     }
@@ -713,7 +773,7 @@
         if (ins.krav_arbetsfor) badges += badge('info', 'Kräver fullt arbetsför', 'a');
         if (ins.undantag_sport && ins.undantag_sport.length > 0) badges += badge('info', 'Sportundantag', 'a');
 
-        return `<article data-bolag="${escapeAttr(ins.bolag)}" data-pris="" data-position="" class="result-card bg-white/70 rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 flex flex-col gap-4 sm:gap-5 border border-dashed border-[#00595c]/15 mb-3 sm:mb-4 opacity-70 hover:opacity-90 transition-opacity">
+        return `<article data-bolag="${escapeAttr(ins.bolag)}" data-pris="" data-position="" data-korttyp="utan_pris" class="result-card bg-white/70 rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 flex flex-col gap-4 sm:gap-5 border border-dashed border-[#00595c]/15 mb-3 sm:mb-4 opacity-70 hover:opacity-90 transition-opacity">
     <div class="flex justify-between items-start gap-3 border-b border-gray-100 pb-4">
         <div class="flex items-center gap-3">
             <div class="w-12 h-12 rounded-xl bg-gray-50 flex items-center justify-center border border-gray-200 overflow-hidden p-1.5 shrink-0">
@@ -739,8 +799,8 @@
     </div>
     ${badges ? `<div class="flex flex-wrap gap-1.5 sm:gap-2">${badges}</div>` : ''}
     <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
-        <a class="text-sm font-semibold text-[#00595c]/50 underline underline-offset-4 hover:text-[#00595c] transition-colors text-center sm:text-left" href="${link}" target="_blank">Läs fullständiga villkor</a>
-        <a href="${link}" target="_blank" class="bg-gray-200 text-gray-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2 no-underline text-sm">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+        <a class="text-sm font-semibold text-[#00595c]/50 underline underline-offset-4 hover:text-[#00595c] transition-colors text-center sm:text-left" href="${link}" target="_blank" data-lank="villkor">Läs fullständiga villkor</a>
+        <a href="${link}" target="_blank" data-lank="bolaget" class="bg-gray-200 text-gray-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2 no-underline text-sm">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
     </div>
 </article>`;
     }

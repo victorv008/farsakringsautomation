@@ -67,6 +67,59 @@
         }
     }
 
+    /**
+     * Löpnummer inom besöket. Ligger i sessionStorage, inte i minnet — annars
+     * börjar varje sidladdning om på noll och tidslinjen går inte att ordna.
+     */
+    function nastaSekvens() {
+        try {
+            var n = parseInt(sessionStorage.getItem('ins_sek'), 10);
+            if (!Number.isFinite(n) || n < 0) n = 0;
+            if (n > 1000) return 1000;          // taket i CHECK-constrainten
+            sessionStorage.setItem('ins_sek', String(n + 1));
+            return n;
+        } catch (e) {
+            return 0;
+        }
+    }
+
+    /** Millisekunder sedan besöket började — inte sedan sidan laddades. */
+    function msSedanStart() {
+        try {
+            var t = parseInt(sessionStorage.getItem('ins_start'), 10);
+            if (!Number.isFinite(t)) {
+                t = Date.now();
+                sessionStorage.setItem('ins_start', String(t));
+            }
+            var d = Date.now() - t;
+            return (d >= 0 && d <= 86400000) ? d : null;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    /** Vilken sida vi står på. Whitelist — CHECK-constrainten avvisar annat. */
+    var SIDOR = {
+        '/': 'start', '/index': 'start',
+        '/livssituation': 'livssituation',
+        '/resultat': 'resultat',
+        '/faq': 'faq',
+        '/om-oss': 'om-oss',
+        '/sa-fungerar-det': 'sa-fungerar-det',
+        '/integritetspolicy': 'integritet',
+        '/anvandarvillkor': 'villkor'
+    };
+
+    function nuvarandeSida() {
+        try {
+            // Produktion har cleanUrls, lokal server serverar .html
+            var p = location.pathname.replace(/\.html$/, '').replace(/\/$/, '') || '/';
+            return SIDOR[p] || 'okand';
+        } catch (e) {
+            return 'okand';
+        }
+    }
+
     function enhet() {
         try {
             return window.matchMedia('(max-width: 1023px)').matches ? 'mobil' : 'desktop';
@@ -91,12 +144,110 @@
                 rad.ar_test = true;
             }
 
+            if (token) {
+                // Arrayer märks rad för rad
+                if (Array.isArray(rad)) rad.forEach(function (r) { r.ar_test = true; });
+            }
+
             fetch(BAS + '/rest/v1/' + tabell, {
                 method: 'POST',
                 headers: headers,
                 body: JSON.stringify(rad),
                 keepalive: true // överlever att fliken navigerar bort
+            }).then(function (r) {
+                // Tyst i produktion, men testriggen måste få veta. Utan det här
+                // kan en typ som CHECK-constrainten inte känner igen avvisas med
+                // 400 i veckor utan att någon märker något.
+                if (!r.ok && token) {
+                    console.warn('[analytics] ' + r.status + ' ' + tabell);
+                }
             }).catch(function () { /* tyst */ });
+        } catch (e) {
+            /* tyst */
+        }
+    }
+
+    /* ── Händelsekö ─────────────────────────────────────────────────────── */
+
+    var ko = [];
+    var koTimer = null;
+
+    function spola() {
+        if (koTimer) { clearTimeout(koTimer); koTimer = null; }
+        if (!ko.length) return;
+        var batch = ko.splice(0, ko.length);
+        skicka('handelser', batch);
+    }
+
+    function koa(rad) {
+        ko.push(rad);
+        if (ko.length >= 8) { spola(); return; }
+        if (koTimer) clearTimeout(koTimer);
+        koTimer = setTimeout(spola, 2000);
+    }
+
+    /**
+     * Logga en händelse.
+     *   typ    — måste finnas i CHECK-constrainten på handelser
+     *   data   — fritt objekt, hamnar i jsonb
+     *   typade — { alder, belopp, antal_traffar } när de ska aggregeras
+     */
+    function loggaHandelse(typ, data, typade) {
+        try {
+            var id = sokId();
+            if (!id || !typ) return;
+            var t = typade || {};
+            koa({
+                sok_id: id,
+                sekvens: nastaSekvens(),
+                typ: typ,
+                sida: nuvarandeSida(),
+                ms_sedan_start: msSedanStart(),
+                enhet: enhet(),
+                alder: Number.isFinite(t.alder) ? t.alder : null,
+                belopp: Number.isFinite(t.belopp) ? t.belopp : null,
+                antal_traffar: Number.isFinite(t.antalTraffar) ? t.antalTraffar : null,
+                data: (data && typeof data === 'object' && !Array.isArray(data)) ? data : {}
+            });
+        } catch (e) {
+            /* tyst */
+        }
+    }
+
+    /* ── Automatiska händelser ──────────────────────────────────────────── */
+
+    var harLoggatDold = false;
+
+    function starta() {
+        try {
+            msSedanStart();                       // sätter ins_start första gången
+            var ref = 'direkt';
+            try {
+                if (document.referrer) {
+                    ref = document.referrer.indexOf(location.origin) === 0 ? 'intern' : 'extern';
+                }
+            } catch (e) { /* tyst */ }
+            loggaHandelse('sidvisning', { ref: ref });
+
+            // Spola när sidan lämnas. Vi loggar ingen avhoppshändelse —
+            // beforeunload är opålitlig och visibilitychange fyras vid varje
+            // flikbyte. Avhoppet härleds i stället ur resans form.
+            document.addEventListener('visibilitychange', function () {
+                if (document.visibilityState === 'hidden') {
+                    if (!harLoggatDold) {
+                        harLoggatDold = true;
+                        loggaHandelse('sidan_dold', {});
+                    }
+                    spola();
+                }
+            });
+            window.addEventListener('pagehide', function () {
+                if (!harLoggatDold) {
+                    harLoggatDold = true;
+                    loggaHandelse('sidan_dold', {});
+                }
+                spola();
+            });
         } catch (e) {
             /* tyst */
         }
@@ -149,8 +300,12 @@
     window.Analytics = {
         loggaSokning: loggaSokning,
         loggaKlick: loggaKlick,
+        loggaHandelse: loggaHandelse,
+        spola: spola,
         // Läses av testriggen för att koppla ihop rader med rätt körning
         sokId: sokId,
         arTest: function () { return !!testlage(); }
     };
+
+    starta();
 })();
