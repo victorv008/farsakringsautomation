@@ -43,7 +43,7 @@
         .catch(err => {
             console.error('Failed to load insurance data:', err);
             wrapper.innerHTML = `<div class="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
-                <span class="material-symbols-outlined text-red-400 text-3xl">error</span>
+                <span aria-hidden="true" class="material-symbols-outlined text-red-400 text-3xl">error</span>
                 <p class="text-red-600 font-headline font-bold mt-3">Kunde inte hämta försäkringsdata</p>
             </div>`;
         });
@@ -642,7 +642,7 @@
 
         if (matched.length === 0) {
             html += `<div class="bg-white rounded-2xl p-10 text-center border border-[#00595c]/10 shadow-sm">
-                <span class="material-symbols-outlined text-5xl text-[#00595c]/40">search_off</span>
+                <span aria-hidden="true" class="material-symbols-outlined text-5xl text-[#00595c]/40">search_off</span>
                 <p class="mt-4 text-[#00595c]/80 font-headline font-bold text-lg">Inga bolag matchar dina filter</p>
                 <p class="text-[#00595c]/60 mt-2 text-sm">Prova att rensa några av filtren.</p>
             </div>`;
@@ -728,7 +728,7 @@
 
         const link = ins.webbsida ? ins.webbsida : '#';
 
-        return `<article data-bolag="${escapeAttr(ins.bolag)}" data-pris="${monthlyPrice || ''}" data-position="${index}" data-korttyp="pris" class="result-card bg-white rounded-[20px] sm:rounded-[24px] p-4 sm:p-8 shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col gap-4 sm:gap-6 relative overflow-hidden border border-[#00595c]/5 hover:shadow-[0_20px_48px_rgba(13,115,119,0.12)] transition-shadow mb-4 sm:mb-6">
+        return `<article data-bolag="${escapeAttr(ins.bolag)}" data-pris="${monthlyPrice || ''}" data-position="${index}" data-korttyp="pris" class="result-card bg-white rounded-[20px] sm:rounded-[24px] ${ribbon ? 'px-4 pt-10 pb-4' : 'p-4'} sm:p-8 shadow-[0_12px_32px_rgba(26,28,28,0.06)] flex flex-col gap-4 sm:gap-6 relative overflow-hidden border border-[#00595c]/5 hover:shadow-[0_20px_48px_rgba(13,115,119,0.12)] transition-shadow mb-4 sm:mb-6">
     ${ribbon}
     <div class="flex justify-between items-start gap-3 border-b border-gray-100 pb-4 sm:pb-6">
         <div class="flex items-center gap-3">
@@ -749,14 +749,14 @@
         </div>
     </div>
     <div class="flex flex-wrap gap-2">
-        <div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
-        <div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
-        ${maxMkr ? `<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span class="material-symbols-outlined text-sm">payments</span>Inget registrerat maxtak</div>'}
+        <div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span aria-hidden="true" class="material-symbols-outlined text-sm">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
+        <div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span aria-hidden="true" class="material-symbols-outlined text-sm">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
+        ${maxMkr ? `<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span aria-hidden="true" class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-[#f2f9f9] px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-[#00595c]/5 text-xs sm:text-sm font-medium text-[#00595c]"><span aria-hidden="true" class="material-symbols-outlined text-sm">payments</span>Inget registrerat maxtak</div>'}
     </div>
     <div class="flex flex-wrap gap-1.5 sm:gap-2">${badges}</div>
     <div class="pt-3 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
         <a class="text-sm font-semibold text-[#00595c] underline underline-offset-4 hover:text-[#e8a838] transition-colors text-center sm:text-left" href="${link}" target="_blank" data-lank="villkor">Läs fullständiga villkor</a>
-        <a href="${link}" target="_blank" data-lank="bolaget" class="bg-[#e8a838] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#f0c273] transition-all flex items-center justify-center gap-2 no-underline text-sm sm:text-base">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+        <a href="${link}" target="_blank" data-lank="bolaget" class="bg-[#e8a838] text-white font-bold px-6 py-3 rounded-xl hover:bg-[#f0c273] transition-all flex items-center justify-center gap-2 no-underline text-sm sm:text-base">Gå till bolaget <span aria-hidden="true" class="material-symbols-outlined text-sm">arrow_forward</span></a>
     </div>
 </article>`;
     }
@@ -793,14 +793,14 @@
         </div>
     </div>
     <div class="flex flex-wrap gap-2">
-        <div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
-        <div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
-        ${maxMkr ? `<div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span class="material-symbols-outlined text-sm">payments</span>Inget registrerat maxtak</div>'}
+        <div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span aria-hidden="true" class="material-symbols-outlined text-sm">calendar_today</span>${ins.teckningsalder || `${ins.teckningsalder_min}–${ins.teckningsalder_max}`} år</div>
+        <div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span aria-hidden="true" class="material-symbols-outlined text-sm">hourglass_empty</span>Gäller till ${ins.slutalder} år</div>
+        ${maxMkr ? `<div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span aria-hidden="true" class="material-symbols-outlined text-sm">payments</span>Max ${maxMkr} Mkr</div>` : '<div class="bg-gray-50 px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 border border-gray-100 text-xs sm:text-sm font-medium text-gray-500"><span aria-hidden="true" class="material-symbols-outlined text-sm">payments</span>Inget registrerat maxtak</div>'}
     </div>
     ${badges ? `<div class="flex flex-wrap gap-1.5 sm:gap-2">${badges}</div>` : ''}
     <div class="pt-3 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
         <a class="text-sm font-semibold text-[#00595c]/50 underline underline-offset-4 hover:text-[#00595c] transition-colors text-center sm:text-left" href="${link}" target="_blank" data-lank="villkor">Läs fullständiga villkor</a>
-        <a href="${link}" target="_blank" data-lank="bolaget" class="bg-gray-200 text-gray-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2 no-underline text-sm">Gå till bolaget <span class="material-symbols-outlined text-sm">arrow_forward</span></a>
+        <a href="${link}" target="_blank" data-lank="bolaget" class="bg-gray-200 text-gray-600 font-bold px-6 py-3 rounded-xl hover:bg-gray-300 transition-all flex items-center justify-center gap-2 no-underline text-sm">Gå till bolaget <span aria-hidden="true" class="material-symbols-outlined text-sm">arrow_forward</span></a>
     </div>
 </article>`;
     }
@@ -819,7 +819,7 @@
             </div>
         </div>
         <div class="flex items-center gap-2 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
-            <span class="material-symbols-outlined text-red-400">block</span>
+            <span aria-hidden="true" class="material-symbols-outlined text-red-400">block</span>
             <div>
                 <p class="text-xs font-bold text-red-500 uppercase tracking-wide">Exkluderad</p>
                 <p class="text-sm text-gray-600">${reason}</p>
@@ -830,7 +830,7 @@
     }
 
     function badge(icon, text, type) {
-        return `<span class="tg tg-${type}"><span class="material-symbols-outlined text-[14px]">${icon}</span>${text}</span>`;
+        return `<span class="tg tg-${type}"><span aria-hidden="true" class="material-symbols-outlined text-[14px]">${icon}</span>${text}</span>`;
     }
 
     function escapeHtml(s) {

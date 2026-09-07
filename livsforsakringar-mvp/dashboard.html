@@ -299,7 +299,7 @@
     <p>Anonym besöksdata för Livförsäkringar.se.</p>
     <input type="password" id="losen" placeholder="Lösenord" autocomplete="current-password" required/>
     <button class="btn" type="submit" id="login-btn">
-      <span class="material-symbols-outlined" style="font-size:19px">lock_open</span>
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:19px">lock_open</span>
       <span id="login-btn-text">Logga in</span>
     </button>
     <div class="fel hidden" id="login-fel"></div>
@@ -310,7 +310,7 @@
 <div id="dash" class="hidden">
   <header class="top">
     <div class="top-inner">
-      <div class="brand"><span class="material-symbols-outlined">shield_with_heart</span> Statistik</div>
+      <div class="brand"><span aria-hidden="true" class="material-symbols-outlined">shield_with_heart</span> Statistik</div>
       <div class="top-spacer"></div>
       <div class="segment" id="period">
         <button data-dagar="7">7 d</button>
@@ -319,23 +319,23 @@
         <button data-dagar="365">1 år</button>
       </div>
       <button class="icon-btn" id="testvaxel" title="Visa/dölj testdata" aria-pressed="false">
-        <span class="material-symbols-outlined" style="font-size:19px">science</span>
+        <span aria-hidden="true" class="material-symbols-outlined" style="font-size:19px">science</span>
       </button>
       <button class="icon-btn" id="uppdatera" title="Uppdatera">
-        <span class="material-symbols-outlined" style="font-size:19px">refresh</span>
+        <span aria-hidden="true" class="material-symbols-outlined" style="font-size:19px">refresh</span>
       </button>
     </div>
   </header>
 
   <main>
     <div class="tomhint" id="tomhint">
-      <span class="material-symbols-outlined">info</span>
+      <span aria-hidden="true" class="material-symbols-outlined">info</span>
       <span class="txt" id="tomhint-text"></span>
       <button type="button" id="tomhint-knapp">Visa testdata</button>
     </div>
 
     <div class="testbanner" id="testbanner">
-      <span class="material-symbols-outlined">science</span>
+      <span aria-hidden="true" class="material-symbols-outlined">science</span>
       <span><strong>Testdata visas.</strong> Siffrorna nedan innehåller rader från testriggen och
       speglar inte riktiga besökare. Klicka på kolven igen för att dölja dem.</span>
     </div>
@@ -344,55 +344,55 @@
 
     <div class="grid cards">
       <div class="card wide">
-        <h2><span class="material-symbols-outlined">show_chart</span> Trafik över tid</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">show_chart</span> Trafik över tid</h2>
         <div class="hint">Sökningar och klick vidare per dag</div>
         <div class="chart-wrap"><canvas id="c-tid"></canvas></div>
       </div>
 
       <div class="card wide">
-        <h2><span class="material-symbols-outlined">emoji_events</span> Populäraste bolagen</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">emoji_events</span> Populäraste bolagen</h2>
         <div class="hint">Antal klick vidare till bolagets sajt</div>
         <div class="chart-wrap tall"><canvas id="c-bolag"></canvas></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">tune</span> Filteranvändning</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">tune</span> Filteranvändning</h2>
         <div class="hint">Hur ofta varje filter aktiveras</div>
         <div class="chart-wrap"><canvas id="c-filter"></canvas></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">layers</span> Vanligaste kombinationerna</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">layers</span> Vanligaste kombinationerna</h2>
         <div class="hint">Filter som används tillsammans</div>
         <div class="lista" id="l-kombo"></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">groups</span> Åldersfördelning</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">groups</span> Åldersfördelning</h2>
         <div class="hint">Vilka åldrar använder jämförelsen</div>
         <div class="chart-wrap"><canvas id="c-alder"></canvas></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">payments</span> Önskat belopp</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">payments</span> Önskat belopp</h2>
         <div class="hint">Vilka försäkringsbelopp efterfrågas</div>
         <div class="chart-wrap"><canvas id="c-belopp"></canvas></div>
       </div>
 
       <div class="card wide">
-        <h2><span class="material-symbols-outlined">search_off</span> Sökningar utan träffar</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">search_off</span> Sökningar utan träffar</h2>
         <div class="hint">Filterkombinationer som ger noll resultat — här tappar ni besökare</div>
         <div class="lista" id="l-noll"></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">devices</span> Enhet</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">devices</span> Enhet</h2>
         <div class="hint">Mobil eller dator</div>
         <div class="chart-wrap"><canvas id="c-enhet"></canvas></div>
       </div>
 
       <div class="card wide">
-        <h2><span class="material-symbols-outlined">route</span> Enskilda besök</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">route</span> Enskilda besök</h2>
         <div class="hint">Varje besök för sig — vad någon faktiskt gjorde, steg för steg</div>
         <div class="urval" id="urval">
           <button data-urval="senaste" class="on">Senaste</button>
@@ -406,7 +406,7 @@
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">format_list_numbered</span> Klickad position</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">format_list_numbered</span> Klickad position</h2>
         <div class="hint">Vilken plats i listan klickas — 0 är översta kortet</div>
         <div class="lista" id="l-position"></div>
       </div>
@@ -590,7 +590,7 @@
   function lista(id, rader, varning, tomText) {
     var el = $(id);
     if (!rader || !rader.length) {
-      el.innerHTML = '<div class="tom"><span class="material-symbols-outlined">' +
+      el.innerHTML = '<div class="tom"><span aria-hidden="true" class="material-symbols-outlined">' +
         (varning ? 'check_circle' : 'inbox') + '</span>' + (tomText || 'Ingen data än') + '</div>';
       return;
     }
@@ -628,7 +628,7 @@
       m.style.paddingTop = '60px';
       p.appendChild(m);
     }
-    m.innerHTML = '<span class="material-symbols-outlined">bar_chart</span>' + (text || 'Ingen data än');
+    m.innerHTML = '<span aria-hidden="true" class="material-symbols-outlined">bar_chart</span>' + (text || 'Ingen data än');
     m.style.display = '';
     return true;
   }
@@ -798,7 +798,7 @@
     $('tidslinje').innerHTML = '';
     var rader = (d && d.resor) || [];
     if (!rader.length) {
-      el.innerHTML = '<div class="tom"><span class="material-symbols-outlined">inbox</span>' +
+      el.innerHTML = '<div class="tom"><span aria-hidden="true" class="material-symbols-outlined">inbox</span>' +
         'Inga besök matchar det här urvalet' +
         (!visaTest ? ' — testdata är dold, prova kolven i toppraden' : '') + '</div>';
       return;
