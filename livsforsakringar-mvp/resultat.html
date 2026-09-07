@@ -525,8 +525,25 @@
 </div>
 
 </div><!-- end results-wrapper -->
+
+<!-- Frivillig ortsfråga. Ligger efter resultaten, så den inte kostar något i
+     tratten. Dold tills js/ortfraga.js bekräftat att kommunlistan laddat. -->
+<section id="ortfraga" hidden class="col-span-12 lg:col-span-9 lg:col-start-4 mt-6">
+<div class="bg-white/70 rounded-2xl border border-[#00595c]/10 px-4 py-4 sm:px-6 flex flex-col sm:flex-row sm:items-center gap-3">
+<label for="ort-input" class="font-headline text-sm font-semibold text-[#00595c] shrink-0">Var bor du?</label>
+<input id="ort-input" list="kommuner-lista" type="text" autocomplete="off" enterkeyhint="done"
+       placeholder="t.ex. Växjö" maxlength="40"
+       class="w-full sm:w-52 rounded-xl border border-[#00595c]/15 bg-white px-3 py-2 text-sm text-[#00595c] placeholder:text-[#00595c]/35 focus:border-[#0D7377] focus:outline-none focus:ring-2 focus:ring-[#0D7377]/20 transition-colors">
+<datalist id="kommuner-lista"></datalist>
+<p id="ort-tack" hidden class="text-sm font-semibold text-[#0D7377]">Tack!</p>
+<p class="text-xs text-[#00595c]/50 sm:ml-auto sm:text-right">Frivilligt. Hjälper oss se var<br class="hidden sm:inline"> jämförelsen behöver bli bättre.</p>
+</div>
+</section>
+
+<script defer src="js/kommuner.js"></script>
 <script defer src="js/analytics.js"></script>
 <script defer src="js/render-results.js"></script>
+<script defer src="js/ortfraga.js"></script>
 </div><!-- end main grid -->
 </main>
 <!-- Mobile filter FAB -->
