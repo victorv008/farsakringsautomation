@@ -6,6 +6,18 @@
 <title>Statistik – Livförsäkringar.se</title>
 <meta name="robots" content="noindex, nofollow"/>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<!-- Hemskärms-genväg. Bara den här sidan blir en "egen app" — huvudsajten
+     rörs inte. manifest.scope och start_url pekar båda på /dashboard, så
+     genvägen alltid öppnar hit, aldrig i huvudsajtens webbläsarflöde. -->
+<link rel="manifest" href="/manifest-dashboard.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0D7377">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Statistik">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
