@@ -373,40 +373,10 @@
         }
     }
 
-    /**
-     * Besökarens eget svar på ortsfrågan.
-     *
-     * Skrivs som en egen händelse i stället för att uppdatera lan/stad på
-     * raderna. Det är hela poängen: lan och stad förblir vad IP gissade, så
-     * de två kan jämföras och vi kan mäta hur ofta gissningen träffade rätt.
-     * Skrev vi över dem hade kalibreringen blivit meningslös.
-     *
-     * Loggas bara om texten matchar en riktig svensk kommun, och bara en
-     * gång per besök.
-     */
-    var harAngettOrt = false;
-
-    function loggaOrt(namn) {
-        try {
-            if (harAngettOrt) return false;
-            var K = window.Kommuner;
-            if (!K) return false;
-            var ort = K.tillOrt(namn);
-            if (!ort) return false;
-            harAngettOrt = true;
-            loggaHandelse('ort_angiven', { ort: ort });
-            spola();                              // svaret kommer sent i besöket
-            return true;
-        } catch (e) {
-            return false;
-        }
-    }
-
     window.Analytics = {
         loggaSokning: loggaSokning,
         loggaKlick: loggaKlick,
         loggaHandelse: loggaHandelse,
-        loggaOrt: loggaOrt,
         spola: spola,
         // Läses av testriggen för att koppla ihop rader med rätt körning
         sokId: sokId,

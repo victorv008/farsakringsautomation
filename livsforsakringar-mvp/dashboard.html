@@ -225,6 +225,19 @@
   .rad.varning .val{color:#b8791f;}
 
   .tom{text-align:center;padding:26px 14px;color:var(--muted);font-size:13px;}
+
+  /* ── Plats ── */
+  .plats-grid{display:grid;grid-template-columns:1fr;gap:20px;}
+  @media(min-width:760px){.plats-grid{grid-template-columns:1fr 1fr;}}
+  .plats-rubrik{
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:11px;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;
+  }
+  .plats-rubrik em{font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;opacity:.75;}
+  .notis{margin-top:16px;padding:11px 13px;border-radius:12px;font-size:12.5px;line-height:1.6;}
+  .notis.varnar{background:rgba(232,168,56,.10);border:1px solid rgba(232,168,56,.30);color:#8a5b12;}
+  .notis.lugn{background:rgba(13,115,119,.05);border:1px solid var(--line-strong);color:var(--teal);}
+  .plats-fot{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.6;}
   .tom .material-symbols-outlined{font-size:30px;opacity:.4;display:block;margin-bottom:7px;}
 
   /* ── Resvy ── */
@@ -389,6 +402,26 @@
         <h2><span aria-hidden="true" class="material-symbols-outlined">devices</span> Enhet</h2>
         <div class="hint">Mobil eller dator</div>
         <div class="chart-wrap"><canvas id="c-enhet"></canvas></div>
+      </div>
+
+      <!-- Mobil och dator visas som två separata fördelningar och slås ALDRIG
+           ihop. Skillnaden mellan dem är själva måttet på hur opålitligt
+           IP-uppslaget är — slås de ihop försvinner just den signalen. -->
+      <div class="card wide">
+        <h2><span aria-hidden="true" class="material-symbols-outlined">travel_explore</span> Var besökarna finns</h2>
+        <div class="hint">Ungefärlig ort, härledd ur IP-adressen. Mobil och dator läses var för sig.</div>
+        <div class="plats-grid">
+          <div>
+            <div class="plats-rubrik">Dator <em id="plats-n-dator"></em></div>
+            <div class="lista" id="l-plats-dator"></div>
+          </div>
+          <div>
+            <div class="plats-rubrik">Mobil <em id="plats-n-mobil"></em></div>
+            <div class="lista" id="l-plats-mobil"></div>
+          </div>
+        </div>
+        <div id="plats-notis" class="notis lugn" hidden></div>
+        <div class="plats-fot" id="plats-fot"></div>
       </div>
 
       <div class="card wide">
@@ -569,6 +602,8 @@
       return { namn: x.namn === '0' ? 'Position 1 (översta)' : 'Position ' + (parseInt(x.namn, 10) + 1), antal: x.antal };
     }));
 
+    ritaPlats(d.plats, d.plats_fel);
+
     var testInfo = '';
     if (d.testrader && (d.testrader.sokningar || d.testrader.klick)) {
       testInfo = ' · varav ' + d.testrader.sokningar + ' testsökningar och ' +
@@ -579,6 +614,70 @@
 
     kollaDoldTestdata(d);
     laddaResor();
+  }
+
+  /**
+   * Platskortet.
+   *
+   * Osäkerheten MÄTS, den påstås inte. Divergensen är avståndet mellan
+   * mobilens och datorns fördelningar, räknad på egen data. Är den låg
+   * försvinner varningen av sig själv — då är siffrorna faktiskt användbara.
+   * En hårdkodad etikett "mobil är opålitlig" hade sagt samma sak varje dag
+   * oavsett verkligheten och därför ignorerats inom en vecka.
+   */
+  function ritaPlats(p, fel) {
+    var notis = $('plats-notis');
+
+    if (fel || !p) {
+      lista('l-plats-dator', [], false, fel ? 'Kunde inte hämta platsdata' : 'Ingen data än');
+      lista('l-plats-mobil', [], false, 'Ingen data än');
+      $('plats-n-dator').textContent = '';
+      $('plats-n-mobil').textContent = '';
+      $('plats-fot').textContent = fel ? String(fel) : '';
+      notis.hidden = true;
+      return;
+    }
+
+    $('plats-n-dator').textContent = '· ' + p.dator.besok + ' besök';
+    $('plats-n-mobil').textContent = '· ' + p.mobil.besok + ' besök';
+    lista('l-plats-dator', p.dator.topplista, false, 'Ingen data än');
+    lista('l-plats-mobil', p.mobil.topplista, false, 'Ingen data än');
+
+    /* Divergensen i ord. Trösklarna är trubbiga med flit — poängen är att
+       säga vilken kolumn som går att lita på, inte att redovisa ett mått. */
+    var d = p.divergens_procent;
+    if (p.for_lite_data || d === null) {
+      notis.className = 'notis lugn';
+      notis.textContent = 'För lite data för att jämföra mobil och dator ännu. ' +
+        'Det krävs minst 50 besök i vardera gruppen.';
+    } else if (d > 35) {
+      notis.className = 'notis varnar';
+      notis.innerHTML = '<strong>Mobilens fördelning är kraftigt förskjuten (' + d + '%).</strong> ' +
+        'Det är sannolikt operatörernas nätnoder och inte var besökarna bor — ' +
+        'svensk mobiltrafik dirigeras genom ett fåtal noder, mest i Stockholmsregionen. ' +
+        'Läs datorkolumnen; läs inte mobilkolumnen som geografi.';
+    } else if (d > 15) {
+      notis.className = 'notis varnar';
+      notis.innerHTML = '<strong>Mobilens fördelning skiljer sig märkbart (' + d + '%).</strong> ' +
+        'En del av skillnaden är sannolikt operatörernas nätnoder. Datorkolumnen är den säkrare.';
+    } else {
+      notis.className = 'notis lugn';
+      notis.innerHTML = '<strong>Mobil och dator ger ungefär samma bild (' + d + '%).</strong> ' +
+        'Ortsuppgifterna verkar spegla verkliga besökare.';
+    }
+    notis.hidden = false;
+
+    var fot = [];
+    if (p.saknas_procent > 0) {
+      fot.push(p.saknas_procent + '% av besöken saknar ort — de lämnade innan uppslaget hann klart. ' +
+        'De besöken är systematiskt kortare än snittet, så ortsfördelningen lutar mot långsammare besök.');
+    }
+    if (p.varierade_procent > 0) {
+      fot.push(p.varierade_procent + '% av besöken bytte län mitt i besöket — det är nätnodsbyten, inte flyttar.');
+    }
+    fot.push('Orter med färre än ' + p.k_troskel + ' besök redovisas som "Övrigt".');
+    fot.push('Orten visas aldrig på en enskild besöksresa, bara i sammanräkningen här.');
+    $('plats-fot').textContent = fot.join(' ');
   }
 
   function kpi(label, value, sub, amber) {
