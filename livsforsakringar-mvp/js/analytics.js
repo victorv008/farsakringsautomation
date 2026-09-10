@@ -5,7 +5,13 @@
  * vidare till ett bolag. Kopplas ihop med ett slumpmässigt sok_id som ligger
  * i sessionStorage och försvinner när fliken stängs.
  *
- * Ingen IP, inga cookies, ingen identifierare som överlever ett besök.
+ * Ingen IP sparas, inga cookies, ingen identifierare som överlever ett besök.
+ *
+ * Ungefärlig plats hämtas från vår egen /api/plats, som läser Vercels
+ * geo-header och svarar med landskod, länskod och ortsnamn — aldrig med
+ * IP-adressen och aldrig med koordinater. Uppslaget är grovt och ofta fel
+ * för mobiltrafik, eftersom svenska operatörer dirigerar trafik genom ett
+ * fåtal noder; se divergensmåttet i dashboarden.
  *
  * Allt är inkapslat i try/catch och tysta promise-avslag. Om loggningen
  * fallerar — blockerad av adblock, offline, Supabase nere — ska besökaren
@@ -128,6 +134,63 @@
         }
     }
 
+    /* ── Ungefärlig plats ───────────────────────────────────────────────── */
+
+    /**
+     * Uppslaget görs en gång per besök och cachas i sessionStorage bredvid
+     * sok_id. Kön hålls INTE tillbaka i väntan på svaret: den spolas på
+     * pagehide, och en besökare som studsar på en sekund ska förlora länet,
+     * inte hela sin resa. De första en–två händelserna får därför lan = null.
+     *
+     * Följden är en bias, inte brus — besök utan län är systematiskt
+     * kortare. Dashboarden måste alltid visa hur stor andel som saknas.
+     *
+     * All tolkning av ortsnamnet sker i js/kommuner.js. Servern skickar bara
+     * vidare vad Vercel sa; ett namn som inte är en svensk kommun blir null.
+     */
+    var plats = null;
+
+    function laddaPlatsCache() {
+        try {
+            var s = sessionStorage.getItem('ins_plats');
+            if (!s) return false;
+            var p = JSON.parse(s);
+            if (p && typeof p === 'object') { plats = p; return true; }
+        } catch (e) { /* tyst */ }
+        return false;
+    }
+
+    function tolkaPlats(svar) {
+        var K = window.Kommuner;
+        if (!K) return { lan: null, stad: null };       // kommuner.js ej laddad
+
+        var land = svar && typeof svar.land === 'string' ? svar.land : null;
+        if (!land) return { lan: 'okand', stad: null };
+        if (land !== 'SE') return { lan: 'utland', stad: null };
+
+        var ort = K.tillOrt(svar.ort);
+        // Länskoden är förstahandskällan; ortnamnet är reserv när koden
+        // saknas men orten går att känna igen.
+        var lan = K.lanForKod(svar.region) || K.lanForOrt(svar.ort) || 'okand';
+        return { lan: lan, stad: ort };
+    }
+
+    function hamtaPlats() {
+        try {
+            if (laddaPlatsCache()) return;
+            fetch('/api/plats', { credentials: 'omit', cache: 'no-store' })
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .then(function (j) {
+                    if (!j || typeof j !== 'object') return;
+                    plats = tolkaPlats(j);
+                    try { sessionStorage.setItem('ins_plats', JSON.stringify(plats)); } catch (e) { /* tyst */ }
+                })
+                .catch(function () { /* tyst — platsen är en bonus, inte ett krav */ });
+        } catch (e) {
+            /* tyst */
+        }
+    }
+
     /* ── Skicka ─────────────────────────────────────────────────────────── */
 
     function skicka(tabell, rad) {
@@ -215,6 +278,10 @@
                 alder: Number.isFinite(t.alder) ? t.alder : null,
                 belopp: Number.isFinite(t.belopp) ? t.belopp : null,
                 antal_traffar: Number.isFinite(t.antalTraffar) ? t.antalTraffar : null,
+                // Sätts ALLTID, null när uppslaget inte hunnit landa — se
+                // kontraktet ovan. Aldrig villkorligt.
+                lan: (plats && plats.lan) || null,
+                stad: (plats && plats.stad) || null,
                 data: (data && typeof data === 'object' && !Array.isArray(data)) ? data : {}
             });
         } catch (e) {
@@ -229,6 +296,7 @@
     function starta() {
         try {
             msSedanStart();                       // sätter ins_start första gången
+            hamtaPlats();                         // först, så uppslaget hinner så långt det hinner
             var ref = 'direkt';
             try {
                 if (document.referrer) {

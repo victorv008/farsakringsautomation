@@ -81,6 +81,93 @@ function gruppera(varden: number[], grupper: { namn: string; min: number; max: n
   }));
 }
 
+/* ── Plats ─────────────────────────────────────────────────────────────────
+   Mobil och dator hålls isär, alltid. Skillnaden mellan de två
+   fördelningarna ÄR måttet på hur opålitligt IP-uppslaget är: svenska
+   operatörer dirigerar mobiltrafik genom ett fåtal noder, mest i
+   Stockholmsregionen, så en mobilfördelning som lutar kraftigt mot
+   Stockholm medan datorfördelningen inte gör det är bevis på nätnoder, inte
+   på var besökarna bor. Slås de ihop försvinner just den signalen.
+
+   Osäkerheten mäts alltså, den påstås inte. En hårdkodad etikett
+   "mobil är opålitlig" hade sagt samma sak varje dag oavsett verkligheten
+   och därför ignorerats inom en vecka. */
+
+type PlatsRad = {
+  enhet: string;
+  lan: string;
+  stad: string | null;
+  besok: number;
+  varierade: number;
+};
+
+// Under så här många besök på en ort redovisas den som "Övrigt".
+const K_TROSKEL = 5;
+
+function platsEtikett(r: PlatsRad): string {
+  if (r.lan === "saknas") return "(hann inte hämtas)";
+  if (r.lan === "utland") return "Utanför Sverige";
+  if (r.stad) return r.stad;
+  return "(ort okänd)";
+}
+
+// Etiketter som inte pekar ut någon och därför inte omfattas av k-tröskeln.
+const EJ_IDENTIFIERANDE = new Set(["(hann inte hämtas)", "Utanför Sverige", "(ort okänd)"]);
+
+function anonymisera(karta: Record<string, number>) {
+  const ut: Record<string, number> = {};
+  let smatt = 0;
+  for (const [namn, n] of Object.entries(karta)) {
+    if (EJ_IDENTIFIERANDE.has(namn)) { ut[namn] = n; continue; }
+    if (n < K_TROSKEL) smatt += n; else ut[namn] = n;
+  }
+  if (smatt) ut["Övrigt"] = (ut["Övrigt"] ?? 0) + smatt;
+  return ut;
+}
+
+function platsBlock(rader: PlatsRad[]) {
+  const per: Record<string, Record<string, number>> = { mobil: {}, desktop: {}, okand: {} };
+  let totalt = 0, saknas = 0, varierade = 0;
+
+  for (const r of rader) {
+    const e = per[r.enhet] ? r.enhet : "okand";
+    const etikett = platsEtikett(r);
+    per[e][etikett] = (per[e][etikett] ?? 0) + Number(r.besok);
+    totalt += Number(r.besok);
+    varierade += Number(r.varierade);
+    if (r.lan === "saknas") saknas += Number(r.besok);
+  }
+
+  // k-tröskeln läggs EFTER uppdelningen, inte före. Uppdelningen halverar
+  // varje cell, så den är i sig en integritetskostnad som måste räknas på.
+  const m = anonymisera(per.mobil);
+  const d = anonymisera(per.desktop);
+  const summa = (k: Record<string, number>) => Object.values(k).reduce((a, b) => a + b, 0);
+  const nM = summa(m), nD = summa(d);
+
+  // Total variation distance mellan fördelningarna, 0–100. Låg = mobil och
+  // dator ser likadana ut, alltså troligen verkliga besökare. Hög = mobilen
+  // är förskjuten, alltså troligen nätnoder.
+  let divergens: number | null = null;
+  if (nM >= 50 && nD >= 50) {
+    const alla = new Set([...Object.keys(m), ...Object.keys(d)]);
+    let s = 0;
+    for (const k of alla) s += Math.abs((m[k] ?? 0) / nM - (d[k] ?? 0) / nD);
+    divergens = Math.round(s * 50);
+  }
+
+  return {
+    dator: { besok: nD, topplista: topplista(d, 14) },
+    mobil: { besok: nM, topplista: topplista(m, 14) },
+    besok_totalt: totalt,
+    saknas_procent: totalt ? Math.round((saknas / totalt) * 1000) / 10 : 0,
+    varierade_procent: totalt ? Math.round((varierade / totalt) * 1000) / 10 : 0,
+    divergens_procent: divergens,
+    for_lite_data: nM < 50 || nD < 50,
+    k_troskel: K_TROSKEL,
+  };
+}
+
 /* ── Huvudhanterare ───────────────────────────────────────────────────── */
 
 Deno.serve(async (req: Request) => {
@@ -186,9 +273,13 @@ Deno.serve(async (req: Request) => {
     klickQ = klickQ.eq("ar_test", false);
   }
 
-  const [sokRes, klickRes] = await Promise.all([
+  const [sokRes, klickRes, platsRes] = await Promise.all([
     sokQ.order("skapad_at", { ascending: false }).limit(RAD_TAK),
     klickQ.order("skapad_at", { ascending: false }).limit(RAD_TAK),
+    // Aggregeras i SQL, inte här: funktionen trycker ned datumfiltret till
+    // det indexerade skapad_at före grupperingen, och RAD_TAK kan inte kapa
+    // resultatet på vägen.
+    db.rpc("plats_oversikt", { fran, visa_test: visaTest }),
   ]);
 
   if (sokRes.error || klickRes.error) {
@@ -271,6 +362,10 @@ Deno.serve(async (req: Request) => {
       BELOPPSGRUPPER,
     ),
     enhet: topplista(rakna(sokningar.map((s) => (s.enhet ?? "okänd") as string))),
+    // Platsblocket får aldrig fälla hela dashboarden. Går RPC:n fel visas
+    // kortet som tomt, resten fungerar.
+    plats: platsRes.error ? null : platsBlock((platsRes.data ?? []) as PlatsRad[]),
+    plats_fel: platsRes.error ? platsRes.error.message : null,
     sortering: topplista(rakna(klick.map((k) => (k.sortering ?? "okänd") as string))),
     position: topplista(rakna(klick.map((k) => String(k.klick_position ?? "?"))), 10),
     tidsserie,

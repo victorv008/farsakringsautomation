@@ -3,7 +3,7 @@
 <html class="light" lang="sv"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Dina livförsäkringsalternativ – jämför och välj</title>
+<title>Dina livförsäkringsalternativ | Livförsäkringar.se</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
 <meta name="description" content="Se vilka livförsäkringsbolag som matchar dina uppgifter. Jämför åldersgränser, belopp och villkor sida vid sida."/>
 <link rel="canonical" href="https://www.livforsakringar.se/resultat">
@@ -305,7 +305,7 @@
 <div class="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-8 py-4 sm:py-5">
 <!-- Brand -->
 <a href="/" class="flex items-center gap-2">
-<span class="material-symbols-outlined text-brand-amber fill text-3xl">shield_with_heart</span>
+<img src="/favicon.svg" alt="" width="30" height="30" class="w-[30px] h-[30px] shrink-0" aria-hidden="true">
 <span class="text-2xl font-bold tracking-tight text-[#00595c]">Livförsäkringar.se</span>
 </a>
 <!-- Navigation Links -->
@@ -317,10 +317,10 @@
 </nav>
 <!-- Trailing Action -->
 <a href="/" class="nav-cta hidden lg:inline-flex items-center gap-2 font-headline font-bold text-sm">
-    <span class="material-symbols-outlined text-[18px]">search</span>
+    <span aria-hidden="true" class="material-symbols-outlined text-[18px]">search</span>
     Jämför nu
 </a>
-<button id="mobile-menu-toggle" class="lg:hidden text-[#00595c]" aria-label="Öppna meny" aria-expanded="false"><span class="material-symbols-outlined">menu</span></button>
+<button id="mobile-menu-toggle" class="lg:hidden text-[#00595c]" aria-label="Öppna meny" aria-expanded="false"><span aria-hidden="true" class="material-symbols-outlined">menu</span></button>
 </div>
 <nav id="mobile-menu" class="mobile-menu">
 <a class="nav-link nav-link--active" href="/">Jämför</a>
@@ -328,7 +328,7 @@
 <a class="nav-link" href="/faq">Vanliga frågor</a>
 <a class="nav-link" href="/om-oss">Om oss</a>
 <a class="nav-cta" href="/">
-    <span class="material-symbols-outlined text-[18px]">search</span>
+    <span aria-hidden="true" class="material-symbols-outlined text-[18px]">search</span>
     Jämför nu
 </a>
 </nav>
@@ -344,14 +344,14 @@
 <div class="flex items-center justify-between max-w-2xl mx-auto mb-5 sm:mb-8">
 <div class="flex flex-col items-center gap-2">
 <div class="w-8 h-8 rounded-full bg-[#00595c] text-white flex items-center justify-center font-bold text-sm">
-<span class="material-symbols-outlined text-sm">check</span>
+<span aria-hidden="true" class="material-symbols-outlined text-sm">check</span>
 </div>
 <span class="text-xs font-label text-[#00595c]/70 font-medium">Uppgifter</span>
 </div>
 <div class="flex-grow h-0.5 bg-[#00595c] mx-4"></div>
 <div class="flex flex-col items-center gap-2">
 <div class="w-8 h-8 rounded-full bg-[#00595c] text-white flex items-center justify-center font-bold text-sm">
-<span class="material-symbols-outlined text-sm">check</span>
+<span aria-hidden="true" class="material-symbols-outlined text-sm">check</span>
 </div>
 <span class="text-xs font-label text-[#00595c]/70 font-medium">Filtrera</span>
 </div>
@@ -365,7 +365,7 @@
 </div>
 <!-- Context Banner -->
 <div class="bg-[#f3f3f3] rounded-xl p-6 flex items-start sm:items-center gap-4 text-[#00595c]/80 border-none">
-<span class="material-symbols-outlined text-[#00595c] text-2xl shrink-0">info</span>
+<span aria-hidden="true" class="material-symbols-outlined text-[#00595c] text-2xl shrink-0">info</span>
 <div>
 <p id="context-banner" class="font-body text-sm leading-relaxed">Livförsäkringar.se lämnar ingen rådgivning – kontakta bolaget direkt för personlig rådgivning.</p>
 </div>
@@ -381,7 +381,7 @@
         </div>
         <button type="button" id="uppgifter-andra"
             class="shrink-0 inline-flex items-center gap-2 bg-[#00595c]/5 hover:bg-[#00595c]/10 text-[#00595c] font-headline font-bold text-sm px-4 py-2.5 rounded-xl border border-[#00595c]/15 transition-colors">
-            <span class="material-symbols-outlined text-[18px]">tune</span>
+            <span aria-hidden="true" class="material-symbols-outlined text-[18px]">tune</span>
             Ändra
         </button>
     </div>
@@ -432,10 +432,10 @@
         <div id="filter-panel" class="bg-white rounded-2xl shadow-sm border border-[#00595c]/5 p-6 relative">
 <h2 id="filter-panel-title" class="font-headline font-bold text-lg text-[#00595c] mb-2 flex items-center justify-between">
                         Sortera &amp; Filtrera
-                        <span class="material-symbols-outlined text-[#00595c]/70">tune</span>
+                        <span aria-hidden="true" class="material-symbols-outlined text-[#00595c]/70">tune</span>
 </h2>
 <button id="clear-filters" class="hidden mb-6 text-sm text-[#00595c] font-semibold underline underline-offset-4 hover:text-[#e8a838] transition-colors flex items-center gap-1">
-    <span class="material-symbols-outlined text-[16px]">restart_alt</span>
+    <span aria-hidden="true" class="material-symbols-outlined text-[16px]">restart_alt</span>
     Rensa alla filter
 </button>
 <div id="filter-spacer" class="mb-6"></div>
@@ -520,18 +520,20 @@
 
 <!-- Loading state — replaced by render-results.js -->
 <div class="text-center py-16">
-    <span class="material-symbols-outlined text-4xl text-[#00595c] animate-spin">progress_activity</span>
+    <span aria-hidden="true" class="material-symbols-outlined text-4xl text-[#00595c] animate-spin">progress_activity</span>
     <p class="text-[#00595c]/60 mt-4 font-headline">Hämtar försäkringar...</p>
 </div>
 
 </div><!-- end results-wrapper -->
+
+<script defer src="js/kommuner.js"></script>
 <script defer src="js/analytics.js"></script>
 <script defer src="js/render-results.js"></script>
 </div><!-- end main grid -->
 </main>
 <!-- Mobile filter FAB -->
 <button id="mobile-filter-fab" type="button" aria-label="Öppna filter">
-    <span class="material-symbols-outlined">tune</span>
+    <span aria-hidden="true" class="material-symbols-outlined">tune</span>
     <span>Filtrera</span>
     <span id="fab-badge" class="fab-badge"></span>
 </button>
@@ -551,11 +553,11 @@
 <div id="mobile-filter-portal" role="dialog" aria-modal="true" aria-label="Filtrera" aria-hidden="true">
     <div id="mfp-header">
         <h2 style="font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:1.2rem;color:#00595c;display:flex;align-items:center;gap:0.5rem;margin:0;">
-            <span class="material-symbols-outlined" style="font-size:20px;">tune</span>
+            <span aria-hidden="true" class="material-symbols-outlined" style="font-size:20px;">tune</span>
             Sortera &amp; Filtrera
         </h2>
         <button id="mfp-close" style="width:40px;height:40px;border-radius:9999px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;border:none;cursor:pointer;" aria-label="Stäng filter">
-            <span class="material-symbols-outlined" style="color:#00595c;font-size:20px;">close</span>
+            <span aria-hidden="true" class="material-symbols-outlined" style="color:#00595c;font-size:20px;">close</span>
         </button>
     </div>
     <div id="mfp-content"></div>

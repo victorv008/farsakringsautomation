@@ -52,7 +52,7 @@
       "name": "Sparar ni mina personuppgifter?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Din ålder och ditt önskade belopp sparas i webbläsarens tillfälliga lagring under besöket och försvinner när du stänger fliken. Vi loggar dessutom anonymt vilka sökningar, filter och bolagsklick som görs, för att förstå hur sajten används. Ingen IP, inga cookies, och ingenting som kopplar ihop dina besök. Läs mer i vår <a href=\"https://www.livforsakringar.se/integritetspolicy\">integritetspolicy</a>."
+        "text": "Din ålder och ditt önskade belopp sparas i webbläsarens tillfälliga lagring under besöket och försvinner när du stänger fliken. Vi loggar dessutom anonymt vilka sökningar, filter och bolagsklick som görs, om du är på mobil eller dator, och ungefär vilken ort du surfar från. Orten slås upp ur din IP-adress när sidan laddas — IP-adressen sparas aldrig och lämnas inte vidare. Uppslaget är grovt och ofta fel för mobiltrafik. Inga cookies, och ingenting som kopplar ihop dina besök. Läs mer i vår <a href=\"https://www.livforsakringar.se/integritetspolicy\">integritetspolicy</a>."
       }
     }
   ]
@@ -117,7 +117,7 @@
 <header class="w-full z-50 bg-transparent font-headline">
     <div class="flex justify-between items-center max-w-7xl mx-auto px-6 sm:px-8 py-5 relative">
         <a class="text-2xl font-bold tracking-tight text-brand-teal flex items-center gap-2" href="/">
-            <span class="material-symbols-outlined text-[28px] text-brand-amber">shield_with_heart</span>
+            <img src="/favicon.svg" alt="" width="28" height="28" class="w-7 h-7 shrink-0" aria-hidden="true">
             Livförsäkringar.se
         </a>
         <nav class="hidden lg:flex gap-1 items-center">
@@ -127,10 +127,10 @@
             <a class="nav-link" href="/om-oss">Om oss</a>
         </nav>
         <a href="/" class="nav-cta hidden lg:inline-flex items-center gap-2 font-headline font-bold text-sm">
-            <span class="material-symbols-outlined text-[18px]">search</span>
+            <span aria-hidden="true" class="material-symbols-outlined text-[18px]">search</span>
             Jämför nu
         </a>
-        <button id="mobile-menu-toggle" class="lg:hidden text-brand-teal" aria-label="Öppna meny" aria-expanded="false"><span class="material-symbols-outlined">menu</span></button>
+        <button id="mobile-menu-toggle" class="lg:hidden text-brand-teal" aria-label="Öppna meny" aria-expanded="false"><span aria-hidden="true" class="material-symbols-outlined">menu</span></button>
     </div>
     <nav id="mobile-menu" class="mobile-menu">
         <a class="nav-link" href="/">Jämför</a>
@@ -138,7 +138,7 @@
         <a class="nav-link nav-link--active" href="/faq">Vanliga frågor</a>
         <a class="nav-link" href="/om-oss">Om oss</a>
         <a class="nav-cta" href="/">
-            <span class="material-symbols-outlined text-[18px]">search</span>
+            <span aria-hidden="true" class="material-symbols-outlined text-[18px]">search</span>
             Jämför nu
         </a>
     </nav>
@@ -159,7 +159,7 @@
         <div class="faq-item bg-white/80 backdrop-blur-sm rounded-2xl border border-brand-teal/5 shadow-[0_4px_20px_rgba(13,115,119,0.05)] cursor-pointer">
             <button class="w-full flex justify-between items-center px-8 py-6 text-left" onclick="toggleFaq(this)">
                 <span class="font-headline font-bold text-brand-teal text-lg">Vad är nedtrappning?</span>
-                <span class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
+                <span aria-hidden="true" class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
             </button>
             <div class="faq-answer px-8 text-text-muted font-body leading-relaxed text-base">
                 Nedtrappning innebär att försäkringsbeloppet minskar ju äldre du blir. Av de 16 bolag vi jämför har 5 nedtrappning, och åldern då den börjar varierar mellan bolagen (uppgifter per maj 2026). Hur mycket beloppet sänks framgår av bolagets villkor.
@@ -169,7 +169,7 @@
         <div class="faq-item bg-white/80 backdrop-blur-sm rounded-2xl border border-brand-teal/5 shadow-[0_4px_20px_rgba(13,115,119,0.05)] cursor-pointer">
             <button class="w-full flex justify-between items-center px-8 py-6 text-left" onclick="toggleFaq(this)">
                 <span class="font-headline font-bold text-brand-teal text-lg">Behöver jag fylla i en hälsodeklaration?</span>
-                <span class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
+                <span aria-hidden="true" class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
             </button>
             <div class="faq-answer px-8 text-text-muted font-body leading-relaxed text-base">
                 15 av de 16 bolag vi jämför kräver en hälsodeklaration vid tecknande (uppgifter per maj 2026). Ett bolag erbjuder försäkring utan hälsodeklaration. Belopp och åldersgränser skiljer sig åt mellan bolagen — se jämförelsen och bolagets egna villkor.
@@ -179,7 +179,7 @@
         <div class="faq-item bg-white/80 backdrop-blur-sm rounded-2xl border border-brand-teal/5 shadow-[0_4px_20px_rgba(13,115,119,0.05)] cursor-pointer">
             <button class="w-full flex justify-between items-center px-8 py-6 text-left" onclick="toggleFaq(this)">
                 <span class="font-headline font-bold text-brand-teal text-lg">Tjänar ni på att rekommendera en specifik försäkring?</span>
-                <span class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
+                <span aria-hidden="true" class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
             </button>
             <div class="faq-answer px-8 text-text-muted font-body leading-relaxed text-base">
                 Vi rekommenderar ingen specifik försäkring. I vissa fall kan vi få marknadsföringsersättning om du klickar vidare och tecknar en försäkring . Ersättningen betalas av bolaget och läggs inte på ditt pris, och den ingår inte i sorteringen — resultaten ordnas efter det sorteringsval du gör. Vi är inte finansiell rådgivare, och beslutet är ditt.
@@ -189,7 +189,7 @@
         <div class="faq-item bg-white/80 backdrop-blur-sm rounded-2xl border border-brand-teal/5 shadow-[0_4px_20px_rgba(13,115,119,0.05)] cursor-pointer">
             <button class="w-full flex justify-between items-center px-8 py-6 text-left" onclick="toggleFaq(this)">
                 <span class="font-headline font-bold text-brand-teal text-lg">Vad menas med teckningsålder?</span>
-                <span class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
+                <span aria-hidden="true" class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
             </button>
             <div class="faq-answer px-8 text-text-muted font-body leading-relaxed text-base">
                 Det är den ålder du måste ha när du tecknar (skriver under) försäkringen. Teckningsålder och slutålder är två olika gränser: har du passerat den övre teckningsåldern kan du inte teckna försäkringen, även om den gäller för andra långt upp i åldrarna. Bland bolagen vi jämför ligger den övre teckningsåldern mellan 56 och 73 år (uppgifter per maj 2026).
@@ -199,17 +199,17 @@
         <div class="faq-item bg-white/80 backdrop-blur-sm rounded-2xl border border-brand-teal/5 shadow-[0_4px_20px_rgba(13,115,119,0.05)] cursor-pointer">
             <button class="w-full flex justify-between items-center px-8 py-6 text-left" onclick="toggleFaq(this)">
                 <span class="font-headline font-bold text-brand-teal text-lg">Sparar ni mina personuppgifter?</span>
-                <span class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
+                <span aria-hidden="true" class="material-symbols-outlined faq-icon text-brand-amber shrink-0">add</span>
             </button>
             <div class="faq-answer px-8 text-text-muted font-body leading-relaxed text-base">
-                Din ålder och ditt önskade belopp sparas i webbläsarens tillfälliga lagring under besöket och försvinner när du stänger fliken. Vi loggar dessutom anonymt vilka sökningar, filter och bolagsklick som görs, för att förstå hur sajten används. Ingen IP, inga cookies, och ingenting som kopplar ihop dina besök. Läs mer i vår <a class="text-brand-teal font-semibold hover:underline" href="/integritetspolicy">integritetspolicy</a>.
+                Din ålder och ditt önskade belopp sparas i webbläsarens tillfälliga lagring under besöket och försvinner när du stänger fliken. Vi loggar dessutom anonymt vilka sökningar, filter och bolagsklick som görs, om du är på mobil eller dator, och ungefär vilken ort du surfar från. Orten slås upp ur din IP-adress när sidan laddas — IP-adressen sparas aldrig och lämnas inte vidare. Uppslaget är grovt och ofta fel för mobiltrafik. Inga cookies, och ingenting som kopplar ihop dina besök. Läs mer i vår <a class="text-brand-teal font-semibold hover:underline" href="/integritetspolicy">integritetspolicy</a>.
             </div>
         </div>
     </div>
 
     <div class="text-center mt-16">
         <a href="/" class="nav-cta inline-flex items-center gap-2 font-headline font-bold text-base px-10 py-4">
-            <span class="material-symbols-outlined">search</span>
+            <span aria-hidden="true" class="material-symbols-outlined">search</span>
             Börja jämföra nu
         </a>
     </div>
@@ -220,7 +220,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto items-center">
             <div class="flex flex-col gap-2 text-center md:text-left">
                 <span class="text-lg font-bold text-brand-teal font-headline flex items-center justify-center md:justify-start gap-2">
-                    <span class="material-symbols-outlined text-[20px] text-brand-amber">shield_with_heart</span>
+                    <img src="/favicon.svg" alt="" width="20" height="20" class="w-5 h-5 shrink-0" aria-hidden="true">
                     Livförsäkringar.se
                 </span>
                 <p class="text-text-muted text-sm font-medium">© 2026 Livförsäkringar.se. Alla rättigheter förbehållna.</p>
@@ -244,6 +244,7 @@ function toggleFaq(btn) {
     if (!isOpen) item.classList.add('open');
 }
 </script>
+<script defer src="js/kommuner.js"></script>
 <script defer src="js/analytics.js"></script>
 <script src="js/transitions.js"></script>
 </body>

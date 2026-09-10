@@ -6,6 +6,18 @@
 <title>Statistik – Livförsäkringar.se</title>
 <meta name="robots" content="noindex, nofollow"/>
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
+
+<!-- Hemskärms-genväg. Bara den här sidan blir en "egen app" — huvudsajten
+     rörs inte. manifest.scope och start_url pekar båda på /dashboard, så
+     genvägen alltid öppnar hit, aldrig i huvudsajtens webbläsarflöde. -->
+<link rel="manifest" href="/manifest-dashboard.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0D7377">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Statistik">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet"/>
@@ -225,6 +237,19 @@
   .rad.varning .val{color:#b8791f;}
 
   .tom{text-align:center;padding:26px 14px;color:var(--muted);font-size:13px;}
+
+  /* ── Plats ── */
+  .plats-grid{display:grid;grid-template-columns:1fr;gap:20px;}
+  @media(min-width:760px){.plats-grid{grid-template-columns:1fr 1fr;}}
+  .plats-rubrik{
+    font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;font-size:11px;
+    letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin-bottom:9px;
+  }
+  .plats-rubrik em{font-style:normal;font-weight:600;text-transform:none;letter-spacing:0;opacity:.75;}
+  .notis{margin-top:16px;padding:11px 13px;border-radius:12px;font-size:12.5px;line-height:1.6;}
+  .notis.varnar{background:rgba(232,168,56,.10);border:1px solid rgba(232,168,56,.30);color:#8a5b12;}
+  .notis.lugn{background:rgba(13,115,119,.05);border:1px solid var(--line-strong);color:var(--teal);}
+  .plats-fot{font-size:11.5px;color:var(--muted);margin-top:14px;line-height:1.6;}
   .tom .material-symbols-outlined{font-size:30px;opacity:.4;display:block;margin-bottom:7px;}
 
   /* ── Resvy ── */
@@ -299,7 +324,7 @@
     <p>Anonym besöksdata för Livförsäkringar.se.</p>
     <input type="password" id="losen" placeholder="Lösenord" autocomplete="current-password" required/>
     <button class="btn" type="submit" id="login-btn">
-      <span class="material-symbols-outlined" style="font-size:19px">lock_open</span>
+      <span aria-hidden="true" class="material-symbols-outlined" style="font-size:19px">lock_open</span>
       <span id="login-btn-text">Logga in</span>
     </button>
     <div class="fel hidden" id="login-fel"></div>
@@ -310,7 +335,7 @@
 <div id="dash" class="hidden">
   <header class="top">
     <div class="top-inner">
-      <div class="brand"><span class="material-symbols-outlined">shield_with_heart</span> Statistik</div>
+      <div class="brand"><span aria-hidden="true" class="material-symbols-outlined">shield_with_heart</span> Statistik</div>
       <div class="top-spacer"></div>
       <div class="segment" id="period">
         <button data-dagar="7">7 d</button>
@@ -319,23 +344,23 @@
         <button data-dagar="365">1 år</button>
       </div>
       <button class="icon-btn" id="testvaxel" title="Visa/dölj testdata" aria-pressed="false">
-        <span class="material-symbols-outlined" style="font-size:19px">science</span>
+        <span aria-hidden="true" class="material-symbols-outlined" style="font-size:19px">science</span>
       </button>
       <button class="icon-btn" id="uppdatera" title="Uppdatera">
-        <span class="material-symbols-outlined" style="font-size:19px">refresh</span>
+        <span aria-hidden="true" class="material-symbols-outlined" style="font-size:19px">refresh</span>
       </button>
     </div>
   </header>
 
   <main>
     <div class="tomhint" id="tomhint">
-      <span class="material-symbols-outlined">info</span>
+      <span aria-hidden="true" class="material-symbols-outlined">info</span>
       <span class="txt" id="tomhint-text"></span>
       <button type="button" id="tomhint-knapp">Visa testdata</button>
     </div>
 
     <div class="testbanner" id="testbanner">
-      <span class="material-symbols-outlined">science</span>
+      <span aria-hidden="true" class="material-symbols-outlined">science</span>
       <span><strong>Testdata visas.</strong> Siffrorna nedan innehåller rader från testriggen och
       speglar inte riktiga besökare. Klicka på kolven igen för att dölja dem.</span>
     </div>
@@ -344,55 +369,75 @@
 
     <div class="grid cards">
       <div class="card wide">
-        <h2><span class="material-symbols-outlined">show_chart</span> Trafik över tid</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">show_chart</span> Trafik över tid</h2>
         <div class="hint">Sökningar och klick vidare per dag</div>
         <div class="chart-wrap"><canvas id="c-tid"></canvas></div>
       </div>
 
       <div class="card wide">
-        <h2><span class="material-symbols-outlined">emoji_events</span> Populäraste bolagen</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">emoji_events</span> Populäraste bolagen</h2>
         <div class="hint">Antal klick vidare till bolagets sajt</div>
         <div class="chart-wrap tall"><canvas id="c-bolag"></canvas></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">tune</span> Filteranvändning</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">tune</span> Filteranvändning</h2>
         <div class="hint">Hur ofta varje filter aktiveras</div>
         <div class="chart-wrap"><canvas id="c-filter"></canvas></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">layers</span> Vanligaste kombinationerna</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">layers</span> Vanligaste kombinationerna</h2>
         <div class="hint">Filter som används tillsammans</div>
         <div class="lista" id="l-kombo"></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">groups</span> Åldersfördelning</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">groups</span> Åldersfördelning</h2>
         <div class="hint">Vilka åldrar använder jämförelsen</div>
         <div class="chart-wrap"><canvas id="c-alder"></canvas></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">payments</span> Önskat belopp</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">payments</span> Önskat belopp</h2>
         <div class="hint">Vilka försäkringsbelopp efterfrågas</div>
         <div class="chart-wrap"><canvas id="c-belopp"></canvas></div>
       </div>
 
       <div class="card wide">
-        <h2><span class="material-symbols-outlined">search_off</span> Sökningar utan träffar</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">search_off</span> Sökningar utan träffar</h2>
         <div class="hint">Filterkombinationer som ger noll resultat — här tappar ni besökare</div>
         <div class="lista" id="l-noll"></div>
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">devices</span> Enhet</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">devices</span> Enhet</h2>
         <div class="hint">Mobil eller dator</div>
         <div class="chart-wrap"><canvas id="c-enhet"></canvas></div>
       </div>
 
+      <!-- Mobil och dator visas som två separata fördelningar och slås ALDRIG
+           ihop. Skillnaden mellan dem är själva måttet på hur opålitligt
+           IP-uppslaget är — slås de ihop försvinner just den signalen. -->
       <div class="card wide">
-        <h2><span class="material-symbols-outlined">route</span> Enskilda besök</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">travel_explore</span> Var besökarna finns</h2>
+        <div class="hint">Ungefärlig ort, härledd ur IP-adressen. Mobil och dator läses var för sig.</div>
+        <div class="plats-grid">
+          <div>
+            <div class="plats-rubrik">Dator <em id="plats-n-dator"></em></div>
+            <div class="lista" id="l-plats-dator"></div>
+          </div>
+          <div>
+            <div class="plats-rubrik">Mobil <em id="plats-n-mobil"></em></div>
+            <div class="lista" id="l-plats-mobil"></div>
+          </div>
+        </div>
+        <div id="plats-notis" class="notis lugn" hidden></div>
+        <div class="plats-fot" id="plats-fot"></div>
+      </div>
+
+      <div class="card wide">
+        <h2><span aria-hidden="true" class="material-symbols-outlined">route</span> Enskilda besök</h2>
         <div class="hint">Varje besök för sig — vad någon faktiskt gjorde, steg för steg</div>
         <div class="urval" id="urval">
           <button data-urval="senaste" class="on">Senaste</button>
@@ -406,7 +451,7 @@
       </div>
 
       <div class="card">
-        <h2><span class="material-symbols-outlined">format_list_numbered</span> Klickad position</h2>
+        <h2><span aria-hidden="true" class="material-symbols-outlined">format_list_numbered</span> Klickad position</h2>
         <div class="hint">Vilken plats i listan klickas — 0 är översta kortet</div>
         <div class="lista" id="l-position"></div>
       </div>
@@ -414,7 +459,8 @@
   </main>
 
   <footer class="bot">
-    Helt anonym data — ingen IP, inga cookies, ingen koppling mellan besök.<br>
+    Anonym data — ingen IP sparas, inga cookies, ingen koppling mellan besök.<br>
+    Orten är ett grovt IP-uppslag och ofta fel för mobiltrafik — läs mobil och dator var för sig.<br>
     <span id="uppdaterad"></span>
   </footer>
 </div>
@@ -568,6 +614,8 @@
       return { namn: x.namn === '0' ? 'Position 1 (översta)' : 'Position ' + (parseInt(x.namn, 10) + 1), antal: x.antal };
     }));
 
+    ritaPlats(d.plats, d.plats_fel);
+
     var testInfo = '';
     if (d.testrader && (d.testrader.sokningar || d.testrader.klick)) {
       testInfo = ' · varav ' + d.testrader.sokningar + ' testsökningar och ' +
@@ -580,6 +628,70 @@
     laddaResor();
   }
 
+  /**
+   * Platskortet.
+   *
+   * Osäkerheten MÄTS, den påstås inte. Divergensen är avståndet mellan
+   * mobilens och datorns fördelningar, räknad på egen data. Är den låg
+   * försvinner varningen av sig själv — då är siffrorna faktiskt användbara.
+   * En hårdkodad etikett "mobil är opålitlig" hade sagt samma sak varje dag
+   * oavsett verkligheten och därför ignorerats inom en vecka.
+   */
+  function ritaPlats(p, fel) {
+    var notis = $('plats-notis');
+
+    if (fel || !p) {
+      lista('l-plats-dator', [], false, fel ? 'Kunde inte hämta platsdata' : 'Ingen data än');
+      lista('l-plats-mobil', [], false, 'Ingen data än');
+      $('plats-n-dator').textContent = '';
+      $('plats-n-mobil').textContent = '';
+      $('plats-fot').textContent = fel ? String(fel) : '';
+      notis.hidden = true;
+      return;
+    }
+
+    $('plats-n-dator').textContent = '· ' + p.dator.besok + ' besök';
+    $('plats-n-mobil').textContent = '· ' + p.mobil.besok + ' besök';
+    lista('l-plats-dator', p.dator.topplista, false, 'Ingen data än');
+    lista('l-plats-mobil', p.mobil.topplista, false, 'Ingen data än');
+
+    /* Divergensen i ord. Trösklarna är trubbiga med flit — poängen är att
+       säga vilken kolumn som går att lita på, inte att redovisa ett mått. */
+    var d = p.divergens_procent;
+    if (p.for_lite_data || d === null) {
+      notis.className = 'notis lugn';
+      notis.textContent = 'För lite data för att jämföra mobil och dator ännu. ' +
+        'Det krävs minst 50 besök i vardera gruppen.';
+    } else if (d > 35) {
+      notis.className = 'notis varnar';
+      notis.innerHTML = '<strong>Mobilens fördelning är kraftigt förskjuten (' + d + '%).</strong> ' +
+        'Det är sannolikt operatörernas nätnoder och inte var besökarna bor — ' +
+        'svensk mobiltrafik dirigeras genom ett fåtal noder, mest i Stockholmsregionen. ' +
+        'Läs datorkolumnen; läs inte mobilkolumnen som geografi.';
+    } else if (d > 15) {
+      notis.className = 'notis varnar';
+      notis.innerHTML = '<strong>Mobilens fördelning skiljer sig märkbart (' + d + '%).</strong> ' +
+        'En del av skillnaden är sannolikt operatörernas nätnoder. Datorkolumnen är den säkrare.';
+    } else {
+      notis.className = 'notis lugn';
+      notis.innerHTML = '<strong>Mobil och dator ger ungefär samma bild (' + d + '%).</strong> ' +
+        'Ortsuppgifterna verkar spegla verkliga besökare.';
+    }
+    notis.hidden = false;
+
+    var fot = [];
+    if (p.saknas_procent > 0) {
+      fot.push(p.saknas_procent + '% av besöken saknar ort — de lämnade innan uppslaget hann klart. ' +
+        'De besöken är systematiskt kortare än snittet, så ortsfördelningen lutar mot långsammare besök.');
+    }
+    if (p.varierade_procent > 0) {
+      fot.push(p.varierade_procent + '% av besöken bytte län mitt i besöket — det är nätnodsbyten, inte flyttar.');
+    }
+    fot.push('Orter med färre än ' + p.k_troskel + ' besök redovisas som "Övrigt".');
+    fot.push('Orten visas aldrig på en enskild besöksresa, bara i sammanräkningen här.');
+    $('plats-fot').textContent = fot.join(' ');
+  }
+
   function kpi(label, value, sub, amber) {
     return '<div class="kpi' + (amber ? ' amber' : '') + '">' +
       '<div class="label">' + label + '</div>' +
@@ -590,7 +702,7 @@
   function lista(id, rader, varning, tomText) {
     var el = $(id);
     if (!rader || !rader.length) {
-      el.innerHTML = '<div class="tom"><span class="material-symbols-outlined">' +
+      el.innerHTML = '<div class="tom"><span aria-hidden="true" class="material-symbols-outlined">' +
         (varning ? 'check_circle' : 'inbox') + '</span>' + (tomText || 'Ingen data än') + '</div>';
       return;
     }
@@ -628,7 +740,7 @@
       m.style.paddingTop = '60px';
       p.appendChild(m);
     }
-    m.innerHTML = '<span class="material-symbols-outlined">bar_chart</span>' + (text || 'Ingen data än');
+    m.innerHTML = '<span aria-hidden="true" class="material-symbols-outlined">bar_chart</span>' + (text || 'Ingen data än');
     m.style.display = '';
     return true;
   }
@@ -798,7 +910,7 @@
     $('tidslinje').innerHTML = '';
     var rader = (d && d.resor) || [];
     if (!rader.length) {
-      el.innerHTML = '<div class="tom"><span class="material-symbols-outlined">inbox</span>' +
+      el.innerHTML = '<div class="tom"><span aria-hidden="true" class="material-symbols-outlined">inbox</span>' +
         'Inga besök matchar det här urvalet' +
         (!visaTest ? ' — testdata är dold, prova kolven i toppraden' : '') + '</div>';
       return;
