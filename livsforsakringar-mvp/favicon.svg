@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Stam ("L") -->
-  <path d="M16,92 L16,16.4 A8.4,8.4 0 0 1 32.8,16.4 L32.8,92 Z" fill="#0C3E40"/>
+  <!-- Stam ("L"), sajtens brand-teal -->
+  <path d="M16,92 L16,16.4 A8.4,8.4 0 0 1 32.8,16.4 L32.8,92 Z" fill="#0D7377"/>
   <!-- Fot ("L") -->
-  <rect x="16" y="72.8" width="66.3" height="19.2" rx="9.6" fill="#0C3E40"/>
-  <!-- Ring -->
-  <path d="M34.21,50.66 A25.25,25.25 0 0 1 79.28,42.72 L71.50,48.17 A15.75,15.75 0 0 0 43.39,53.12 Z" fill="#22B2AA"/>
-  <!-- Prick -->
-  <circle cx="57.9" cy="58.7" r="11.8" fill="#F5A623"/>
+  <rect x="16" y="72.8" width="66.3" height="19.2" rx="9.6" fill="#0D7377"/>
+  <!-- Ring, sajtens brand-teal-light -->
+  <path d="M34.21,50.66 A25.25,25.25 0 0 1 79.28,42.72 L71.50,48.17 A15.75,15.75 0 0 0 43.39,53.12 Z" fill="#14A0A5"/>
+  <!-- Prick, sajtens brand-amber -->
+  <circle cx="57.9" cy="58.7" r="11.8" fill="#E8A838"/>
 </svg>
